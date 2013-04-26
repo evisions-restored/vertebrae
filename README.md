@@ -110,7 +110,7 @@ var MyController = EVIController.extend({
     this.setView(new MyView());
   },
   viewIsReady: function() {
-    //i can do logic or make an API call since my view is all setup
+    //i can render my view or make an API call since my view is all setup
   }
 });
 ```
@@ -155,7 +155,7 @@ Lets face it.  Users are stupid.  Input ALWAYS needs some form of validation.  E
 var emptyValidator = function() {
   return value ? true : 'This field cannot be empty' ;
 };
-
+//validation logic goes in the controller
 var MyValidationController = EVIController.extend({
   validators: {
     validationProperty: [emptyValidator, 'instanceValidationMethod']
@@ -165,15 +165,65 @@ var MyValidationController = EVIController.extend({
     return true;
   }
 });
-
-var MyModel = EVIObject.extend({
+//MyObject needs to be validated
+var MyObject = EVIObject.extend({
   properties: ['validationProperty']
 });
 
 var myValidationController = new MyValidationController();
-var myModel = new MyModel();
+var myObject = new MyObject();
 
-if (myValidationController.validate(myModel)) {
+if (myValidationController.validate(myObject)) {
   //i am valid!!!
 }
+```
+
+## EVIView
+
+The view is the magic piece that glues a controller to the DOM and user interaction.  It extends off of Backbone.View and includes mixins from EVIObject.
+
+#### Delegate
+
+One of the core ideologies that separates EVIView from Backbone.View is the use of a delegate.  A view should not have application logic it in.
+A view's only logic should be to figure out how to render what it needs to render. The retrieval and processing of that data should be handled by the delegate.
+Typically the delegate will be a controller.
+
+```javascript
+//create my custom View
+var MyView = EVIView.extend({
+  render: function() {
+    //views should get data from their delegate
+    var data = this.getDelegate().getViewProperties();
+  }
+});
+//create my custom Controller that will be the delegate
+var Delegate = EVIController.extend({
+  setupView: function() {
+    this.setView(new MyView());
+  },
+  getViewProperties: function() {
+    //do application logic here
+    return {};
+  }
+});
+
+var delegate = new Delegate();
+//setupViewProperties will automatically set the delegate
+delegate.setupViewProperties(document.getElementById('main'));
+```
+
+#### Templates
+
+All web apps need templates of some sort.  EVIView makes rendering templates extremely easy and also allows you to clearly see what templates a view is using.
+
+```javascript
+var MyView = EVIView.extend({
+  templates: {
+    'my_template': 'renderTemplateFragment'
+  },
+  render: function() {
+    var data = this.getDelegate().getViewProperties();
+    this.$el.html(this.renderTemplateFragment(data));
+  }
+});
 ```
