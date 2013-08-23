@@ -1,0 +1,11 @@
+{{#if footText}}
+  {{footerText footText}}
+{{/if}}
+
+{{#if buttons}}
+  {{#each buttons}}
+    {{button this}}
+  {{/each}}
+{{else}}
+  {{cancelButton}}
+{{/if}}

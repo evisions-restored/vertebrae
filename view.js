@@ -1,120 +1,289 @@
 define(['backbone', 'handlebars.runtime', 'evisions/object', 'evisions/helper'], function(Backbone, handlebars, EVIObject, helper) {
-  handlebars = handlebars || window.Handlebars;
+  
+  var handlebars = handlebars || window.Handlebars;
 
-  var EVIView = Backbone.View.extend({
+  /**
+   * Helper class for the project views.
+   * 
+   * @name EVIView
+   * 
+   * @class EVIView
+   * 
+   * @memberOf Evisions
+   */
+  var EVIViewTemp = Backbone.View.extend(/** @lends  Evisions.EVIView */{
 
     initialize: function() {
+      // Binding the view object(this) to the functions defined inside the view.
+      // This is getting after the prototype functionality.
       EVI.Helper.bindAll(this);
+
+      // Creating a temporary variable to hold the original initialization function.
+      var oldInit = this.initialize;
+
+      // Temporarily setting the initialize function to null.
+      this.initialize = null;
+
+      // Calling the constructor of the EVIObject to handle proper inheritence.
+      EVIObject.call(this);
+
+      // Setting the object's initialize function back to the original initialize function.
+      this.initialize = oldInit;
     },
 
     /**
-     * Sets the delegate for a view.  The delegate is typically a controller but is supposed to be whatevers gives the view its data.
-     * @param {Object} delegate The delegate for this view
+     * Destroying the view object.
+     * 
+     * @function
+     * 
+     * @instance 
      */
-    setDelegate: function(delegate) {
-      this.delegate = delegate;
-      return this;
+    destroy: function() {
+      this._super.apply(this, arguments);
+      
+      // Removing the events from the element/view.
+      this.undelegateEvents();
+      
+      // Destroying the element of the view.
+      this.$el.empty();
+      this.$el = null;
+      this.el = null;
     },
 
     /**
-     * Returns the current delegate
-     * @return {[type]} [description]
+     * Returns the delegate of the view.
+     * 
+     * @function
+     * 
+     * @instance
+     * 
+     * @return {Object}
      */
     getDelegate: function() {
       return this.delegate;
     },
 
     /**
-     * When the delegate for a view as been set, this is called so that the view can bind to property change events and do any necessary logic accordingly
+     * Returns the Data of an Element
      * 
-     * @return {None} 
+     * @function
+     * 
+     * @instance
+     * 
+     * @param {Object} el DOM object of the data we would like to return.
+     * 
+     * @return {String} 
      */
-    watchDelegateProperties: function() {
-      
-    },
-
-    renderFragment: function(template, datum, attach) {
-      var frag = $(document.createDocumentFragment()),
-          div = document.createElement('div'),
-          i = 0;
-      frag.append(this.handlebars(template, datum));
-      if (attach) {
-        helper.datum(frag.children().get(0), datum);
-      }
-      return frag;
-    },
-
-
-    renderFragments: function(template, data, attach) {
-      var frag = $(document.createDocumentFragment()),
-          fragItem = null,
-          i = 0;
-      for (i = 0; i < data.length; ++i) {
-        fragItem = $(this.handlebars(template, data[i]));
-        if (attach) {
-          helper.datum(fragItem.get(0), data[i]);
-          fragItem.addClass('__data__');
-        }
-        frag.append(fragItem);
-      }
-      return frag;
-    },
-
     getElementDatum: function(el) {
       return helper.datum($(el).closest('.__data__').get(0));
     },
 
-    handlebars: function(name, obj) {
-      var output = handlebars.templates[name];
+    /**
+     * Rendering a handlebars templates.
+     * 
+     * @function
+     * 
+     * @instance
+     * 
+     * @param {String} templateName String name of the handlebars template.
+     * @param {Object} templateData Data to the passed and rendered into the handlebars template.
+     * 
+     * @return {String}
+     */
+    handlebars: function(templateName, templateData) {
+      var output = handlebars.templates[templateName];
+      
       if (output) {
-        return output(obj || {});
+        return output(templateData || {});
       } else {
         return '';
       }
     },
-    
+
     /**
-     * Return the template string by the given name and 
+     * Takes the handlebars output and converts it to a document fragment.
      * 
-     * @param  {[type]} name [description]
-     * @param  {[type]} obj  [description]
+     * @function
      * 
-     * @return {[type]}      [description]
+     * @instance
+     * 
+     * @param {String} template String name of the handlebars template.
+     * @param {Object} datum Data that we are binding to the handlebars template.
+     * @param {Bool} attach Do we want to attach this fragment to the newly created DOM?
+     * 
+     * @return {Object} 
+     */
+    renderFragment: function(template, datum, attach) {
+      var frag  = $(document.createDocumentFragment()),
+          div   = document.createElement('div');
+          
+      frag.append(this.handlebars(template, datum));
+      
+      if (attach) {
+        helper.datum(frag.children().get(0), datum);
+      }
+      
+      return frag;
+    },
+
+    /**
+     * Takes the handles bars output and converts it to multiple document fragments.
+     * 
+     * @function
+     * 
+     * @instance
+     * 
+     * @param {String} template String name of the handlebars template.
+     * @param {Array} data Array of data that we are binding to the handlebars template.
+     * @param {Bool} attach Do we want to attach these fragments to the newly created DOM?
+     * 
+     * @return {Array}
+     */
+    renderFragments: function(template, data, attach) {
+      var frag      = $(document.createDocumentFragment()),
+          fragItem  = null,
+          i         = 0;
+          
+      for (i = 0; i < data.length; ++i) {
+        fragItem = $(this.handlebars(template, data[i]));
+        
+        if (attach) {
+          helper.datum(fragItem.get(0), data[i]);
+          fragItem.addClass('__data__');
+        }
+        
+        frag.append(fragItem);
+      }
+      
+      return frag;
+    },
+
+    /**
+     * Sets the delegate for a view. 
+     * The delegate is typically a controller but is supposed to be whatevers gives the view its data.
+     * 
+     * @function
+     * 
+     * @instance
+     * 
+     * @param {Object} delegate The delegate for this view.
+     * 
+     * @return {Object}
+     */
+    setDelegate: function(delegate) {
+      this.delegate = delegate;
+      
+      return this;
+    },
+
+    /**
+     * Return the template string by the given name.
+     * 
+     * @function
+     * 
+     * @instance
+     * 
+     * @param {String} name Name of the handlebars template.
+     * @param {Object|Array} obj Data to be passed to the DOM fragments/template.
+     * @param {Bool} attach Should we attach the rendered data to the DOM?
+     * 
+     * @return {String}
      */
     template: function(name, obj, attach) {
       if (!_.isString(name)) {
         obj = name;
         name = this.templateName;
       }
+      
       if (_.isArray(obj)) {
         return this.renderFragments(name, obj, attach);
       } else {
         return this.renderFragment(name, obj, attach);
       }
-    }
-  },
-  {
-    setup: function(element, delegate) {
-      if (element instanceof $) {
-        element = element.get(0);
+    },
+
+    /**
+     * Unloading the content of an elementing and calling the passed callback if it is a function.
+     * 
+     * @function
+     * 
+     * @instance
+     * 
+     * @param {Function} cb Callback function to execute after the element is unloaded. 
+     */
+    unload: function(cb) {
+      this.$el.empty();
+      
+      if (_.isFunction(cb)) {
+        cb();
       }
-      var view = new this({ el: element });
-      view.setDelegate(delegate);
-      return view;
-    }
+    },
+    
+    /**
+     * When the delegate for a view as been set, this is called so that the view can bind to property change events and do any necessary logic accordingly.
+     * 
+     * @function
+     * 
+     * @instance
+     */
+    watchDelegateProperties: function() { }
+
   });
 
+
+  var EVIView = EVIObject.extend(EVIViewTemp.prototype);
+
+  /**
+   * Basic setup of the view object.
+   * 
+   * @todo Is this method even used anymore?
+   * 
+   * @memberOf EVIView
+   * 
+   * @function
+   * 
+   * @param {Object} element The element we are doing the setup on.
+   * @param {Object} delegate The controller for the view.
+   * 
+   * @return {Object}
+   */
+  EVIView.setup = function(element, delegate) {
+    if (element instanceof $) {
+      element = element.get(0);
+    }
+    
+    var view = new this({ el: element });
+    
+    view.setDelegate(delegate);
+    view.watchDelegateProperties();
+    
+    return view;
+  };
+
+  /**
+   * Extending the view object by mapping handlebar functions to instance functions that are usable inside the view.
+   * 
+   * @memberOf EVIView
+   * 
+   * @function
+   * 
+   * @param {Object} proto Default proto value when extending a view.
+   * 
+   * @return {Object}
+   */
   EVIView.extend = function(proto) {
     if (_.isObject(proto.events) && !proto.overrideEvents) {
       if (_.isObject(this.prototype.events)) {
         proto.events = _.extend({}, this.prototype.events, proto.events);
       }
-    };
-    //create "magic" template functions
+    }
+
+    // Mapping the handlebar function(s) to the view.
     if (_.isObject(proto.templates)) {
       if (_.isObject(this.prototype.templates)) {
         proto.templates = _.extend({}, this.prototype.templates, proto.templates);
       }
+      
       _.each(proto.templates, function(fnName, templateName) {
         if (!_.isFunction(proto[fnName])) {
           proto[fnName] = function(data, attach) {
@@ -123,10 +292,10 @@ define(['backbone', 'handlebars.runtime', 'evisions/object', 'evisions/helper'],
         }
       });
     }
+    
     return EVIObject.extend.apply(this, arguments);
   };
 
-  _.extend(EVIView.prototype, EVIObject.prototype);
-
   return EVIView;
+  
 });

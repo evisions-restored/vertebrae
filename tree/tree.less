@@ -1,0 +1,240 @@
+.argosWebTreeView {
+  @highlightColor: #eee;
+  @selectedColor: @primaryColor;
+  @textColor: black;
+  // @textColor: #999;
+  @selectedTextColor: #111;
+
+  .node {
+    padding: 5px 8px;
+    padding-right: 0px; 
+    padding-top: 2px;
+    padding-bottom: 0px;
+    .nodeData {
+      white-space: nowrap;
+      input {
+        margin-bottom: 0;
+      }
+      .no-touch &:hover {
+        .controls {
+          .control {
+            display: inline-block;
+          }
+        }
+      }
+      .highlight {
+        color: @textColor;
+        &.padding {
+          // padding: 0px 16px;
+          // padding-left: 0;
+          // border-bottom: 4px solid transparent;
+        }
+        &.rounded {
+          .border-radius(4px);
+        }
+      }
+    }
+
+    .controls {
+      margin-left: 5px;
+      display: inline-block;
+      .control {
+        cursor: pointer;
+        display: none;
+      }
+    }
+
+    .nodeContainer {
+      display: inline-block;
+      padding: 5px 8px;
+      padding-left: 22px;
+      border-radius: 4px;
+      -webkit-border-radius: 4px;
+      cursor: default;
+
+      .name {
+        padding: 5px 8px;
+        border-radius: 4px;
+        -webkit-border-radius: 4px;
+      }
+
+      .padding {
+        padding: 5px 8px;
+      }
+
+    }
+
+    .gridLine {
+      display: inline-block;
+      width: 1px;
+      height: 36px;
+      border-left: 1px solid black;
+      margin-left: -5px;
+      float: left;
+      &.dotted {
+        height: 35px;
+        border-left: 1px dotted black;
+      }
+    }
+
+    .gridLineHorizontal {
+      width: 5px;
+      height: 16px;
+      float: left;
+      margin-left: -3px;
+      border-bottom: 1px solid black;
+      &.dotted {
+        border-bottom: 1px dotted black;
+      }
+    }
+
+    &.first {
+      > .nodeData {
+        .gridLine {
+          &.dotted {
+
+          }
+        }
+        .gridLineHorizontal {
+
+        }
+      }
+    }
+
+    &.last {
+      > .nodeData {
+        .gridLine {
+          height: 18px!important;
+          &.dotted {
+            height: 17px!important;
+          }
+        }
+        .gridLineHorizontal {
+          // height: 15px;
+        }
+      }
+    }
+
+    &.expanded {
+      > .nodeData .nodeExpand {
+        i {
+          background-position: -313px -119px;
+        }
+      }
+
+      > .nodeChildren {
+        display: block;
+      }
+    }
+
+    > .nodeChildren {
+      > .node {
+        padding-left: 18px;
+      }
+    }
+
+    .nodeChildren {
+      display: none;
+    }
+
+    &.root {
+      padding: 0;
+      > .nodeChildren {
+        display: block;
+        > .node {
+          padding-left: 35px;
+        }
+      }
+      > .nodeData {
+        .gridLine {
+          display: none;
+        }
+        .gridLineHorizontal {
+          display: none;
+        }
+        .nodeContainer {
+          padding-left: 8px;
+        }
+      }
+    }
+
+    .nodeExpand {
+      display: none;
+      padding: 4px;
+      border-radius: 14px;
+      -webkit-border-radius: 14px;
+      cursor: pointer;
+      margin-left: 1px;
+      margin-right: -5px;
+      float: left;
+      margin-top: 2px;
+    }
+
+    &.selectable {
+      &.selected {
+        > .nodeData .nodeContainer {
+          &:hover {
+            .highlight {
+              background: #222;
+            }
+          }
+        }
+      }
+      &:not(.selected) {
+        > .nodeData .nodeContainer {
+          &:hover {
+            .highlight {
+              background: #f5f5f5;
+              // background: @highlightColor;
+              // border-bottom: 1px solid @selectedColor;
+              // padding-bottom: 3px;
+            }
+          }
+        }
+      }
+    }
+    &.selected {
+      > .nodeData {
+        .highlight {
+          background: #444;
+          color: white;
+          // color: @selectedTextColor;
+          // border-bottom: 4px solid @selectedColor;
+          // background: @selectedColor;
+          // color: white;
+        }
+      }
+    }
+
+    &.expandable {
+      > .nodeData {
+        .nodeExpand {
+          display: inline-block;
+        }
+        .nodeContainer {
+          padding-left: 8px;
+        }
+      }
+    }
+
+    &.dropHover {
+      > .nodeData .nodeContainer .highlight {
+        background: #333;
+        color: white;
+      }
+    }
+
+  }
+}
+
+.argosTreeViewDragGhost {
+  display: inline-block;
+  white-space: nowrap;
+  border-radius: 4px;
+  -webkit-border-radius: 4px;
+  background: #eee;
+  padding: 5px 8px;
+  color: black;
+  z-index: 1800!important;
+  position: fixed;
+}

@@ -1,0 +1,371 @@
+.modal {
+  position: absolute!important;
+}
+.clear {
+  clear: both;
+}
+
+i.icon-lines {
+  background-image: url(../images/icons/glyphicons_158_show_lines@2x.png);
+  background-position: 0;
+  background-size: 16.8px 10.5px;
+  width: 16.8px;
+  height: 10.5px;
+  margin-top: 2px;
+  &.icon-white {
+    background-image: url(../images/icons/glyphicons_158_show_lines_white@2x.png);
+    background-size: 16.8px 10.5px;
+  }
+}
+
+i.icon-block {
+  background-image: url(../images/icons/DataBlock.png);
+  background-position: 0;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.connectionMenuItem {
+  .spacer {
+    display:inline-block;
+    float: left;
+    height: 1px;
+  }
+  .itemIcon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 3px;
+    background-repeat: no-repeat;
+    position: relative;
+    float: left;
+  }
+  .poolIcon {
+    background-image: url(../images/icons/Pool.png);
+  }
+  .connectionIcon {
+    background-image: url(../images/icons/Connection.png);
+  }
+}
+
+
+/**
+ * Caret styling for use throughout Evisions web apps
+ */
+.baseCaret() {
+  content: '';
+  position: absolute;
+  display: inline-block;
+  clear: both;
+}
+.baseCaretTop(@size: 6px, @color: #fff) {
+  .baseCaret;
+  top: -@size;
+  border-bottom: @size solid @color;
+  border-left: @size solid transparent;
+  border-right: @size solid transparent;
+}
+.baseCaretBottom(@size: 6px, @color: #fff) {
+  .baseCaret;
+  bottom: -@size;
+  border-top: @size solid @color;
+  border-left: @size solid transparent;
+  border-right: @size solid transparent;
+}
+.baseCaretLeft(@size: 6px, @color: #fff) {
+  .baseCaret;
+  left: -@size;
+  border-right: @size solid @color;
+  border-top: @size solid transparent;
+  border-bottom: @size solid transparent;
+}
+.baseCaretRight(@size: 6px, @color: #fff) {
+  .baseCaret;
+  right: -@size;
+  border-left: @size solid @color;
+  border-top: @size solid transparent;
+  border-bottom: @size solid transparent;
+}
+.caretTop(@color: #fff, @color2: #ccc, @size: 6px) {
+  &:after {
+    .baseCaretTop(@size, @color);
+    left: 50%;
+    margin-left: -(@size/2);
+  }
+  &:before {
+    .baseCaretTop(@size + 1px, @color2);
+    left: 50%;
+    margin-left: -((@size+1px)/2);
+  }
+}
+.caretTopLeft(@color: #fff, @color2: #ccc, @size: 6px) {
+  &:after {
+    .baseCaretTop(@size, @color);
+    left: 10px;
+  }
+  &:before {
+    .baseCaretTop(@size + 1px, @color2);
+    left: 9px;
+  }
+}
+.caretTopRight(@color: #fff, @color2: #ccc, @size: 6px) {
+  &:after {
+    .baseCaretTop(@size, @color);
+    right: 10px;
+  }
+  &:before {
+    .baseCaretTop(@size + 1px, @color2);
+    right: 9px;
+  }
+}
+
+.caretBottomLeft(@color: #fff, @color2: #ccc, @size: 6px) {
+  &:after {
+    .baseCaretBottom(@size, @color);
+    left: 10px;
+  }
+  &:before {
+    .baseCaretBottom(@size + 1px, @color2);
+    left: 9px;
+  }
+}
+
+.caretBottomRight(@color: #fff, @color2: #ccc, @size: 6px) {
+  &:after {
+    .baseCaretBottom(@size, @color);
+    right: 10px;
+  }
+  &:before {
+    .baseCaretBottom(@size + 1px, @color2);
+    right: 9px;
+  }
+}
+
+.caretLeft(@color: #fff, @color2: #ccc, @size: 6px) {
+  &:after {
+    .baseCaretLeft(@size, @color);
+    top: 50%;
+    margin-top: -(@size/2);;
+  }
+  &:before {
+    .baseCaretLeft(@size, @color);
+    top: 50%;
+    margin-top: -((@size+1px)/2);
+  }
+}
+.caretRight(@color: #fff, @color2: #ccc, @size: 6px) {
+  &:after {
+    .baseCaretLeft(@size, @color);
+    top: 50%;
+    margin-top: -(@size/2);;
+  }
+  &:before {
+    .baseCaretLeft(@size, @color);
+    top: 50%;
+    margin-top: -((@size+1px)/2);
+  }
+}
+
+/**
+ * Evisions dropdown styling
+ */
+.evi-dropdown {
+  position: absolute;
+  z-index: 10000;
+  border: 1px solid #aaa;
+  background-color: white;
+  .border-radius(5px);
+  -webkit-box-shadow:  1px 1px 3px 0px rgba(0, 0, 0, 0.4);
+  box-shadow:  1px 1px 3px 0px rgba(0, 0, 0, 0.4);
+  max-width: 300px;
+  &.topLeft {
+    .caretTopLeft;
+  }
+  &.topRight {
+    .caretTopRight;
+  }
+  &.bottomLeft {
+    .caretBottomLeft;
+  }
+  &.bottomRight {
+    .caretBottomRight;
+  }
+  ul 
+  {
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 0px;
+    margin-right: 0px;
+    overflow-y: auto;
+    max-height: 400px;
+    overflow-x: hidden;
+    li {
+      overflow-x: hidden;
+      text-overflow: ellipsis;
+      padding-top: 2px;
+      padding-bottom: 2px;
+      padding-right: 10px;
+      padding-left: 10px;
+      cursor: pointer;
+      i {
+        margin-top: 0px;
+      }
+      white-space: nowrap;
+      &:hover {
+        background-color: @primaryColor;
+        color: white;
+        i {
+          .icon-white;
+        }
+      }
+      &.divider {
+        margin-top: 4px;
+        margin-bottom: 4px;
+      }
+    }
+    
+  }
+}
+/**
+ * Evisions attribute and link styles
+ */
+.attributeGroup {
+  // margin-bottom: 15px;
+  cursor: default;
+  &.last {
+    margin-bottom: 0px;
+  }
+  .field {
+    .muted;
+    // font-weight: bold;
+    font-size: 14px;
+    // margin: 10px 0px;
+    // margin-bottom: 5px;
+    margin-top: 6px;
+    line-height: normal;
+    color: black;
+    // &.title {
+    //   color: @primaryColor;
+    // }
+  }
+  .value {
+    &.actionGroup {
+      line-height: normal;
+    }
+    select {
+      margin-bottom: 0;
+      // width: 95%;
+      // .muted;
+    }
+    input {
+      // .resetInputStyles;
+      // border: 1px solid transparent;
+      // border-bottom: 1px solid @primaryColor;
+      // margin-bottom: 0;
+      // width: 95%;
+      // &:focus {
+      //   border: 1px solid #ccc;
+      // }
+      // .muted;
+    }
+    .muted;
+    // margin-left: 20px;
+    line-height: 25px;
+  }
+}
+
+.actionGroup {
+  margin-top: 0px;
+  border-bottom: 1px solid @primaryColor;
+  margin-bottom: 15px;
+  cursor: default;
+  .action {
+    .muted;
+    padding: 5px 10px;
+    display: inline-block;
+    cursor: pointer;
+    border-bottom: 4px solid transparent;
+    .hover_effect() {
+      color: @primaryColor;
+      border-bottom: 4px solid @primaryColor;
+      &.caution {
+        border-bottom: 4px solid @cautionColor;
+      }
+      &.success {
+        border-bottom: 4px solid @successColor;
+      }
+    }
+    .no-touch &:hover {
+      .hover_effect;
+    }
+    .yes-touch &:active {
+      .hover_effect;
+    }
+    &.active {
+      color: @primaryColor;
+      border-bottom: 4px solid @primaryColor;
+    }
+    &.caution {
+      color: @cautionColor;
+    }
+    &.success {
+      color: @successColor;
+    }
+  }
+  &.tab {
+    .action:not(.active) {
+      &:hover {
+        border-bottom: 4px solid transparent;
+      }
+    }
+  }
+}
+
+.resetInputStyles() {
+  .box-shadow(0 0 0) !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  outline: 0;
+  &:focus {
+    cursor: text;
+    .box-shadow(0 0 0) !important;
+    outline: 0;
+  }
+}
+
+.scoreBarContainer {
+  width: 100px;
+  height: 25px;
+  display: block;
+  .scoreBarBackground {
+    background: url('../images/modal/bg_strength_gradient.jpg') repeat-y;  
+    position: absolute;
+    display: block;
+    width: 100px;
+    height: 25px;
+    text-align: center;
+    text-shadow: 0px 0px 2px #ffffff;
+    font: bold 10pt Arial, Helvetica, sans-serif;
+    color: #000000;
+    .border-radius(4px);
+    border: 1px solid black;
+  }
+  .scoreBarScore {
+    position: absolute;
+    width: 100px;
+    z-index: 10000;
+    text-align: center;
+    line-height: 25px;
+    height: 25px;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #000000;
+    font-weight: bold;
+  }
+}
+
+@import './evigrid/evigrid.less';

@@ -1,0 +1,30 @@
+<div class="controlContainer">
+	<div class="multicolumnControl">
+		<div class="headerContainer">
+			{{#each Headers}}
+				<div class="column {{#unless Visible}}hidden{{/unless}}" colIndex="{{@index}}" title="{{Description}}" style="width:{{Width}}px">
+					<div class="icon-sortingIcon"></div>
+					<span>
+						{{#if DisplayName}}
+							{{DisplayName}}
+						{{else}}
+							{{Name}}
+						{{/if}}
+					</span>
+
+				</div>
+				<div colIndex="{{@index}}" class="grabber {{#unless Visible}}hidden{{/unless}}">
+					<div></div>
+				</div>
+			{{/each}}
+			<div class="clear"></div>
+		</div>
+		<div class="rowContainer">
+			<div class="chunk">
+			</div>
+		</div>
+	</div>
+	<div class="footerContainer">
+		<div class="text">0 items</div>
+	</div>
+</div>
