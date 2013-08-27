@@ -12,12 +12,11 @@ define([
   'jquery', 
   'underscore', 
   'bootstrap', 
-  'plugindetect', 
   'evisions/validator', 
   'evisions/viewhelpers',
   'handlebars.runtime',
   'evisions/styles'
-], function($, _, bootstrap, PluginDetect, validator, viewhelpers, handlebars) { 
+], function($, _, bootstrap, validator, viewhelpers, handlebars) { 
 
   handlebars = handlebars || window.Handlebars;
   
@@ -708,31 +707,6 @@ define([
      */
     helper.isFunction = function() {
       return _.isFunction.apply(_, arguments);
-    };
-        
-    /**
-     * Returns if java is enabled on the current browser/device
-     *
-     * @memberOf Evisions.Helper
-     * 
-     * @function
-     * 
-     * @return {Object}
-     */
-    helper.isJavaEnabled = function() {
-      var minVersion  = "1,6,0,10",
-          d           = helper.deferred();
-          
-      var done = function(info) {
-        if (info.isMinVersion('Java', minVersion) === 1) {
-          d.resolve();
-        } else {
-          d.reject();
-        }
-      };
-      PluginDetect.onDetectionDone('Java', done, 'java/getJavaInfo.jar', null);
-      
-      return d;
     };
 
     /**

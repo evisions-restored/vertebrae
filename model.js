@@ -1,4 +1,4 @@
-define(['evisions/object', 'evisions/helper', 'ajaxer'], function(EVIObject, helper) {
+define(['evisions/object', 'evisions/helper', 'evisions/ajaxer'], function(EVIObject, helper) {
   /**
    * @class
    * @memberOf Evisions
