@@ -1,6 +1,0 @@
-[submodule "test/libs/requirejs"]
-	path = test/libs/requirejs
-	url = https://github.com/jrburke/requirejs.git
-[submodule "test/libs/qunit"]
-	path = test/libs/qunit
-	url = https://github.com/jquery/qunit.git
