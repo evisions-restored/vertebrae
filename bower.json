@@ -3,9 +3,12 @@
   "version": "0.0.1",
   "homepage": "https://github.com/Evisions/vertebrae",
   "authors": [
-    "Trevor Harwell <trevor.harwell@evisions.com>"
+    "Robert Velton <robert.velton@evisions.com>",
+    "Trevor Harwell <trevor.harwell@evisions.com>",
+    "Kevin 'Harry' Dinicola <kevin.dinicola@evisions.com>",
+    "Johnny Zarate <johnny.zarate@evisions.com>"
   ],
-  "description": "Bringing object oriented design to the browser.",
+  "description": "The simplest/easiest base javascript framework for any project. So, enterprise...",
   "main": "index.js",
   "moduleType": [
     "amd"
