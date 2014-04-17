@@ -6,36 +6,35 @@
 
   <title>jQuery Test Suite</title>
 
-  <link rel="stylesheet" media="screen" href="libs/qunit/qunit.css" />
-
-  <script src="libs/jquery/jquery.js"></script>
-  <script src="libs/qunit/qunit.js"></script>
-  <script src="libs/requirejs/require.js"></script>
-
+  <link rel="stylesheet" media="screen" href="../libs/qunit/qunit/qunit.css" />
+  <script src="./requireconfig.js"></script>
+  <script src="../libs/requirejs/require.js"></script>
   <script>
-    QUnit.config.autostart = false;
-    QUnit.config.testTimeout = 2e4;
+    require(['jquery', 'qunit'], function() {
+      QUnit.config.autostart = false;
+      QUnit.config.testTimeout = 2e4;
 
-    var tests = [
-      'unit/controller.js',
-      'unit/model.js',
-      'unit/object.js',
-      'unit/view.js'
-    ];
+      var tests = [
+        'unit/controller.js',
+        'unit/model.js',
+        'unit/object.js',
+        'unit/view.js'
+      ];
 
-    (function loadDep() {
-      var dep = tests.shift();
+      (function loadDep() {
+        var dep = tests.shift();
 
-      if (dep) {
-        require([dep], loadDep);
-      } else {
-        QUnit.load();
+        if (dep) {
+          require([dep], loadDep);
+        } else {
+          QUnit.load();
 
-        jQuery.noConflict();
+          jQuery.noConflict();
 
-        QUnit.start();
-      }
-    })();
+          QUnit.start();
+        }
+      })();
+    });
   </script>
 </head>
 <body id="body">

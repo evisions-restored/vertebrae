@@ -2,11 +2,10 @@
  * @namespace Evisions
  */
 define([
+  'jquery',
   'underscore',
-  'evisions/object',
-  'evisions/helper',
-  'jquery'
-], function(_, EVIObject, helper, $) {
+  './object'
+], function($, _, EVIObject) {
 
   function setupObserves() {
     var inst = this;
@@ -62,7 +61,9 @@ define([
      */
     initialize: function(options) {
       this._unbind = [];
+
       setupObserves.call(this);
+
       this.setupView();
       this.listenToOnce(this.getView(), 'change:available', this.viewIsAvailable);
     },
@@ -187,7 +188,9 @@ define([
      * 
      * @instance
      */
-    setupView: function() {},
+    setupView: function() {
+      throw "'setupView' needs to be overridden";
+    },
 
     /**
      * Sets the element that a view delegates over and tells the view to render.
@@ -224,11 +227,9 @@ define([
     },
 
     /**
-     * Called once the view is avaiable for manipulation
+     * Called once the view is avaiable for manipulation.
      */
-    viewIsAvailable: function() {
-
-    },
+    viewIsAvailable: function() { /* Do nothing */ },
     
     /**
      * Unload the view
