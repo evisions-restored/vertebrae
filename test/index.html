@@ -9,33 +9,7 @@
   <link rel="stylesheet" media="screen" href="../libs/qunit/qunit/qunit.css" />
   <script src="./requireconfig.js"></script>
   <script src="../libs/requirejs/require.js"></script>
-  <script>
-    require(['jquery', 'qunit'], function() {
-      QUnit.config.autostart = false;
-      QUnit.config.testTimeout = 2e4;
-
-      var tests = [
-        'unit/controller.js',
-        'unit/model.js',
-        'unit/object.js',
-        'unit/view.js'
-      ];
-
-      (function loadDep() {
-        var dep = tests.shift();
-
-        if (dep) {
-          require([dep], loadDep);
-        } else {
-          QUnit.load();
-
-          jQuery.noConflict();
-
-          QUnit.start();
-        }
-      })();
-    });
-  </script>
+  <script src="./index.js"></script>
 </head>
 <body id="body">
 
