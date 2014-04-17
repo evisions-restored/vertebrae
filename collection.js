@@ -2,10 +2,11 @@
  * @namespace Evisions
  */
 define([
-  'backbone', 
+  'backbone',
+  'underscore',
   'evisions/object', 
   'evisions/helper'
-], function(Backbone, EVIObject, helper) {
+], function(Backbone, _, EVIObject, helper) {
 
   var ArrayProto = Array.prototype;
 

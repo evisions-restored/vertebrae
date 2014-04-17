@@ -8,21 +8,13 @@ lib-cov
 *.gz
 
 .svn
-authenticate
-connection.js
-email.js
-file.js
-history.js
-password.js
-server.js
-session.js
-sql.js
-tests
-tutorial
-user.js
+
 
 pids
 logs
 results
+
+libs
+node_modules
 
 npm-debug.log

@@ -353,7 +353,3 @@ define([
 
   return EVIModel;
 });
-
-window.setAjaxTimeout = function(millis) {
-  $.cookie('timeoutOverride',millis);
-}

@@ -1,0 +1,27 @@
+{
+  "name": "vertebrae",
+  "version": "0.0.1",
+  "description": "Bringing object oriented design to the browser.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Evisions/vertebrae.git"
+  },
+  "author": "",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/Evisions/vertebrae/issues"
+  },
+  "dependencies": {
+    "backbone": "1.1.2",
+    "requirejs": "2.1.11",
+    "underscore": "1.6.0",
+    "jquery": "~1.11.0"
+  }
+}

@@ -17,37 +17,6 @@ define([
    */
   var BaseObject = function() {
 
-    var that        = this,
-        properties  = this.properties,
-        i           = 0;
-
-    for (i = 0; properties && i < properties.length; i++) {
-      (function(prop){
-        var setter = function(value, silent) {
-             that.set(prop, value, silent);
-             return that;
-            },
-            getter = function() {
-              return that.get(prop);
-            },
-            cameld = BaseObject.camelCase(prop);
-
-        if (cameld.indexOf('.') > -1) {
-          // Make the name camel cased through the namespace and remove periods.
-          cameld = BaseObject.camelCaseFromNamespace(cameld);
-        }
-
-        if (!that["set" + cameld]) {
-          that["set" + cameld] = setter;
-        }
-        if (!that["get" + cameld]) {
-          that["get" + cameld] = getter;
-        }
-
-        setter(getter());
-      })(properties[i]);
-    }
-
     if (this.initialize) {
       this.initialize.apply(this, arguments);
     }
@@ -97,10 +66,50 @@ define([
   BaseObject.extend = function(proto) {
     var newProperties = [],
         oldProperties = [],
-        child;
+        i             = 0,
+        len           = 0,
+        child         = null;
 
     if (_.isArray(proto.properties)) {
       newProperties = proto.properties;
+
+      len = newProperties.length;
+
+      for (i = 0; i < len; i++) {
+        (function(prop){
+
+          var setter = function(value, silent) {
+               this.set(prop, value, silent);
+               return this;
+              },
+              getter = function() {
+                return this.get(prop);
+              },
+              cameld = BaseObject.camelCase(prop);
+
+          if (cameld.indexOf('.') > -1) {
+            // Make the name camel cased through the namespace and remove periods.
+            cameld = BaseObject.camelCaseFromNamespace(cameld);
+          }
+
+          var setterName = 'set' + cameld,
+              getterName = 'get' + cameld;
+
+          if (_.isFunction(proto[setterName])) {
+            proto[setterName] = createSuper(setter, proto[setterName]);
+          } else {
+            proto[setterName] = setter;
+          }
+
+          if (_.isFunction(proto[getterName])) {
+            proto[getterName] = createSuper(getter, proto[getterName]);
+          } else {
+            proto[getterName] = getter;
+          }
+
+        })(newProperties[i]);
+      }
+
       if (_.isArray(this.prototype.properties)) {
         oldProperties = this.prototype.properties;
       }
@@ -117,6 +126,7 @@ define([
 
     // Function placeholder for the base object initialization.
     initialize: function() {
+      
     },
 
     // Function placeholder for the base object _super.

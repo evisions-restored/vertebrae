@@ -2,8 +2,8 @@
  * @namespace Evisions
  */
 define([
-  'underscore', 
-  'evisions/object', 
+  'underscore',
+  'evisions/object',
   'evisions/helper',
   'jquery'
 ], function(_, EVIObject, helper, $) {
