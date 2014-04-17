@@ -1,4 +1,11 @@
-define(['backbone', 'evisions/object', 'evisions/helper'], function(Backbone, EVIObject, helper) {
+/**
+ * @namespace Evisions
+ */
+define([
+  'backbone', 
+  'evisions/object', 
+  'evisions/helper'
+], function(Backbone, EVIObject, helper) {
 
   var ArrayProto = Array.prototype;
 
@@ -9,21 +16,35 @@ define(['backbone', 'evisions/object', 'evisions/helper'], function(Backbone, EV
       return helper.createWithArgs(arguments.callee, arguments);
     }
 
+    
     var args = Array.apply(this, arguments);
 
+
     // Add any items to this collection.
-    ArrayProto.push.apply(this, args);
+    ArrayProto.push.apply(this, args[0]);
 
     // Add Events.
-    helper.extend(this, Backbone.Events);
-
+    _.extend(this, Backbone.Events);
+    
     EVIObject.call(this, arguments);
+    
+    this.setupInitialItems(_.toArray(args[0]));
 
     return this;
   };
 
   // Add Array-like functionality.
   helper.inherit(Collection, Array);
+
+
+  /**
+   * Passes in an array of items that are setup and the construction of the COllection
+   * 
+   * @param  {Array} items 
+   */
+  Collection.prototype.setupInitialItems = function(items) {
+
+  };
 
   /**
    * Use the push method from Array and trigger the change event if something changed.
@@ -41,6 +62,10 @@ define(['backbone', 'evisions/object', 'evisions/helper'], function(Backbone, EV
     if (newLength !== length) {
       this.trigger('change:add');
       this.trigger('change');
+    }
+
+    for (var i = 0, len = arguments.length; i < len; ++i) {
+      this.trigger('add', arguments[i]);
     }
     
     return newLength;
@@ -64,7 +89,11 @@ define(['backbone', 'evisions/object', 'evisions/helper'], function(Backbone, EV
       this.trigger('change:remove');
       this.trigger('change');
     }
-    
+
+    if (ret) {
+      this.trigger('remove', ret);
+    }
+
     return ret;
   };
 
@@ -82,6 +111,10 @@ define(['backbone', 'evisions/object', 'evisions/helper'], function(Backbone, EV
       this.trigger('change:remove');
       this.trigger('change');
     }
+
+    if (ret) {
+      this.trigger('remove', ret);
+    }
     
     return ret;
   };
@@ -94,7 +127,7 @@ define(['backbone', 'evisions/object', 'evisions/helper'], function(Backbone, EV
    * 
    * @return {Array} The spliced items.
    */
-  Collection.prototype.splice = function(index, howMany) {
+  Collection.prototype.splice = function(index, howMany, add) {
     var length    = this.length,
         ret       = ArrayProto.splice.apply(this, arguments),
         change    = false,
@@ -103,6 +136,9 @@ define(['backbone', 'evisions/object', 'evisions/helper'], function(Backbone, EV
     if (argCount > 0) {
       this.trigger('change:add');
       change = true;
+      for (var i = 0, len = add.length; i < len; ++i) {
+        this.trigger('add', add[i]);
+      }
     }
 
     if (howMany > 0 && length > 0) {
@@ -112,6 +148,12 @@ define(['backbone', 'evisions/object', 'evisions/helper'], function(Backbone, EV
 
     if (change) {
       this.trigger('change');
+    }
+
+    if (ret && ret.length) {
+      for (var i = 0, len = ret.length; i < len; ++i) {
+        this.trigger('remove', ret[i]);
+      }
     }
 
     return ret;

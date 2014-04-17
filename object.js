@@ -1,16 +1,25 @@
 /**
  * @namespace Evisions
  */
-define(['backbone', 'underscore', 'evisions/helper'], function(Backbone, _, helper) {
+define([
+  'backbone', 
+  'underscore'
+], function(Backbone, _) {
+
   /**
-   * Base Class
-   * @class
+   * Base Class for All Project Objects
+   *
+   * @name BaseObject
+   * 
+   * @class BaseObject
+   * 
    * @memberOf Evisions
    */
-  var EVIObject = function() {
-    var that = this,
-        properties = this.properties,
-        i = 0;
+  var BaseObject = function() {
+
+    var that        = this,
+        properties  = this.properties,
+        i           = 0;
 
     for (i = 0; properties && i < properties.length; i++) {
       (function(prop){
@@ -21,11 +30,11 @@ define(['backbone', 'underscore', 'evisions/helper'], function(Backbone, _, help
             getter = function() {
               return that.get(prop);
             },
-            cameld = EVI.Helper.camelCase(prop);
+            cameld = BaseObject.camelCase(prop);
 
         if (cameld.indexOf('.') > -1) {
-          //make the name cameld through the namespace and remove periods
-          cameld = helper.camelCaseFromNamespace(cameld);
+          // Make the name camel cased through the namespace and remove periods.
+          cameld = BaseObject.camelCaseFromNamespace(cameld);
         }
 
         if (!that["set" + cameld]) {
@@ -44,22 +53,24 @@ define(['backbone', 'underscore', 'evisions/helper'], function(Backbone, _, help
     }
   };
 
-  // creates a _super function for the parent function when calling the childFunction
+  // Creates a _super function for the parent function when calling the childFunction.
   function createSuper(parentFunction, childFunction) {
     return function() {
       var oldSuper = this._super;
       this._super = parentFunction;
+
       var ret = childFunction.apply(this, arguments);
       this._super = oldSuper;
+
       return ret;
     };
   };
 
-  //creates super functions by comparing parentProto to childProto
+  // Creates super functions by comparing parentProto to childProto.
   function createSuperForOverriddenFunctions(parentProto, childProto) {
     var childKeys = _.keys(childProto),
-        name = null,
-        i = 0;
+        name      = null,
+        i         = 0;
 
     for (i = 0; i < childKeys.length; ++i) {
       name = childKeys[i];
@@ -73,16 +84,17 @@ define(['backbone', 'underscore', 'evisions/helper'], function(Backbone, _, help
   };
 
   /**
-   * Create of sub-class of EVIObject
+   * Create of sub-class of BaseObject
    * 
-   * @function Evisions.EVIObject.extend
+   * @function Evisions.BaseObject.extend
+   * 
    * @static
    * 
-   * @param  {Object} proto The prototype definition
+   * @param  {Object} proto The prototype definition.
    * 
-   * @return {Function}       The subclass constructor
+   * @return {Function} The subclass constructor.
    */
-  EVIObject.extend = function(proto) {
+  BaseObject.extend = function(proto) {
     var newProperties = [],
         oldProperties = [],
         child;
@@ -101,24 +113,25 @@ define(['backbone', 'underscore', 'evisions/helper'], function(Backbone, _, help
     return child;
   };
 
-  EVIObject.prototype = /** @lends Evisions.EVIObject */ {
-  
+  BaseObject.prototype = /** @lends Evisions.BaseObject */ {
+
+    // Function placeholder for the base object initialization.
     initialize: function() {
-      //do nothing
     },
 
-    //placeholder so nothing breaks
-    _super: function() { return this; },
+    // Function placeholder for the base object _super.
+    _super: function() {
+      return this; 
+    },
 
     /**
-     * Applies an object of key/value pairs to the object using the associated setters
+     * Applies an object of key/value pairs to the object using the associated setters.
      *
      * @function
+     * 
      * @instance
      * 
      * @param  {Object} properties
-     * 
-     * @return {None}  
      */
     applyProperties: function(jsonObject) {
       var key,
@@ -126,9 +139,9 @@ define(['backbone', 'underscore', 'evisions/helper'], function(Backbone, _, help
 
       for (key in jsonObject) {
         if (key.indexOf('.') > -1) {
-          setterFn = "set" + helper.camelCaseFromNamespace(key);
+          setterFn = "set" + BaseObject.camelCaseFromNamespace(key);
         } else {
-          setterFn = "set" + helper.camelCase(key);
+          setterFn = "set" + BaseObject.camelCase(key);
         }
         if (_.isFunction(this[setterFn])) {
           this[setterFn](jsonObject[key]);
@@ -136,24 +149,25 @@ define(['backbone', 'underscore', 'evisions/helper'], function(Backbone, _, help
           this[key] = jsonObject[key];
         }
       }
+
+      return this;
     },
 
     /**
-     * Destroy an object, set its properties to null, and any events it may be listening to
-     * 
+     * Destroy an object, set its properties to null, and any events it may be listening to.
      * 
      * @function
-     * @instance
      * 
-     * @return {None}
+     * @instance
      */
     destroy: function() {
       this.destroyed = true;
       this.stopListening();
-      //clear out all the properties of an object
+      // Clear out all the properties of an object.
       if (_.isArray(this.properties)) {
-        var i = 0,
-            prop = null;
+        var i     = 0,
+            prop  = null;
+
         for (i = 0; i < this.properties.length; i++) {
           prop = this.properties[i];
           this.set(prop, null, true);
@@ -162,18 +176,19 @@ define(['backbone', 'underscore', 'evisions/helper'], function(Backbone, _, help
     },
 
     /**
-     * Sometimes you want to do more than just set an object's properties to null.  You want to destroy them as well.
+     * Sometimes you want to do more than just set an object's properties to null.
+     * You want to destroy them as well.
      * 
      * @function
-     * @instance
      * 
-     * @return {None}
+     * @instance
      */
     destroyProperties: function() {
       if (_.isArray(this.properties)) {
-        var i = 0,
-            obj = null,
-            prop = null;
+        var i     = 0,
+            obj   = null,
+            prop  = null;
+
         for (i = 0; i < this.properties.length; i++) {
           prop = this.properties[i];
           obj = this.get(prop);
@@ -184,20 +199,20 @@ define(['backbone', 'underscore', 'evisions/helper'], function(Backbone, _, help
       }
     },
 
-
     /**
-     * Get the vlue for an object's property
-
+     * Get the vlue for an object's property.
+     * 
      * @function
+     * 
      * @instance
      * 
      * @param  {String} key The property name you want to get
      * 
-     * @return {Any}   The property value
+     * @return {Object} The property value
      */
     get: function(k) {
       if (k.indexOf('.') > -1) {
-        return helper.getPropertyByNamespace(this, k);
+        return BaseObject.getPropertyByNamespace(this, k);
       } else {
         return this[k];
       }
@@ -207,20 +222,22 @@ define(['backbone', 'underscore', 'evisions/helper'], function(Backbone, _, help
      * Gets all the properties as an object
      *
      * @function
+     * 
      * @instance
      * 
      * @return {Object}
      */
     getProperties: function() {
-      var obj = {},
-          properties = this.properties || [],
-          i = 0,
-          getter = null,
-          value = null,
-          prop = null;
+      var obj         = {},
+          properties  = this.properties || [],
+          i           = 0,
+          getter      = null,
+          value       = null,
+          prop        = null;
+
       for (i = 0; i < properties.length; ++i) {
         prop = properties[i];
-        getter = this['get' + helper.camelCase(prop)];
+        getter = this['get' + BaseObject.camelCase(prop)];
         if (getter) {
           value = getter.call(this);
         } else {
@@ -230,37 +247,39 @@ define(['backbone', 'underscore', 'evisions/helper'], function(Backbone, _, help
           obj[prop] = value;
         }
       }
+
       return obj;
     },
 
     /**
-     * Set the value for an object's property
+     * Set the value for an object's property.
      * 
      * @function
+     * 
      * @instance
      * 
-     * @param  {String} key      The key to store the valu ein
-     * @param  {Any} value      The value you want to store
-     * @param  {Boolean} silent If true the change event will not fire
-     * 
-     * @return {None}        
+     * @param  {String} key The key to store the value in.
+     * @param  {Any} value The value you want to store.
+     * @param  {Boolean} silent If true the change event will not fire.
      */
     set: function(k, v, silent) {
       var isNamespacedKey = k.indexOf('.') > -1,
-          oldValue = isNamespacedKey ? helper.getPropertyByNamespace(this,k) : this[k],
-          trigger = oldValue != v && !silent,
-          that = this;
+          oldValue        = isNamespacedKey ? BaseObject.getPropertyByNamespace(this,k) : this[k],
+          trigger         = oldValue != v && !silent,
+          that            = this;
+
       if (isNamespacedKey) {
-        helper.setPropertyByNamespace(this,k,v);
+        BaseObject.setPropertyByNamespace(this,k,v);
       } else {
         this[k] = v;
       }
       if (trigger) {
         this.trigger('change:' + k, this);
-        //clear the change timeout if we are setting something else
+        // Clear the change timeout if we are setting something else.
         clearTimeout(this._changeTimeout);
-        //there may be multiple changes in a single event loop
-        //defer the change trigger so that all changes are pushed as one
+
+        // There may be multiple changes in a single event loop.
+        // Defer the change trigger so that all changes are pushed as one.
         this._changeTimeout = setTimeout(function() {
           that.trigger('change');
         }, 0);
@@ -269,7 +288,113 @@ define(['backbone', 'underscore', 'evisions/helper'], function(Backbone, _, help
 
   };
 
-  _.extend(EVIObject.prototype, Backbone.Events);
+  _.extend(BaseObject, {
+    /**
+     * Return the input string with the first letter capitalized.
+     *
+     * @function
+     *
+     * @param  {String} str The string you would like to camel case.
+     * 
+     * @return {String} The camel cased string.
+     */
+    camelCase: function(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    },
+
+    /**
+     * Return an array of camel cased strings.
+     * The namespace will get exploded based off the "." within the namespace.
+     *
+     * @function
+     *
+     * @param  {String} str The namespace you would like to camel case.
+     * 
+     * @return {Array} Array of camel cased strings from the namespace.
+     */
+    camelCaseFromNamespace: function(str) {
+      str = str.split('.');
+      for (var i = 0; i < str.length; i++) {
+        str[i] = BaseObject.camelCase(str[i]);
+      }
+
+      return str.join('');
+    },
+
+    /**
+     * Take a namespace string and value and apply it to the given object
+     *
+     * @function
+     *
+     * @param  {Object} obj The object we want to apply the namespace to.
+     * @param  {String} key The namespace string
+     * @param  {Any} value The value to set on the namespace
+     */
+    setPropertyByNamespace: function(obj, key, value) {
+      key = key || '';
+
+      var namespaces  = key.split('.'),
+          o           = obj,
+          ns          = null,
+          i           = 0;
+
+      if (namespaces.length < 1) {
+        return;
+      }
+
+      for (i = 0; i < namespaces.length-1; ++i) {
+        ns = namespaces[i];
+        // If the current namespace of the curent object is null or undefined, then define it.
+        if (o[ns] == null) { o[ns] = {}; }
+        o = o[ns];
+      }
+
+      ns = namespaces[namespaces.length-1];
+      o[ns] = value;
+
+      return value;
+    },
+    
+    /**
+     * Take a namespace string and get the value from the object.
+     *
+     * @function
+     *
+     * @param  {Object} obj The object we are getting the value from
+     * @param  {String} key The namespace we want.
+     *
+     * @return {Any}     The value at the given namespace
+     */
+    getPropertyByNamespace: function(obj, key) {
+      key = key || '';
+
+      var namespaces  = key.split('.'),
+          o           = obj,
+          ns          = null,
+          i           = 0;
+
+      if (namespaces.length < 1) {
+        return null;
+      }
+
+      for (i = 0; i < namespaces.length; ++i) {
+        ns = namespaces[i];
+        if (o == null) {
+          return null;
+        }
+        // If we are looking at the last namespace, then just return the value.
+        if (i === namespaces.length-1) {
+          return o[ns];
+        }
+        o = o[ns];
+      }
+
+      return null;
+    }
+
+  });
+
+  _.extend(BaseObject.prototype, Backbone.Events);
   
-  return EVIObject;
+  return BaseObject;
 });

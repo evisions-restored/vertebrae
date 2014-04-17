@@ -1,6 +1,8 @@
-define(['backbone', 'handlebars.runtime', 'evisions/object', 'evisions/helper'], function(Backbone, handlebars, EVIObject, helper) {
-  
-  var handlebars = handlebars || window.Handlebars;
+define([
+  'backbone', 
+  'evisions/object', 
+  'evisions/helper'
+], function(Backbone, EVIObject, helper) {
 
   /**
    * Helper class for the project views.
@@ -13,10 +15,16 @@ define(['backbone', 'handlebars.runtime', 'evisions/object', 'evisions/helper'],
    */
   var EVIViewTemp = Backbone.View.extend(/** @lends  Evisions.EVIView */{
 
+    rendered: false,
+
+    hidden: false,
+
+    available: false,
+
     initialize: function() {
       // Binding the view object(this) to the functions defined inside the view.
       // This is getting after the prototype functionality.
-      EVI.Helper.bindAll(this);
+      helper.bindAll(this);
 
       // Creating a temporary variable to hold the original initialization function.
       var oldInit = this.initialize;
@@ -29,6 +37,9 @@ define(['backbone', 'handlebars.runtime', 'evisions/object', 'evisions/helper'],
 
       // Setting the object's initialize function back to the original initialize function.
       this.initialize = oldInit;
+
+      this.listenTo(this, 'change:hidden', this.refreshAvailable);
+      this.listenTo(this, 'change:rendered', this.refreshAvailable);
     },
 
     /**
@@ -78,26 +89,86 @@ define(['backbone', 'handlebars.runtime', 'evisions/object', 'evisions/helper'],
       return helper.datum($(el).closest('.__data__').get(0));
     },
 
-    /**
-     * Rendering a handlebars templates.
-     * 
-     * @function
-     * 
-     * @instance
-     * 
-     * @param {String} templateName String name of the handlebars template.
-     * @param {Object} templateData Data to the passed and rendered into the handlebars template.
-     * 
-     * @return {String}
-     */
-    handlebars: function(templateName, templateData) {
-      var output = handlebars.templates[templateName];
-      
-      if (output) {
-        return output(templateData || {});
+    refreshAvailable: function() {
+      if (!!this.isAvailable()) {
+        this.setAvailable(true);
       } else {
-        return '';
+        this.setAvailable(false);
       }
+    },
+
+    whenAvailable: function() {
+      var d = helper.deferred();
+
+      if (this.getAvailable()) {
+        d.resolve(this);
+      } else {
+        this.listenToOnce(this, 'change:available', function() {
+          d.resolve(this);
+        });
+      }
+
+      return d.promise();
+    },
+
+    isAvailable: function() {
+      if (this.isRendered() && !this.isHidden()) {
+        return true;
+      }
+    },
+
+    getAvailable: function() {
+
+      return this.get('available');
+    },
+
+    setAvailable: function(value, noTrigger) {
+      this.set('available', value, noTrigger);
+      return this;
+    },
+
+    /**
+     * Call this function to let the controller know that you are rendered
+     */
+    setRendered: function() {
+      this.set('rendered', true);
+      return this;
+    },
+
+    /**
+     * Return a boolean that you rendered
+
+     * @return {Boolean}
+     */
+    isRendered: function() {
+
+      return !!this.getRendered();
+    },
+
+    setHidden: function(value, noTrigger) {
+      this.set('hidden', value, noTrigger);
+
+      return this;
+    },
+
+    isHidden: function() {
+
+      return !!this.getHidden();
+    },
+
+    getHidden: function() {
+
+      return this.get('hidden');
+    },
+
+    /**
+     * Get the current rendered property state
+     * 
+     * @return {Boolean} 
+     */
+    getRendered: function() {
+
+      return this.get('rendered');
     },
 
     /**
@@ -117,7 +188,7 @@ define(['backbone', 'handlebars.runtime', 'evisions/object', 'evisions/helper'],
       var frag  = $(document.createDocumentFragment()),
           div   = document.createElement('div');
           
-      frag.append(this.handlebars(template, datum));
+      frag.append(helper.template(template, datum));
       
       if (attach) {
         helper.datum(frag.children().get(0), datum);
@@ -142,10 +213,22 @@ define(['backbone', 'handlebars.runtime', 'evisions/object', 'evisions/helper'],
     renderFragments: function(template, data, attach) {
       var frag      = $(document.createDocumentFragment()),
           fragItem  = null,
+          contenxt  = null,
           i         = 0;
           
       for (i = 0; i < data.length; ++i) {
-        fragItem = $(this.handlebars(template, data[i]));
+        
+        context = {
+          index : i,
+          first : i === 0,
+          last  : i === data.length-1,
+          even  : i%2 === 0,
+          odd   : null
+        };
+
+        context.odd = !context.even;
+
+        fragItem = $(helper.template(template, data[i], { data: context }));
         
         if (attach) {
           helper.datum(fragItem.get(0), data[i]);
