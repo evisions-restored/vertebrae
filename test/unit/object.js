@@ -1,9 +1,16 @@
-define(['../../object'], function(BaseObject) {
+define(['vertebrae/object'], function(BaseObject) {
 
-  it('#getPropertyByNamespace', function() {
-    var obj = { hello: { my: { property: 'success' }}};
-    BaseObject.getPropertyByNamespace(obj, 'hello.my.property').should.equal('success');
-    BaseObject.getPropertyByNamespace(obj, 'fake.property.test').should.equal(null);
+  describe('BaseObject', function() {
+
+    it('#getPropertyByNamespace', function() {
+      var obj = { hello: { my: { property: 'success' }}};
+      expect(BaseObject.getPropertyByNamespace(obj, 'hello.my.property')).to.equal('success');
+      expect(BaseObject.getPropertyByNamespace(obj, 'fake.property.test')).to.equal(null);
+    });
+
+
+    
+
   });
 
 });

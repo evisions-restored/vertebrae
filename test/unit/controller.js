@@ -1,4 +1,0 @@
-define(['../../controller'], function(EVIController) {
-
-
-});
