@@ -1,25 +1,26 @@
 if (typeof define !== 'function') {
-  requirejs = require('requirejs');
+  global.chai   = require('chai');
+  global.expect = chai.expect;
+  chai.should();
+
+  requirejs     = require('requirejs');
   requirejs.config({
+    baseUrl: __dirname,
     nodeRequire: require
   });
 }
 
+describe('BaseObject', function() {
 
-if (typeof QUnit == 'undefined') {
-  QUnit = require('qunit-cli');
-}
-
-requirejs([
-  './unit/controller'
-], function() {
-
-  console.log('here');
-
-  test('Test me', function() {
-    ok(true, 'it passed!!');
+  before(function(done) {
+    requirejs(['./unit/object'], function() {
+     done();
+    });
   });
+  
 
-  QUnit.start();
+  it('load', function() {
+ 
+  });
 
 });

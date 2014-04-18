@@ -29,6 +29,7 @@
     "jquery": "1.11.0"
   },
   "devDependencies": {
-    "qunit": "~1.14.0"
+    "qunit": "~1.14.0",
+    "chai": "~1.9.1"
   }
 }

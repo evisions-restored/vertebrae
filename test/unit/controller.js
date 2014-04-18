@@ -1,11 +1,4 @@
-define(['../controller.js'], function(EVIController) {
+define(['../../controller'], function(EVIController) {
 
-  var testController = EVIController.extend({
-
-    setupView: function() {
-      this.setView(null);
-    }
-    
-  });
 
 });
