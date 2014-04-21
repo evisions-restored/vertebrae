@@ -4,9 +4,8 @@
 define([
   'backbone',
   'underscore',
-  'evisions/object', 
-  'evisions/helper'
-], function(Backbone, _, EVIObject, helper) {
+  'evisions/object'
+], function(Backbone, _, EVIObject) {
 
   var ArrayProto = Array.prototype;
 
@@ -14,7 +13,7 @@ define([
     // We are calling this function staticly...need to return a new instance of itself.
     if (!(this instanceof Collection)) {
       // This allows us to initialize a constructor with a dynamic amount of arguments.
-      return helper.createWithArgs(arguments.callee, arguments);
+      return EVIObject.createWithArgs(arguments.callee, arguments);
     }
 
     
@@ -35,7 +34,7 @@ define([
   };
 
   // Add Array-like functionality.
-  helper.inherit(Collection, Array);
+  EVIObject.inherit(Collection, Array);
 
 
   /**

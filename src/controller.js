@@ -4,8 +4,11 @@
 define([
   'jquery',
   'underscore',
-  './object'
-], function($, _, EVIObject) {
+  './object',
+  './event',
+  './stringutils',
+  './validator'
+], function($, _, EVIObject, EVIEvent, EVIStringUtils, Validator) {
 
   function setupObserves() {
     var inst = this;
@@ -26,7 +29,7 @@ define([
       if (!_.isFunction(inst[fnName])) {
         throw new Error(fnName + ' does not exist for the global event ' + event);
       }
-      this._unbind.push(helper.observe(event, inst[fnName].proxy(inst)).remove);
+      this._unbind.push(EVIEvent.observe(event, inst[fnName].proxy(inst)).remove);
     }
   };
 
@@ -81,7 +84,7 @@ define([
           that            = this,
           view            = this.getView(),
           hasListened     = false,
-          camelProperty   = helper.camelCase(property),
+          camelProperty   = EVIStringUtils.camelCase(property),
           getter          = null,
           updateOnAvaible = null,
           updateView      = null,
@@ -289,7 +292,7 @@ define([
 
     if (_.isObject(proto.validators) && !_.isFunction(proto.validate)) {
       proto.validate = function(filters, view) {
-        return helper.Validator(this, view, filters); 
+        return Validator(this, view, filters); 
       };
     }
 

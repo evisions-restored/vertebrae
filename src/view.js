@@ -1,8 +1,11 @@
 define([
   'backbone', 
-  'evisions/object', 
-  'evisions/helper'
-], function(Backbone, EVIObject, helper) {
+  './object', 
+  './event',
+  'handlebars.runtime'
+], function(Backbone, EVIObject, Events, handlebars) {
+
+  var templates = {};
 
   /**
    * Helper class for the project views.
@@ -24,7 +27,7 @@ define([
     initialize: function() {
       // Binding the view object(this) to the functions defined inside the view.
       // This is getting after the prototype functionality.
-      helper.bindAll(this);
+      Events.bindAll(this);
 
       // Creating a temporary variable to hold the original initialization function.
       var oldInit = this.initialize;
@@ -86,7 +89,7 @@ define([
      * @return {String} 
      */
     getElementDatum: function(el) {
-      return helper.datum($(el).closest('.__data__').get(0));
+      return this.constructor.datum($(el).closest('.__data__').get(0));
     },
 
     refreshAvailable: function() {
@@ -98,7 +101,7 @@ define([
     },
 
     whenAvailable: function() {
-      var d = helper.deferred();
+      var d = $.Deferred();
 
       if (this.getAvailable()) {
         d.resolve(this);
@@ -188,10 +191,10 @@ define([
       var frag  = $(document.createDocumentFragment()),
           div   = document.createElement('div');
           
-      frag.append(helper.template(template, datum));
+      frag.append(this.constructor.template(template, datum));
       
       if (attach) {
-        helper.datum(frag.children().get(0), datum);
+        this.constructor.datum(frag.children().get(0), datum);
       }
       
       return frag;
@@ -228,10 +231,10 @@ define([
 
         context.odd = !context.even;
 
-        fragItem = $(helper.template(template, data[i], { data: context }));
+        fragItem = $(this.constructor.template(template, data[i], { data: context }));
         
         if (attach) {
-          helper.datum(fragItem.get(0), data[i]);
+          this.constructor.datum(fragItem.get(0), data[i]);
           fragItem.addClass('__data__');
         }
         
@@ -342,6 +345,60 @@ define([
     
     return view;
   };
+
+  /**
+   * Get or set the datum for an element.
+   *
+   * @function
+   *
+   * @param  {Object} el
+   * @param  {Object} datum 
+   * 
+   * @return {Object}       
+   */
+  EVIView.datum = function(el, datum) {
+    if (el instanceof $) {
+      el = el.get(0);
+    }
+    
+    if (datum !== undefined) {
+      el.__data__ = datum;
+    }
+
+    return el.__data__;
+  };
+
+  /**
+   * Apply the template object to the render helper
+   *
+   * @function
+   * 
+   * @param  {Object} newTemplates 
+   */
+  EVIView.setupTemplates = function(newTemplates) {
+    templates = newTemplates;
+  };
+
+  /**
+   * Return a template with the given name and the given data.
+   *
+   * @function
+   *
+   * @param  {String} name The name of the template you want to return.
+   * @param  {Object} data The data you want to pass into the template.
+   * 
+   * @return {String} The processed string data returned from Handlebars.
+   */
+  EVIView.template = function(name, data, options) {
+    var template = templates[name];
+
+    if (template) {
+      return template(data || {}, options);
+    }
+
+    return '';
+  };
+
 
   /**
    * Extending the view object by mapping handlebar functions to instance functions that are usable inside the view.

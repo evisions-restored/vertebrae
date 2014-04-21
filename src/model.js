@@ -3,11 +3,10 @@
  */
 define([
   'evisions/object',
-  'evisions/helper',
   'jquery',
   'underscore',
   'cookie'
-], function(EVIObject, helper, $, _) {
+], function(EVIObject, $, _) {
 
   var optionalParam = /\((.*?)\)/g;
   var namedParam    = /(\(\?)?:\w+/g;
@@ -168,7 +167,7 @@ define([
       options || (options = {});
       params || (params = {});
 
-      var d    = helper.deferred(),
+      var d    = $.Deferred(),
           that = this,
           url  = this.rootURI + uri;
 

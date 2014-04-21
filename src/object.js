@@ -9,13 +9,13 @@ define([
   /**
    * Base Class for All Project Objects
    *
-   * @name BaseObject
+   * @name EVIObject
    * 
-   * @class BaseObject
+   * @class EVIObject
    * 
    * @memberOf Evisions
    */
-  var BaseObject = function() {
+  var EVIObject = function() {
 
     if (this.initialize) {
       this.initialize.apply(this, arguments);
@@ -53,9 +53,9 @@ define([
   };
 
   /**
-   * Create of sub-class of BaseObject
+   * Create of sub-class of EVIObject
    * 
-   * @function Evisions.BaseObject.extend
+   * @function Evisions.EVIObject.extend
    * 
    * @static
    * 
@@ -63,7 +63,7 @@ define([
    * 
    * @return {Function} The subclass constructor.
    */
-  BaseObject.extend = function(proto) {
+  EVIObject.extend = function(proto) {
     var newProperties = [],
         oldProperties = [],
         i             = 0,
@@ -85,11 +85,11 @@ define([
               getter = function() {
                 return this.get(prop);
               },
-              cameld = BaseObject.camelCase(prop);
+              cameld = EVIObject.camelCase(prop);
 
           if (cameld.indexOf('.') > -1) {
             // Make the name camel cased through the namespace and remove periods.
-            cameld = BaseObject.camelCaseFromNamespace(cameld);
+            cameld = EVIObject.camelCaseFromNamespace(cameld);
           }
 
           var setterName = 'set' + cameld,
@@ -122,7 +122,7 @@ define([
     return child;
   };
 
-  BaseObject.prototype = /** @lends Evisions.BaseObject */ {
+  EVIObject.prototype = /** @lends Evisions.EVIObject */ {
 
     // Function placeholder for the base object initialization.
     initialize: function() {
@@ -149,9 +149,9 @@ define([
 
       for (key in jsonObject) {
         if (key.indexOf('.') > -1) {
-          setterFn = "set" + BaseObject.camelCaseFromNamespace(key);
+          setterFn = "set" + EVIObject.camelCaseFromNamespace(key);
         } else {
-          setterFn = "set" + BaseObject.camelCase(key);
+          setterFn = "set" + EVIObject.camelCase(key);
         }
         if (_.isFunction(this[setterFn])) {
           this[setterFn](jsonObject[key]);
@@ -222,7 +222,7 @@ define([
      */
     get: function(k) {
       if (k.indexOf('.') > -1) {
-        return BaseObject.getPropertyByNamespace(this, k);
+        return EVIObject.getPropertyByNamespace(this, k);
       } else {
         return this[k];
       }
@@ -247,7 +247,7 @@ define([
 
       for (i = 0; i < properties.length; ++i) {
         prop = properties[i];
-        getter = this['get' + BaseObject.camelCase(prop)];
+        getter = this['get' + EVIObject.camelCase(prop)];
         if (getter) {
           value = getter.call(this);
         } else {
@@ -274,12 +274,12 @@ define([
      */
     set: function(k, v, silent) {
       var isNamespacedKey = k.indexOf('.') > -1,
-          oldValue        = isNamespacedKey ? BaseObject.getPropertyByNamespace(this,k) : this[k],
+          oldValue        = isNamespacedKey ? EVIObject.getPropertyByNamespace(this,k) : this[k],
           trigger         = oldValue != v && !silent,
           that            = this;
 
       if (isNamespacedKey) {
-        BaseObject.setPropertyByNamespace(this,k,v);
+        EVIObject.setPropertyByNamespace(this,k,v);
       } else {
         this[k] = v;
       }
@@ -298,7 +298,61 @@ define([
 
   };
 
-  _.extend(BaseObject, {
+  _.extend(EVIObject, {
+    /**
+     * Returns a new instance of the constructor "func" with the given arguments.
+     *
+     * @function
+     *
+     * @param  {Function} func The constructor we want initialize.
+     * @param  {Array} args Array of arguments we want to initialize with.
+     *
+     * @return {Object}      New instance
+     */
+    createWithArgs: function(func, args) {
+      // Use javascript blackmagic taken from coffeescript.
+      // This allows us to initialize a constructor with a dynamic amount of arguments.
+      var ctor    = function() {},
+          child   = null,
+          result  = null;
+
+      ctor.prototype = func.prototype;
+      child = new ctor,
+      result = func.apply(child, args);
+
+      return Object(result) === result ? result : child;
+    },
+    
+    /**
+     * Inherit from the parent constructor to the child constructor.
+     *
+     * @function
+     *
+     * @param  {Function} child  The child constructor.
+     * @param  {Function} parent The parent constructor.
+     *
+     * @return {Function}
+     */
+    inherit: function(child, parent) {
+      var __hasProp = {}.hasOwnProperty;
+
+      for (var key in parent) {
+        if (__hasProp.call(parent, key)) {
+          child[key] = parent[key];
+        }
+      }
+
+      function ctor() {
+        this.constructor = child;
+      }
+
+      ctor.prototype = parent.prototype;
+      child.prototype = new ctor();
+      child.__super__ = parent.prototype;
+
+      return child;
+    },
+
     /**
      * Return the input string with the first letter capitalized.
      *
@@ -325,7 +379,7 @@ define([
     camelCaseFromNamespace: function(str) {
       str = str.split('.');
       for (var i = 0; i < str.length; i++) {
-        str[i] = BaseObject.camelCase(str[i]);
+        str[i] = EVIObject.camelCase(str[i]);
       }
 
       return str.join('');
@@ -404,7 +458,7 @@ define([
 
   });
 
-  _.extend(BaseObject.prototype, Backbone.Events);
+  _.extend(EVIObject.prototype, Backbone.Events);
   
-  return BaseObject;
+  return EVIObject;
 });
