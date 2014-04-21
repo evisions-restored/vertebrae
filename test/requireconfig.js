@@ -1,4 +1,6 @@
-var tests = [];
+var tests = [],
+    assert, expect, should;
+
 for (var file in window.__karma__.files) {
   if (window.__karma__.files.hasOwnProperty(file)) {
     if (file.indexOf('/base/test/unit') == 0) {
@@ -28,16 +30,14 @@ require.config({
       'jquery'
     ], function (chai, jquery) {
       $ = jquery;
-      
+
       // Global Assertion Libraries
       assert  = chai.assert;
       expect  = chai.expect;
-      chai.should();
-
-      window.defaultTimeout = 30000;
+      should  = chai.should();
 
       window.__karma__.start();
-
     });
   }
+
 });
