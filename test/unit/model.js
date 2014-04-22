@@ -340,9 +340,9 @@ define(['vertebrae/model', 'underscore'], function(Model, _) {
       assert.include(NewModel.prototype.properties,'prop1');
       assert.include(NewModel.prototype.properties,'prop2');
 
+      //Verify server properties is what it should be.
       assert.lengthOf(NewModel.prototype.serverProperties,1);
       assert.include(NewModel.prototype.serverProperties,'serverProp');
-
     });
 
   });
