@@ -4,7 +4,7 @@
 define([
   'backbone',
   'underscore',
-  'evisions/object'
+  './object'
 ], function(Backbone, _, EVIObject) {
 
   var ArrayProto = Array.prototype;

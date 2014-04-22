@@ -2,7 +2,7 @@
  * @namespace Evisions
  */
 define([
-  'evisions/object',
+  './object',
   'jquery',
   'underscore',
   'cookie'
