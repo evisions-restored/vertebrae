@@ -4,8 +4,7 @@
 define([
   './object',
   'jquery',
-  'underscore',
-  'cookie'
+  'underscore'
 ], function(EVIObject, $, _) {
 
   var optionalParam = /\((.*?)\)/g;
@@ -16,15 +15,15 @@ define([
   /**
    * Base Model Class for All Project Models
    *
-   * @name EVIModel
+   * @name BaseModel
    *
-   * @class EVIModel
+   * @class BaseModel
    *
    * @memberOf Evisions
    *
    * @augments {Evisions.EVIObject}
    */
-  var EVIModel = EVIObject.extend(/** @lends  Evisions.EVIModel */{
+  var BaseModel = EVIObject.extend(/** @lends  Evisions.BaseModel */{
 
     /**
      * Setup the object
@@ -47,9 +46,9 @@ define([
      *
      * @instance
      *
-     * @param  {Evisions.EVIModel} model
+     * @param  {Evisions.BaseModel} model
      *
-     * @return {Evisions.EVIModel}
+     * @return {Evisions.BaseModel}
      */
     updateWith: function(model) {
       this.applyProperties(model.getProperties());
@@ -70,8 +69,10 @@ define([
     }
 
   },
-  /** @lends  Evisions.EVIModel */
+  /** @lends  Evisions.BaseModel */
   {
+
+    timeout: 30000,
 
     /**
      * @description The specific parsers used for handling the model's API response.
@@ -143,7 +144,7 @@ define([
     },
 
     getAjaxTimeout: function() {
-      return $.cookie("timeoutOverride") || this.timeout;
+      return Number(this.timeout) || 500;
     },
 
 
@@ -209,7 +210,7 @@ define([
     },
 
     getParser: function(uri, type) {
-      var parsers = this._parsers || (this._parsers = this.parseParsers()) || [],
+      var parsers = this._parsers || [],
           len     = parsers.length,
           i       = 0,
           parser  = null;
@@ -329,10 +330,10 @@ define([
 
   });
 
-  EVIModel.extend = function(proto, stat) {
+  BaseModel.extend = function(proto, stat) {
     // See if the static properties has a parsers object.
     if (this.parsers && stat && stat.parsers) {
-      stat.parsers = _.extend({}, this.parsers, stat.parsers);
+      stat._parsers = this.parseParsers.call(stat).concat(this._parsers || []);
     }
 
     // Extends properties with server properties
@@ -350,5 +351,5 @@ define([
     return EVIObject.extend.apply(this, arguments);
   };
 
-  return EVIModel;
+  return BaseModel;
 });
