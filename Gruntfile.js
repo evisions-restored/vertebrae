@@ -35,5 +35,5 @@ module.exports = function(grunt) {
 
   grunt.registerTask('test', ['karma:vertebrae']);
   grunt.registerTask('auto', ['karma:auto']);
-
+  grunt.registerTask('default',['auto']);
 };
