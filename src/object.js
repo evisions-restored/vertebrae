@@ -172,7 +172,9 @@ define([
      */
     destroy: function() {
       this.destroyed = true;
+      // clear all events
       this.stopListening();
+      this.off();
       // Clear out all the properties of an object.
       if (_.isArray(this.properties)) {
         var i     = 0,
