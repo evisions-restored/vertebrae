@@ -1,9 +1,8 @@
 define([
   'backbone', 
   './object', 
-  './event',
-  'handlebars.runtime'
-], function(Backbone, EVIObject, Events, handlebars) {
+  './event'
+], function(Backbone, EVIObject, Events) {
 
   var templates = {};
 

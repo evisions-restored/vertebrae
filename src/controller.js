@@ -29,7 +29,8 @@ define([
       if (!_.isFunction(inst[fnName])) {
         throw new Error(fnName + ' does not exist for the global event ' + event);
       }
-      this._unbind.push(EVIEvent.observe(event, inst[fnName].proxy(inst)).remove);
+
+      this.once('unload', EVIEvent.observe(event, _.bind(inst[fnName], this)).remove);
     }
   };
 
@@ -68,6 +69,11 @@ define([
       setupObserves.call(this);
 
       this.setupView();
+
+      if (!this.getView()) {
+        throw new Error('A view was not properly assigned.');
+      }
+
       this.listenToOnce(this.getView(), 'change:available', this.viewIsAvailable);
     },
 
