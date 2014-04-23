@@ -5,7 +5,10 @@ define([
         'jquery',
         'underscore',
         './object'
-], function($, _, EVIObject) {
+], function(
+        $, 
+        _, 
+        EVIObject) {
 
   var optionalParam = /\((.*?)\)/g,
       namedParam    = /(\(\?)?:\w+/g,
@@ -89,7 +92,7 @@ define([
       return properties;
     }
 
-  },/** @lends  Evisions.BaseModel */{
+  },/** @lends Evisions.BaseModel */{
 
     /**
      * @description Default timeout value for API calls.
@@ -132,7 +135,7 @@ define([
      *
      * @function
      *
-     * @instance
+     * @static
      *
      * @param  {Object} data The model you would like to instance.
      *
@@ -147,7 +150,7 @@ define([
      *
      * @function
      *
-     * @instance
+     * @static
      *
      * @param  {Array} arr An array of models to instance.
      *
