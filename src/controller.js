@@ -2,13 +2,19 @@
  * @namespace Evisions
  */
 define([
-  'jquery',
-  'underscore',
-  './object',
-  './event',
-  './stringutils',
-  './validator'
-], function($, _, EVIObject, EVIEvent, EVIStringUtils, Validator) {
+        'jquery',
+        'underscore',
+        './object',
+        './event',
+        './stringutils',
+        './validator'
+], function(
+        $, 
+        _, 
+        EVIObject, 
+        EVIEvent, 
+        EVIStringUtils, 
+        EVIValidator) {
 
   function setupObserves() {
     var inst = this;
@@ -78,10 +84,15 @@ define([
     },
 
     /**
-     * Keep properties on an object in sync with other properties and the view
-
-     * @param  {String} property The property we want to look at
-     * @param  {Object} obj      The object whose properties we want to sync with
+     * Keep properties on an object in sync with other properties and the view.
+     *
+     * @function
+     *
+     * @instance
+     * 
+     * @param  {String} property The property we want to look at.
+     * @param  {Object} obj      The object whose properties we want to sync with.
+     * @param  {Object} trigger  
      * 
      * @return {Object}          
      */
@@ -98,36 +109,32 @@ define([
           originalObj     = obj,
           fnView          = 'refresh' + camelProperty + 'PropertyOnView';
 
-      // For the object we want to look at it can either be a passed in model OR just "this"
-      obj = _.isObject(obj) ? obj : this;
+      // For the object we want to look at it can either be a passed in model OR just "this".
+      obj = _.isObject(obj)? obj: this;
 
-      // Gets the value for the property on the object we are watching
+      // Gets the value for the property on the object we are watching.
       getter = function() {
         if (obj[getterFn]) {
-
           return obj[getterFn]();
         } else {
-
           return obj.get(property);
         }
       };
 
-      // Update the view but only when the avaiable property has changed
+      // Update the view but only when the avaiable property has changed.
       updateOnAvaible = function() {
         if (hasListened) {
-
           return;
         }
+
         hasListened = true;
         that.listenToOnce(view, 'change:available', function() {
-          
           hasListened = false;
-
           updateView();
         });
       };
 
-      // Update the view but only if it is available else queue to update when avaiable changes
+      // Update the view but only if it is available else queue to update when avaiable changes.
       updateView = function() {
         if (that[fnView]) {
           if (view.getAvailable()) {
@@ -138,7 +145,7 @@ define([
         }
       };
 
-      // listen to changes on the given object for the given property
+      // Listen to changes on the given object for the given property.
       this.listenTo(obj, 'change:' + property, function() {
         if (this[fnController]) {
           this[fnController](getter());
@@ -147,9 +154,8 @@ define([
         updateView();
       });
 
-      // We want to immediately update the view to get it in sync with the state of the property we are watching
+      // We want to immediately update the view to get it in sync with the state of the property we are watching.
       updateView();
-
       if (originalObj === true || trigger === true) {
         this.trigger('change:' + property);
       }
@@ -168,6 +174,7 @@ define([
       if (this._unloaded !== true) {
         this.unload();
       }
+
       this.trigger('destroy');
       this.destroyView();
       this._super.apply(this, arguments);
@@ -190,12 +197,13 @@ define([
     },
 
     /**
-     * Setup the view object(s).
-     * This should be something we override when creating child controllers.
+     * Setup the view object(s). This should be something we override when creating child controllers.
      *  
      * @function
      * 
      * @instance
+     *
+     * @override
      */
     setupView: function() {
       throw "'setupView' needs to be overridden";
@@ -208,9 +216,10 @@ define([
      * 
      * @instance
      * 
-     * @param {Element} el
-     * 
-     * @param {Object} delegate
+     * @param  {Element}  el
+     * @param  {Object}   delegate
+     *
+     * @return {Object} 
      */
     setupViewProperties: function(el, delegate) {
       this.getView().setElement(el);
@@ -237,11 +246,17 @@ define([
 
     /**
      * Called once the view is avaiable for manipulation.
+     *
+     * @function
+     *
+     * @instance
+     *
+     * @override
      */
-    viewIsAvailable: function() { /* Do nothing */ },
+    viewIsAvailable: function() { /* Do nothing. */ },
     
     /**
-     * Unload the view
+     * Unload the view.
      *
      * @function
      * 
@@ -251,7 +266,6 @@ define([
      */
     unload: function(cb) {
       if (this._unloaded !== true) {
-
         this.trigger('unload');
 
         var unbind = this._unbind || [],
@@ -266,13 +280,31 @@ define([
       }
     },
 
+    /**
+     * Base validate function that should be overwritten in the extended controllers.
+     *
+     * @function
+     *
+     * @instance
+     *
+     * @override
+     * 
+     * @return {Bool}
+     */
     validate: function() {
-      // Do nothing;
       return true;
     },
 
+    /**
+     * Creating a proxy for the jQuery when function and apply the passed arguments.
+     *
+     * @function
+     *
+     * @instance
+     * 
+     * @return {Object}
+     */
     when: function() {
-      
       return $.when.apply($, arguments);
     }
 
@@ -285,7 +317,7 @@ define([
    * 
    * @static
    * 
-   * @param {Object} proto Prototype definition
+   * @param  {Object} proto Prototype definition
    * 
    * @return {Constructor}   
    */
