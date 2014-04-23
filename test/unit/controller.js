@@ -37,8 +37,7 @@ define(['vertebrae/controller', 'vertebrae/event', 'vertebrae/view'], function(C
       controller = null;
     });
 
-    it('prototype.observes - should bind/unbind observes', function() {
-
+    it('prototype.observes', function() {
       Event.fire('test-event');
 
       expect(controller.testEventCounter).to.equal(1);
@@ -53,15 +52,12 @@ define(['vertebrae/controller', 'vertebrae/event', 'vertebrae/view'], function(C
     });
 
     it('prototype.sync', function() {
-
       var viewCounter     = 0,
           propertyCounter = 0;
-
 
       controller.refreshTestPropertyOnView = function() {
         viewCounter++;
       };
-
       controller.testDidChange = function() {
         propertyCounter++;
       };
@@ -80,11 +76,10 @@ define(['vertebrae/controller', 'vertebrae/event', 'vertebrae/view'], function(C
 
       expect(viewCounter).to.equal(2);
       expect(propertyCounter).to.equal(1);
-
     });
 
 
-    it('prototype.destroy - should destroy view and unbind events', function() {
+    it('prototype.destroy', function() {
       var count = 0;
 
       controller.on('my-event', function() {
@@ -104,7 +99,7 @@ define(['vertebrae/controller', 'vertebrae/event', 'vertebrae/view'], function(C
       expect(count).to.equal(0);
     });
 
-    it('prototype.viewIsReady - should be called when given an element', function() {
+    it('prototype.viewIsReady', function() {
       var called = false;
 
       var TestControllerA = TestController.extend({
@@ -114,19 +109,16 @@ define(['vertebrae/controller', 'vertebrae/event', 'vertebrae/view'], function(C
       });
 
       controller = new TestControllerA();
-
       controller.setupViewProperties(document.body);
 
       expect(called).to.be.true;
-
     });
 
-    it('prototype.viewIsAvailable - should be called when view has rendered', function() {
+    it('prototype.viewIsAvailable', function() {
       var called = false;
 
       var TestControllerA = TestController.extend({
         viewIsReady: function() {
-          // do nothing
         },
         viewIsAvailable: function() {
           called = true;
@@ -134,7 +126,6 @@ define(['vertebrae/controller', 'vertebrae/event', 'vertebrae/view'], function(C
       });
 
       controller = new TestControllerA();
-
       controller.setupViewProperties(document.body);
 
       expect(called).to.be.false;

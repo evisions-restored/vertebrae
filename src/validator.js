@@ -1,18 +1,18 @@
 define([
   'underscore',
   './stringutils'
-], function(_, StringUtils) {
+], function(_) {
 
   function getValidationErrorName(validationField) {
-    return 'show' + StringUtils.camelCase(validationField) + 'Error';
+    return 'show' + String(validationField).camelCase() + 'Error';
   };
 
   function getValidationSuccessName(validationField) {
-    return 'show' + StringUtils.camelCase(validationField) + 'Success';
+    return 'show' + String(validationField).camelCase() + 'Success';
   };
 
   function getValidationGetterName(validationField) {
-    return 'get' + StringUtils.camelCase(validationField);
+    return 'get' + String(validationField).camelCase();
   };
 
   function makeFunction(cb) {
@@ -203,7 +203,7 @@ define([
    */
   validators.empty = function(message) {
     return function(value, field) {
-      if (!String(value == null ? '' : value).trim()) {
+      if (!String(value || '').trim()) {
         return message || 'This field cannot be empty.';
       }
 
@@ -222,19 +222,10 @@ define([
     message = message || 'This is an invalid date.';
     return function(date, field) {
       if (date) {
-        try {
-          var time = date.getTime();
-
-          if (_.isNaN(time)) {
-
-            return message;
-          }
-        } catch(e) {
-
+        if (!(date instanceof Date)) {
           return message;
         }
       }
-
       return true;
     };
   };
