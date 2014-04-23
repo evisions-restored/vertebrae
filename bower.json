@@ -20,13 +20,16 @@
     "bower_components",
     "libs",
     "test",
-    "tests"
+    "tests",
+    "karma.conf.js",
+    "Gruntfile.js"
   ],
   "dependencies": {
     "underscore": "1.6.0",
     "backbone": "1.1.2",
     "requirejs": "2.1.11",
-    "jquery": "1.11.0"
+    "jquery": "1.11.0",
+    "vertebrae": "Evisions/vertebrae"
   },
   "devDependencies": {
     "chai": "~1.9.1"
