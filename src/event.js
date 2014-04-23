@@ -2,13 +2,16 @@
  * @namespace Evisions
  */
 define([
-	'jquery',
-  'backbone'
-], function($, Backbone) {
+				'jquery',
+			  'backbone'
+], function(
+				$, 
+				Backbone) {
 
   var event = _.extend({}, Backbone.Events);
 
 	var EVIEvent = {
+
 		/**
 		 * Bind all the function on an object to the obj itself.
 		 * This will cause all functions to ALWAYS have the correct 'this'.
@@ -25,7 +28,7 @@ define([
 		      fn    = null,
 		      k;
 
-		  for(k in obj) { 
+		  for (k in obj) { 
 		    keys.push(k); 
 		  }
 		  if (!obj || !obj.constructor) { 
@@ -47,8 +50,7 @@ define([
 		 *
 		 * @function
 		 *
-		 * @param {String} event The name of the event that you want to fire.
-		 * @param {Object} data The date you want to pass into the function listening to the passed event.
+		 * @return {Ojbect}
 		 */
 		fire: function() {
       event.trigger.apply(event, arguments);
@@ -56,6 +58,13 @@ define([
       return EVIEvent;
 		},
 
+		/**
+		 * Trigger an event.
+		 *
+		 * @function
+		 *
+		 * @return {Object}
+		 */
     trigger: function() {
       return EVIEvent.fire.apply(EVIEvent, arguments);
     },
@@ -65,8 +74,10 @@ define([
 		 *
 		 * @function
 		 *
-		 * @param {String} event The name of the event that you want to observe.
-		 * @param {Function} callback The function you want to call if the observed event is fired.
+		 * @param  {String}   event    The name of the event that you want to observe.
+		 * @param  {Function} callback The function you want to call if the observed event is fired.
+		 *
+		 * @return {Object}
 		 */
 		observe: function(name, callback) {
       event.on.apply(event, arguments);
@@ -78,10 +89,19 @@ define([
 		  };
 		},
 
+		/**
+		 * Implementing functionality similar to the jQuery 'on' function.
+		 * Calls the observe function with the arguments applied.
+		 *
+		 * @function
+		 * 
+		 * @return {Object}
+		 */
     on: function() {
       return EVIEvent.observe.apply(EVIEvent, arguments);
     }
 	};
 
 	return EVIEvent;
+	
 });

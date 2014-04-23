@@ -338,4 +338,5 @@ define([
   };
 
   return EVIController;
+  
 });
