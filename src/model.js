@@ -2,25 +2,25 @@
  * @namespace Evisions
  */
 define([
-  './object',
-  'jquery',
-  'underscore'
-], function(EVIObject, $, _) {
+        'jquery',
+        'underscore',
+        './object'
+], function($, _, EVIObject) {
 
-  var optionalParam = /\((.*?)\)/g;
-  var namedParam    = /(\(\?)?:\w+/g;
-  var splatParam    = /\*\w+/g;
-  var escapeRegExp  = /[\-{}\[\]+?.,\\\^$|#\s]/g;
+  var optionalParam = /\((.*?)\)/g,
+      namedParam    = /(\(\?)?:\w+/g,
+      splatParam    = /\*\w+/g,
+      escapeRegExp  = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 
   /**
    * Base Model Class for All Project Models
    *
    * @name BaseModel
-   *
+   * 
    * @class BaseModel
-   *
+   * 
    * @memberOf Evisions
-   *
+   * 
    * @augments {Evisions.EVIObject}
    */
   var BaseModel = EVIObject.extend(/** @lends  Evisions.BaseModel */{
@@ -36,6 +36,7 @@ define([
      */
     initialize: function(props) {
       this.applyProperties(props);
+
       return this._super();
     },
 
@@ -52,26 +53,49 @@ define([
      */
     updateWith: function(model) {
       this.applyProperties(model.getProperties());
+
       return this;
     },
 
+    /**
+     * Extending the base jQuery 'when' functionality.
+     *
+     * @function
+     *
+     * @instance
+     * 
+     * @return {Object} Returning the jQuery 'when' with applied arguments.
+     */
     when: function() {
-      
       return $.when.apply($, arguments);
     },
 
+    /**
+     * Converting server propeties to an object that can be converted to JSON.
+     *
+     * @function
+     *
+     * @instance
+     * 
+     * @return {Object} Object that we are going to be converting to JSON.
+     */
     toJSON: function() {
       var properties = {};
+
       if (this.serverProperties && this.serverProperties.length) {
         properties = _.pick(this, this.serverProperties);
       }
+
       return properties;
     }
 
-  },
-  /** @lends  Evisions.BaseModel */
-  {
+  },/** @lends  Evisions.BaseModel */{
 
+    /**
+     * @description Default timeout value for API calls.
+     * 
+     * @type {Number}
+     */
     timeout: 30000,
 
     /**
@@ -79,9 +103,7 @@ define([
      *
      * @type {Object}
      */
-    parsers: {
-
-    },
+    parsers: {},
 
     /**
      * @description The root of all URI calls from this model.
@@ -91,7 +113,7 @@ define([
     rootURI: '/',
 
     /**
-     * If no parser is specified for a request, then we use this default handler
+     * If no parser is specified for a request, then we use this default handler.
      *
      * @function
      *
@@ -143,6 +165,15 @@ define([
       return modelArray;
     },
 
+    /**
+     * Getting the AJAX timeout value.
+     *
+     * @function
+     *
+     * @static
+     *
+     * @return {Number} The value to set the AJAX timeout.
+     */
     getAjaxTimeout: function() {
       return Number(this.timeout) || 500;
     },
@@ -150,9 +181,6 @@ define([
 
     /**
      * Make a request to an API.
-     *
-     * @example
-     * Passing in 'Folder.List' when rootURI is '/mw/' will make a request to '/mw/Folder.List'
      *
      * @function
      *
@@ -194,6 +222,7 @@ define([
         } else {
           // If it is valid, then we just return the response.
           var modelizer = that.getParser(uri, options.type) || that.defaultHandler;
+
           d.resolve(modelizer.call(that, resp.data || {}, params) || {}, params, resp);
         }
       };
@@ -209,6 +238,18 @@ define([
       return d.promise();
     },
 
+    /**
+     * Getting the parse for a URI request for a specific type.
+     *
+     * @function
+     *
+     * @static
+     * 
+     * @param  {String} uri  URI of the request we are trying to parse.
+     * @param  {String} type The type of request we are trying to parse.
+     * 
+     * @return {Object}      The callback of the FOUND parser.
+     */
     getParser: function(uri, type) {
       var parsers = this._parsers || [],
           len     = parsers.length,
@@ -220,23 +261,31 @@ define([
       for (i = 0; i < len; ++i) {
         parser = parsers[i];
         if (parser.type && parser.type !== type) {
-          // if we specify a type of call and it does not match the given type then continue
+          // If we specify a type of call and it does not match the given type, then continue.
           continue;
         }
         if (parser.uri.test(uri)) {
-
           return parser.callback;
         }
       }
     },
 
+    /**
+     * Parsing through the set of parsers to find the matching route.
+     *
+     * @function
+     *
+     * @static
+     * 
+     * @return {Object} Parser object with the matching route. Includes the callback function and type of parser.
+     */
     parseParsers: function() {
       var rootURI = this.rootURI;
 
       return _.map(this.parsers || {}, function(fn, route) {
         var type = null;
 
-        // See if we have any type specific items
+        // See if we have any type specific items.
         if (route[0] == '#') {
           var lastHashIndex = route.slice(1).indexOf('#') + 1;
 
@@ -251,7 +300,11 @@ define([
                       })
                       .replace(splatParam, '(.*?)');
 
-         return { uri: new RegExp('^' + route + '$'), callback: fn, type: type };
+        return { 
+          uri       : new RegExp('^' + route + '$'), 
+          callback  : fn, 
+          type      : type 
+        };
       });
     },
 
@@ -260,7 +313,7 @@ define([
      *
      * @function
      *
-     * @instance
+     * @static
      *
      * @param  {Stirng} uri Destination of the API call.
      * @param  {Object} params Parameters to pass into the API call.
@@ -277,7 +330,7 @@ define([
      *
      * @function
      *
-     * @instance
+     * @static
      *
      * @param  {Stirng} uri Destination of the API call.
      * @param  {Object} params Parameters to pass into the API call.
@@ -294,7 +347,7 @@ define([
      *
      * @function
      *
-     * @instance
+     * @static
      *
      * @param  {Stirng} uri Destination of the API call.
      * @param  {Object} params Parameters to pass into the API call.
@@ -311,7 +364,7 @@ define([
      *
      * @function
      *
-     * @instance
+     * @static
      *
      * @param  {Stirng} uri Destination of the API call.
      * @param  {Object} params Parameters to pass into the API call.
@@ -323,8 +376,18 @@ define([
       return this.request(uri, params, _.defaults(options || {}, { type: 'DELETE' }));
     },
 
+    /**
+     * Generating an API link based off the past URL. The rootURI will be appended to the API calls.
+     *
+     * @function
+     *
+     * @static
+     * 
+     * @param  {String} uri The destination of the API request we are trying to make.
+     * 
+     * @return {String}     Built string for the API request.
+     */
     generateLink: function(uri) {
-      
       return window.location.origin + this.rootURI + uri;
     }
 
@@ -336,7 +399,7 @@ define([
       stat._parsers = this.parseParsers.call(stat).concat(this._parsers || []);
     }
 
-    // Extends properties with server properties
+    // Extends properties with server properties.
     var serverProperties = [],
         properties       = [];
 
@@ -352,4 +415,5 @@ define([
   };
 
   return BaseModel;
+
 });
