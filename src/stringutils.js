@@ -3,14 +3,14 @@ define([
 ], function(_) {
   
   /**
-   * @class EVIStringUtils
+   * @class StringUtils
    *
    * @classdesc Common helper functions that haven't been categorized yet.
    *
-   * @memberOf Evisions.Helper
-   * @augments {Evisions.Helper}
+   * @memberOf Vertebrae.Helper
+   * @augments {Vertebrae.Helper}
    */
-  var EVIStringUtils = _.extend(/** @lends Evisions.EVIStringUtils */{
+  var StringUtils = _.extend(/** @lends Vertebrae.StringUtils */{
 
     /**
      * Return the input string with the first letter capitalized.
@@ -38,7 +38,7 @@ define([
     camelCaseFromNamespace: function(str) {
       str = str.split('.');
       for (var i = 0; i < str.length; i++) {
-        str[i] = EVIStringUtils.camelCase(str[i]);
+        str[i] = StringUtils.camelCase(str[i]);
       }
 
       return str.join('');
@@ -70,11 +70,13 @@ define([
       }
 
       finalStr = arr.reverse().join(',');
+      
       if (decimal) {
         finalStr += '.' + decimal;
       }
 
       return finalStr;
+
     },
 
     /**
@@ -106,21 +108,21 @@ define([
   });
 
   String.camelCase = function() {
-    return EVIStringUtils.camelCase.apply(String, [this]);
+    return StringUtils.camelCase.apply(String, arguments);
   };
 
   String.camelCaseFromNamespace = function() {
-    return EVIStringUtils.camelCaseFromNamespace.apply(String, [this]);
+    return StringUtils.camelCaseFromNamespace.apply(String, arguments);
   };
 
-  String.fromNumber = function() {
-    return EVIStringUtils.formatNumber.apply(String, [this]);
+  String.formatNumber = function() {
+    return StringUtils.formatNumber.apply(String, arguments);
   };
 
   String.unescapeHTML = function() {
-    return EVIStringUtils.unescapeHTML.apply(String, [this]);
+    return StringUtils.unescapeHTML.apply(String, [this]);
   };
 
-  return EVIStringUtils;
+  return StringUtils;
 
 });

@@ -1,9 +1,10 @@
 /**
- * @namespace Evisions
+ * @namespace Vertebrae
  */
 define([
   'backbone', 
-  'underscore'
+  'underscore',
+  './stringutils'
 ], function(Backbone, _) {
 
   /**
@@ -13,7 +14,7 @@ define([
    * 
    * @class BaseObject
    * 
-   * @memberOf Evisions
+   * @memberOf Vertebrae
    */
   var BaseObject = function() {
 
@@ -55,7 +56,7 @@ define([
   /**
    * Create of sub-class of BaseObject
    * 
-   * @function Evisions.BaseObject.extend
+   * @function Vertebrae.BaseObject.extend
    * 
    * @static
    * 
@@ -85,11 +86,11 @@ define([
               getter = function() {
                 return this.get(prop);
               },
-              cameld = BaseObject.camelCase(prop);
+              cameld = String.camelCase(prop);
 
           if (cameld.indexOf('.') > -1) {
             // Make the name camel cased through the namespace and remove periods.
-            cameld = BaseObject.camelCaseFromNamespace(cameld);
+            cameld = String.camelCaseFromNamespace(cameld);
           }
 
           var setterName = 'set' + cameld,
@@ -122,7 +123,7 @@ define([
     return child;
   };
 
-  BaseObject.prototype = /** @lends Evisions.BaseObject */ {
+  BaseObject.prototype = /** @lends Vertebrae.BaseObject */ {
 
     // Function placeholder for the base object initialization.
     initialize: function() {
@@ -149,9 +150,9 @@ define([
 
       for (key in jsonObject) {
         if (key.indexOf('.') > -1) {
-          setterFn = "set" + BaseObject.camelCaseFromNamespace(key);
+          setterFn = "set" + String.camelCaseFromNamespace(key);
         } else {
-          setterFn = "set" + BaseObject.camelCase(key);
+          setterFn = "set" + String.camelCase(key);
         }
         if (_.isFunction(this[setterFn])) {
           this[setterFn](jsonObject[key]);
@@ -249,7 +250,7 @@ define([
 
       for (i = 0; i < properties.length; ++i) {
         prop = properties[i];
-        getter = this['get' + BaseObject.camelCase(prop)];
+        getter = this['get' + String.camelCase(prop)];
         if (getter) {
           value = getter.call(this);
         } else {
@@ -301,37 +302,6 @@ define([
   };
 
   _.extend(BaseObject, {
-    /**
-     * Return the input string with the first letter capitalized.
-     *
-     * @function
-     *
-     * @param  {String} str The string you would like to camel case.
-     * 
-     * @return {String} The camel cased string.
-     */
-    camelCase: function(str) {
-      return str.charAt(0).toUpperCase() + str.slice(1);
-    },
-
-    /**
-     * Return an array of camel cased strings.
-     * The namespace will get exploded based off the "." within the namespace.
-     *
-     * @function
-     *
-     * @param  {String} str The namespace you would like to camel case.
-     * 
-     * @return {Array} Array of camel cased strings from the namespace.
-     */
-    camelCaseFromNamespace: function(str) {
-      str = str.split('.');
-      for (var i = 0; i < str.length; i++) {
-        str[i] = BaseObject.camelCase(str[i]);
-      }
-
-      return str.join('');
-    },
 
     /**
      * Take a namespace string and value and apply it to the given object
