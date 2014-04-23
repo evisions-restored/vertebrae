@@ -18,9 +18,15 @@ define(['vertebrae/model', 'underscore'], function(Model, _) {
         }, {
           rootURI: '/api/',
           parsers: {
-            'test1': function(data) { return 'test1' },
-            '#PUT#puttest': function(data) { return 'puttest' },
-            'getId/:id': function(data) { return 'someid' }
+            'test1': function(data) { 
+              return 'test1';
+            },
+            '#PUT#puttest': function(data) { 
+              return 'puttest'; 
+            },
+            'getId/:id': function(data) { 
+              return 'someid'; 
+            }
           }
         });
       //Setup up some simple models with defined properties
@@ -66,7 +72,7 @@ define(['vertebrae/model', 'underscore'], function(Model, _) {
 
     it('prototype.when', function(done) {
       //I need to call this 4 times to be done
-      var doneCount = _.after(4,done);
+      var doneCount = _.after(4, done);
 
       instA = new SimpleModel();
 
@@ -78,21 +84,21 @@ define(['vertebrae/model', 'underscore'], function(Model, _) {
 
       suc
         .done(function(a) {
-          assert.equal(a,'cat1');
+          assert.equal(a, 'cat1');
           doneCount();
         })
         .then(function(a) {
-          assert.equal(a,'cat1');
+          assert.equal(a, 'cat1');
           doneCount();
         });
 
       rej
         .fail(function(a) {
-          assert.equal(a,'cat2');
+          assert.equal(a, 'cat2');
           doneCount();
         })
         .then(null,function(a) {
-          assert.equal(a,'cat2');
+          assert.equal(a, 'cat2');
           doneCount();
         })
     });
@@ -139,8 +145,8 @@ define(['vertebrae/model', 'underscore'], function(Model, _) {
 
       assert.instanceOf(instA, SimpleModel);
       assert.instanceOf(instA, Model);
-      assert.equal(instA.prop1,'cats');
-      assert.equal(instA.prop2,'dogs');
+      assert.equal(instA.prop1, 'cats');
+      assert.equal(instA.prop2, 'dogs');
     });
 
     it('static.models', function() {
@@ -148,7 +154,7 @@ define(['vertebrae/model', 'underscore'], function(Model, _) {
         [{
           prop1: 'cats1',
           prop2: 'cats2'
-        },{
+        }, {
           prop1: 'dogs1',
           prop2: 'dogs2'
         }];
@@ -161,30 +167,30 @@ define(['vertebrae/model', 'underscore'], function(Model, _) {
 
       assert.instanceOf(instA, SimpleModel);
       assert.instanceOf(instA, Model);
-      assert.equal(instA.prop1,'cats1');
-      assert.equal(instA.prop2,'cats2');
+      assert.equal(instA.prop1, 'cats1');
+      assert.equal(instA.prop2, 'cats2');
 
       assert.instanceOf(instB, SimpleModel);
       assert.instanceOf(instB, Model);
-      assert.equal(instB.prop1,'dogs1');
-      assert.equal(instB.prop2,'dogs2');
+      assert.equal(instB.prop1, 'dogs1');
+      assert.equal(instB.prop2, 'dogs2');
     });
 
     it('static.getAjaxTimeout', function() {
       SimpleModel.timeout = 12345;
-      assert.equal(SimpleModel.getAjaxTimeout(),12345);
+      assert.equal(SimpleModel.getAjaxTimeout(), 12345);
 
       SimpleModel.timeout = undefined;
       //We should still get a number even if we set it to undefined.
-      assert.typeOf(SimpleModel.getAjaxTimeout(),"number");
+      assert.typeOf(SimpleModel.getAjaxTimeout(), "number");
     });
 
     it('static.request', function(done) {
       //Don't delete this line! need to replace ajax
       var originalAjax = $.ajax,
-          params       = { "key1": "value1"},
+          params       = { "key1" : "value1" },
           ajaxValid    = true,
-          ajaxData     = {"key2":"value2"};
+          ajaxData     = { "key2" : "value2" };
 
       //Setup ajax to respond as a success
       $.ajax = function(opts) {
@@ -203,23 +209,23 @@ define(['vertebrae/model', 'underscore'], function(Model, _) {
         },0);
       };
 
-      Model.request('/test/endpoint',params,{})
+      Model.request('/test/endpoint', params,{})
         .then(function(data) {
           assert.isObject(data);
-          assert.equal(data.key2,"value2");
+          assert.equal(data.key2, "value2");
 
           //setup a failure
           ajaxValid = false;
           ajaxData = {error:'message'};
 
           //lets ttest a failure now.
-          return Model.request('/test/endpoint',params,{})
+          return Model.request('/test/endpoint', params, {})
         })
         .then(null, function(error) {
           assert.isObject(error);
           assert.isFalse(error.valid);
           assert.isObject(error.data);
-          assert.equal(error.data.error,"message");
+          assert.equal(error.data.error, "message");
 
           //Dont delete this line!  Need to restore ajax!
           $.ajax = originalAjax;
@@ -230,85 +236,85 @@ define(['vertebrae/model', 'underscore'], function(Model, _) {
     it('static.getParser', function() {
       var p1 = SimpleModel.getParser('test1');
       assert.isFunction(p1);
-      assert.equal(p1(),'test1');
+      assert.equal(p1(), 'test1');
 
-      var p2 = SimpleModel.getParser('puttest','put');
+      var p2 = SimpleModel.getParser('puttest', 'put');
       assert.isFunction(p2);
-      assert.equal(p2(),'puttest');
+      assert.equal(p2(), 'puttest');
 
-      var p3 = SimpleModel.getParser('getId/3','put');
+      var p3 = SimpleModel.getParser('getId/3', 'put');
       assert.isFunction(p3);
-      assert.equal(p3(),'someid');
+      assert.equal(p3(), 'someid');
 
       assert.isUndefined(SimpleModel.getParser('nothingHere'));
       assert.isUndefined(SimpleModel.getParser('puttest'));
     });
 
     it('static.parseParsers', function() {
-      var NewModel = SimpleModel.extend({},{
+      var NewModel = SimpleModel.extend({}, {
         parsers: {
           'additionalParser': function() { return 'brandnew'; }
         }
       });
 
-      assert.lengthOf(NewModel._parsers,4);
-      assert.equal(NewModel._parsers[0].callback(),'brandnew');
+      assert.lengthOf(NewModel._parsers, 4);
+      assert.equal(NewModel._parsers[0].callback(), 'brandnew');
     });
 
     it('static.post', function() {
       var p = {"key": "value"};
       SimpleModel.request = function(uri, params, options) {
-        assert.equal(uri,'post/test');
+        assert.equal(uri, 'post/test');
         assert.isObject(params);
-        assert.equal(params,p);
+        assert.equal(params, p);
         assert.isObject(options);
-        assert.equal(options.type.toLowerCase(),'post');
+        assert.equal(options.type.toLowerCase(), 'post');
       };
 
-      SimpleModel.post('post/test',p);
-      SimpleModel.post('post/test',p,{jsonBody:true});
+      SimpleModel.post('post/test', p);
+      SimpleModel.post('post/test', p, {jsonBody:true});
     });
 
     it('static.get', function() {
       var p = {"key": "value"};
       SimpleModel.request = function(uri, params, options) {
-        assert.equal(uri,'get/test');
+        assert.equal(uri, 'get/test');
         assert.isObject(params);
-        assert.equal(params,p);
+        assert.equal(params, p);
         assert.isObject(options);
-        assert.equal(options.type.toLowerCase(),'get');
+        assert.equal(options.type.toLowerCase(), 'get');
       };
 
-      SimpleModel.get('get/test',p);
-      SimpleModel.get('get/test',p,{jsonBody:true});
+      SimpleModel.get('get/test', p);
+      SimpleModel.get('get/test', p, {jsonBody:true});
     });
 
     it('static.put', function() {
       var p = {"key": "value"};
       SimpleModel.request = function(uri, params, options) {
-        assert.equal(uri,'put/test');
+        assert.equal(uri, 'put/test');
         assert.isObject(params);
-        assert.equal(params,p);
+        assert.equal(params, p);
         assert.isObject(options);
-        assert.equal(options.type.toLowerCase(),'put');
+        assert.equal(options.type.toLowerCase(), 'put');
       };
 
-      SimpleModel.put('put/test',p);
-      SimpleModel.put('put/test',p,{jsonBody:true});
+      SimpleModel.put('put/test', p);
+      SimpleModel.put('put/test', p, {jsonBody:true});
     });
 
     it('static.del', function() {
       var p = {"key": "value"};
       SimpleModel.request = function(uri, params, options) {
-        assert.equal(uri,'del/test');
+        assert.equal(uri, 'del/test');
         assert.isObject(params);
-        assert.equal(params,p);
+        assert.equal(params, p);
         assert.isObject(options);
-        assert.equal(options.type.toLowerCase(),'delete');
+        assert.equal(options.type.toLowerCase(), 'delete');
       };
 
-      SimpleModel.del('del/test',p);
-      SimpleModel.del('del/test',p,{jsonBody:true});
+      SimpleModel.del('del/test', p);
+      SimpleModel.del('del/test', p, {jsonBody:true});
     });
 
     it('static.generateLink', function() {
@@ -330,19 +336,19 @@ define(['vertebrae/model', 'underscore'], function(Model, _) {
       });
 
       //All the parsers are there (3 from old, 1 from new)
-      assert.lengthOf(NewModel._parsers,4);
-      assert.equal(NewModel._parsers[0].callback(),'static.extend.test');
+      assert.lengthOf(NewModel._parsers, 4);
+      assert.equal(NewModel._parsers[0].callback(), 'static.extend.test');
 
       //All the properties are there (1 regular and 1 server additional, 2 on SimpleModel)
-      assert.lengthOf(NewModel.prototype.properties,4);
-      assert.include(NewModel.prototype.properties,'newprop');
-      assert.include(NewModel.prototype.properties,'serverProp');
-      assert.include(NewModel.prototype.properties,'prop1');
-      assert.include(NewModel.prototype.properties,'prop2');
+      assert.lengthOf(NewModel.prototype.properties, 4);
+      assert.include(NewModel.prototype.properties, 'newprop');
+      assert.include(NewModel.prototype.properties, 'serverProp');
+      assert.include(NewModel.prototype.properties, 'prop1');
+      assert.include(NewModel.prototype.properties, 'prop2');
 
       //Verify server properties is what it should be.
-      assert.lengthOf(NewModel.prototype.serverProperties,1);
-      assert.include(NewModel.prototype.serverProperties,'serverProp');
+      assert.lengthOf(NewModel.prototype.serverProperties, 1);
+      assert.include(NewModel.prototype.serverProperties, 'serverProp');
     });
 
   });
