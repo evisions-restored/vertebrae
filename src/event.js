@@ -100,8 +100,9 @@ define([
     on: function() {
       return EVIEvent.observe.apply(EVIEvent, arguments);
     }
+    
 	};
 
 	return EVIEvent;
-	
+
 });
