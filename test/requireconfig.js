@@ -22,22 +22,13 @@ require.config({
     vertebrae  : './src'
   },
 
-  deps: tests,
+  deps: ['chai', 'jquery'].concat(tests),
 
-  callback: function() {
-    require([
-      'chai',
-      'jquery'
-    ], function (chai, jquery) {
-      $ = jquery;
-
-      // Global Assertion Libraries
-      assert  = chai.assert;
-      expect  = chai.expect;
-      should  = chai.should();
-
-      window.__karma__.start();
-    });
+  callback: function(chai) {
+    assert  = chai.assert;
+    expect  = chai.expect;
+    should  = chai.should();
+    window.__karma__.start();
   }
 
 });
