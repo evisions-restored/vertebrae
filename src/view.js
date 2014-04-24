@@ -276,8 +276,11 @@ define([
      */
     template: function(name, obj, attach) {
       if (!_.isString(name)) {
-        obj = name;
-        name = this.templateName;
+        //Scoot over the parameters to the left
+        attach = obj;
+        obj    = name;
+
+        name   = this.templateName;
       }
       
       if (_.isArray(obj)) {
@@ -364,12 +367,21 @@ define([
       el = el.get(0);
     }
     
-    if (datum !== undefined) {
+    // Check how many arguments were 
+    // passed in so we know if we are 
+    // setting.  Checking undefined 
+    // means you cant set the data to 
+    // undefined.
+    if (arguments.length == 2) {
       el.__data__ = datum;
       $(el).addClass('__data__');
     }
 
     return el.__data__;
+  };
+
+  EVIView.getTemplates = function() {
+    return templates || {};
   };
 
   /**
@@ -380,7 +392,9 @@ define([
    * @param  {Object} newTemplates 
    */
   EVIView.setupTemplates = function(newTemplates) {
-    templates = newTemplates;
+    if (_.isObject(newTemplates)) {
+      templates = newTemplates;
+    }
   };
 
   /**

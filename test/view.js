@@ -14,7 +14,9 @@ define([
       myElement;
 
     beforeEach(function() {
-      SimpleView       = BaseView.extend({}, {});
+      SimpleView       = BaseView.extend({
+        templateName: 'default.template'
+      }, {});
 
       SimpleController = BaseController.extend({
         setupView: function() {
@@ -152,10 +154,10 @@ define([
       myView.setAvailable(true);
       assert.isTrue(myView.getAvailable());
 
-      assert.equal(counter,2,'available event should have fired twice from this.')
+      assert.equal(counter, 2, 'available event should have fired twice from this.')
 
       myView.setAvailable(false,true);//should not listeners
-      assert.equal(counter,2,'available event should not fire when noTrigger is true')
+      assert.equal(counter, 2, 'available event should not fire when noTrigger is true')
     });
 
     it('prototype.setRendered', function() {
@@ -185,11 +187,11 @@ define([
       assert.isFalse(myView.hidden);
       myView.setHidden(true);
 
-      assert.equal(counter,1,'hidden should have triggered events, but didnt')
+      assert.equal(counter,1 , 'hidden should have triggered events, but didnt')
       assert.isTrue(myView.hidden);
 
       myView.setHidden(false,true);
-      assert.equal(counter,1,'hidden should not have triggered events, but did')
+      assert.equal(counter, 1, 'hidden should not have triggered events, but did')
     });
 
     it('prototype.isHidden', function() {
@@ -210,36 +212,237 @@ define([
     });
 
     it('prototype.renderFragment', function() {
+      // Setup a handlebars template and context to be rendered
       var context = { test: 'value-here' };
       var source = "<div class='{{test}}'>{{test}}</div>"
 
       var template = Handlebars.compile(source);
 
+      // Load the template into the view
       BaseView.setupTemplates({
         'render.frag.test': template
       });
 
+      // Get the resulting DocumentFragment rendered
       var result = myView.renderFragment('render.frag.test', context);
       
-      assert.instanceOf(result,$);
-      assert.lengthOf(result,1);
+      // Verify the output of the render
+      assert.instanceOf(result, $);
+      assert.lengthOf(result, 1);
       assert.instanceOf(result.get(0), DocumentFragment);
-      result.appendTo(document.body)
+      result.appendTo(myElement)
 
-      assert.equal(document.body.innerHTML,"<div></div><div class=\"value-here\">value-here</div>");
+      // Make sure the html generated is what it should be
+      assert.equal(myElement.html(),"<div class=\"value-here\">value-here</div>");
 
+      // Make sure there is no datum (since we didn't bind any data to it)
       assert.isUndefined(myView.getElementDatum($(".value-here")));
 
-      context = {test:'has-data'};
+      // Lets render the template again, this time binding data
+      context = {test: 'has-data'};
       result = myView.renderFragment('render.frag.test', context,true);
       result.appendTo(document.body);
 
+      // Retrieve any data on the element
       var data = myView.getElementDatum($(".has-data"));
 
-      assert.equal(data,context);
-
+      // Make sure the data retrieved is what it should be
+      assert.equal(data, context);
     });
 
+    it('prototype.renderFragments', function() {
+      var multicontext = [
+        { test: 'value-1' },
+        { test: 'value-2' }
+      ];
+      var source = "<div class='{{test}}'>{{test}}</div>"
+
+      var template = Handlebars.compile(source);
+
+      // Load the template into the view
+      BaseView.setupTemplates({
+        'render.frag.test': template
+      });
+
+      // Get the resulting DocumentFragments rendered
+      var result = myView.renderFragments('render.frag.test', multicontext);
+
+      // Verify the output of the render
+      assert.instanceOf(result, $);
+      assert.lengthOf(result, 1);
+      assert.instanceOf(result.get(0), DocumentFragment);
+      result.appendTo(myElement);
+
+      assert.equal(myElement.html(), "<div class=\"value-1\">value-1</div><div class=\"value-2\">value-2</div>");
+    
+      // Make sure there is no datum (since we didn't bind any data to it)
+      assert.isUndefined(myView.getElementDatum($(".value-1")));
+      assert.isUndefined(myView.getElementDatum($(".value-2")));
+
+      myElement.empty();
+      // Make sure data binding works.
+      result = myView.renderFragments('render.frag.test', multicontext,true);
+      result.appendTo(myElement);
+      assert.equal(myElement.html(), "<div class=\"value-1 __data__\">value-1</div><div class=\"value-2 __data__\">value-2</div>");
+    
+      // Make sure the data retrieved is what it should be
+      assert.equal(myView.getElementDatum($(".value-1")), multicontext[0]);
+      assert.equal(myView.getElementDatum($(".value-2")), multicontext[1]);
+    });
+
+    it('prototype.setDelegate', function() {
+      myView.setDelegate(null);
+      assert.isNull(myView.getDelegate());
+      assert.isNull(myView.delegate);
+
+      myView.setDelegate(myDelegate);
+      assert.equal(myView.getDelegate(),myDelegate);
+      assert.equal(myView.delegate,myDelegate);
+    });
+
+    it('prototype.template', function() {
+      var c = Handlebars.compile;
+      // Load the template into the view
+      BaseView.setupTemplates({
+        'default.template' : c("<div class='{{test}}'>{{test}}</div>"),
+        'extra.template'   : c("<div class='{{test}}'>{{test}}-cookies</div>")
+      });
+
+      var data = {test:'hello'};
+
+      var result = myView.template(data);
+      assert.instanceOf(result, $);
+      assert.lengthOf(result, 1);
+      assert.instanceOf(result.get(0), DocumentFragment);
+      result.appendTo(myElement);
+      assert.equal(myElement.html(), "<div class=\"hello\">hello</div>");
+      myElement.empty();
+
+      // Make sure it accepts arrays, too
+      result = myView.template('extra.template',[data, data]);
+      assert.instanceOf(result, $);
+      assert.lengthOf(result, 1);
+      assert.instanceOf(result.get(0), DocumentFragment);
+      result.appendTo(myElement);
+      assert.equal(myElement.html(), "<div class=\"hello\">hello-cookies</div><div class=\"hello\">hello-cookies</div>");
+    });
+
+    it('prototype.unload', function() {
+      myElement.html('test');
+      var flag = false;
+      myView.unload(function() {
+        flag = true;
+      });
+      assert.equal(myElement.html(), '', 'view element was not emptied');
+      assert.isTrue(flag,'unload callback was not called');
+
+      // Just need to make sure these don't break
+      myView.unload("this shouldn't break anything");
+      myView.unload({value: "nor this"});
+    });
+
+    it('prototype.watchDelegateProperties', function() {
+      assert.isFunction(myView.watchDelegateProperties);
+    });
+
+    it('static.setup', function() {
+      //Re-initialize these variables
+      myElement  = $("<div>");
+      myDelegate = new SimpleController();
+
+      var flag = false;
+      SimpleView.prototype.watchDelegateProperties = function() {
+        flag = true;
+      };
+
+      myView     = SimpleView.setup(myElement, myDelegate);
+
+
+      assert.instanceOf(myView, BaseView);
+      assert.instanceOf(myView, SimpleView);
+      assert.equal(myView.getDelegate(), myDelegate);
+      assert.equal(myView.delegate, myDelegate);
+      assert.isTrue(flag, 'watchDelegateProperties was never called');
+    });
+
+    it('static.datum', function() {
+      var el = $("<div>");
+
+      assert.isUndefined(BaseView.datum(el));
+
+      BaseView.datum(el, 'somedata');
+      assert.equal(BaseView.datum(el), 'somedata', 'couldnt load datum set on element');
+      assert.isTrue(el.hasClass("__data__"));
+      
+      var obj = {'key': 'value'};
+      BaseView.datum(el, obj);
+      assert.equal(BaseView.datum(el), obj, 'couldnt load datum set on element');
+    
+      BaseView.datum(el, undefined);
+      assert.isUndefined(BaseView.datum(el));
+
+      BaseView.datum(el, null);
+      assert.isNull(BaseView.datum(el));
+    });
+
+    it('static.getTemplates', function() {
+      //Make sure the template object exists, even before i set it.
+      assert.isObject(BaseView.getTemplates());
+
+      // Setup a handlebars template to be added
+      var template = Handlebars.compile("<div class='{{test}}'>{{test}}</div>");
+
+      // Load the template into the view
+      BaseView.setupTemplates({
+        'render.frag.test': template
+      });
+
+      //Make sure the template is defined on the object
+      assert.isFunction(BaseView.getTemplates()['render.frag.test'], 'The template function doesn\'t exist.');
+      assert.equal(BaseView.getTemplates()['render.frag.test'], template, 'The template function isn\; what we set it to');
+    });
+
+    it('static.setupTemplates', function() {
+      //Make sure the template object exists, even before i set it.
+      assert.isObject(BaseView.getTemplates());
+
+      // Setup a handlebars template to be added
+      var template = Handlebars.compile("<div class='{{test}}'>{{test}}</div>");
+
+      // Load the template into the view
+      BaseView.setupTemplates({
+        'render.frag.test': template
+      });
+
+      //Make sure the template is defined on the object
+      assert.isFunction(BaseView.getTemplates()['render.frag.test'], 'The template function doesn\'t exist.');
+      assert.equal(BaseView.getTemplates()['render.frag.test'], template, 'The template function isn\; what we set it to');
+    });
+
+    it('static.template', function() {
+      // Setup a handlebars template and context to be rendered
+      var context = { test: 'value-here' };
+      var source = "<div class='{{test}}'>{{test}}</div>"
+
+      var template = Handlebars.compile(source);
+
+      // Load the template into the view
+      BaseView.setupTemplates({
+        'render.frag.test': template
+      });
+
+      // Get the resulting DocumentFragment rendered
+      var result = BaseView.template('render.frag.test', context);
+
+      // Make sure the html generated is what it should be
+      assert.equal(result,"<div class='value-here'>value-here</div>");
+
+      assert.equal('', BaseView.template('not.defined'), 'Accessing an undefined template should return empty string.')
+    });
+
+    it('static.extend', function() {
+      
+    });
 
   }); // BaseView Unit Test
 
