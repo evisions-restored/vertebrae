@@ -5,7 +5,10 @@ define([
       'backbone', 
       './object', 
       './event'
-], function(Backbone, EVIObject, Events) {
+], function(
+      Backbone, 
+      EVIObject, 
+      EVIEvents) {
 
   var templates = {};
 
@@ -51,7 +54,7 @@ define([
     initialize: function() {
       // Binding the view object(this) to the functions defined inside the view.
       // This is getting after the prototype functionality.
-      Events.bindAll(this);
+      EVIEvents.bindAll(this);
 
       // Creating a temporary variable to hold the original initialization function.
       var oldInit = this.initialize;
@@ -429,7 +432,6 @@ define([
     watchDelegateProperties: function() { /* Do nothing. */ }
 
   });
-
 
   var EVIView = EVIObject.extend(EVIViewTemp.prototype);
 
