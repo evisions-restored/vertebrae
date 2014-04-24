@@ -1,7 +1,10 @@
+/**
+ * @namespace Evisions
+ */
 define([
-  'backbone', 
-  './object', 
-  './event'
+      'backbone', 
+      './object', 
+      './event'
 ], function(Backbone, EVIObject, Events) {
 
   var templates = {};
@@ -17,12 +20,34 @@ define([
    */
   var EVIViewTemp = Backbone.View.extend(/** @lends  Evisions.EVIView */{
 
+    /**
+     * Is the view rendered?
+     * 
+     * @type {Boolean}
+     */
     rendered: false,
 
+    /**
+     * Is the view hidden?
+     * 
+     * @type {Boolean}
+     */
     hidden: false,
 
+    /**
+     * Is the view available?
+     * 
+     * @type {Boolean}
+     */
     available: false,
 
+    /**
+     * @function
+     *
+     * @instance
+     *
+     * @constructor
+     */
     initialize: function() {
       // Binding the view object(this) to the functions defined inside the view.
       // This is getting after the prototype functionality.
@@ -77,13 +102,13 @@ define([
     },
 
     /**
-     * Returns the Data of an Element
+     * Returns the data of an element.
      * 
      * @function
      * 
      * @instance
      * 
-     * @param {Object} el DOM object of the data we would like to return.
+     * @param  {Object} el DOM object of the data we would like to return.
      * 
      * @return {String} 
      */
@@ -91,6 +116,13 @@ define([
       return this.constructor.datum($(el).closest('.__data__').get(0));
     },
 
+    /**
+     * Setting the available property based off its current value.
+     *
+     * @function
+     *
+     * @instance
+     */
     refreshAvailable: function() {
       if (!!this.isAvailable()) {
         this.setAvailable(true);
@@ -99,6 +131,15 @@ define([
       }
     },
 
+    /**
+     * Setting a deferred for when the view is available.
+     *
+     * @function
+     *
+     * @instance
+     * 
+     * @return {Deferred}
+     */
     whenAvailable: function() {
       var d = $.Deferred();
 
@@ -113,64 +154,137 @@ define([
       return d.promise();
     },
 
+    /**
+     * Checking to make sure the view is available.
+     *
+     * @function
+     *
+     * @instance
+     * 
+     * @return {Boolean}
+     */
     isAvailable: function() {
       if (this.isRendered() && !this.isHidden()) {
         return true;
       }
+
       return false;
     },
 
+    /**
+     * Getting the value for the available property.
+     *
+     * @function
+     *
+     * @instance
+     * 
+     * @return {Object}
+     */
     getAvailable: function() {
-
       return this.get('available');
     },
 
+    /**
+     * Setting the value for the available property.
+     *
+     * @function
+     *
+     * @instance
+     * 
+     * @param  {Object} value
+     * @param  {Object} noTrigger
+     *
+     * @return {Object}
+     */
     setAvailable: function(value, noTrigger) {
       this.set('available', value, noTrigger);
+
       return this;
     },
 
     /**
-     * Call this function to let the controller know that you are rendered
+     * Call this function to let the controller know that you are rendered.
+     *
+     * @function
+     *
+     * @instance
+     *
+     * @return {Object}
      */
     setRendered: function() {
       this.set('rendered', true);
+
       return this;
     },
 
     /**
      * Return a boolean that you rendered
-
+     *
+     * @function
+     *
+     * @instance
+     * 
      * @return {Boolean}
      */
     isRendered: function() {
-
       return !!this.getRendered();
     },
 
+    /**
+     * Setting the hidden property.
+     *
+     * @function
+     *
+     * @instance
+     * 
+     * @param  {Boolean}  value
+     * @param  {Object}   noTrigger
+     *
+     * @return {Object}
+     */
     setHidden: function(value, noTrigger) {
       this.set('hidden', value, noTrigger);
 
       return this;
     },
 
+    /**
+     * Checking to see if the view is hidden.
+     *
+     * @function
+     *
+     * @instance
+     * 
+     * @return {Boolean}
+     */
     isHidden: function() {
 
       return !!this.getHidden();
     },
 
+    /**
+     * Getting the current hidden property state.
+     *
+     * @function
+     *
+     * @instance
+     * 
+     * @return {Boolean}
+     */
     getHidden: function() {
-
       return this.get('hidden');
     },
 
     /**
-     * Get the current rendered property state
+     * Get the current rendered property state.
+     *
+     * @function
+     *
+     * @instance
      * 
      * @return {Boolean} 
      */
     getRendered: function() {
-
       return this.get('rendered');
     },
 
@@ -181,9 +295,9 @@ define([
      * 
      * @instance
      * 
-     * @param {String} template String name of the handlebars template.
-     * @param {Object} datum Data that we are binding to the handlebars template.
-     * @param {Bool} attach Do we want to attach this fragment to the newly created DOM?
+     * @param  {String} template  String name of the handlebars template.
+     * @param  {Object} datum     Data that we are binding to the handlebars template.
+     * @param  {Bool}   attach    Do we want to attach this fragment to the newly created DOM?
      * 
      * @return {Object} 
      */
@@ -207,9 +321,9 @@ define([
      * 
      * @instance
      * 
-     * @param {String} template String name of the handlebars template.
-     * @param {Array} data Array of data that we are binding to the handlebars template.
-     * @param {Bool} attach Do we want to attach these fragments to the newly created DOM?
+     * @param  {String} template  String name of the handlebars template.
+     * @param  {Array}  data      Array of data that we are binding to the handlebars template.
+     * @param  {Bool}   attach    Do we want to attach these fragments to the newly created DOM?
      * 
      * @return {Array}
      */
@@ -244,14 +358,14 @@ define([
     },
 
     /**
-     * Sets the delegate for a view. 
-     * The delegate is typically a controller but is supposed to be whatevers gives the view its data.
+     * Sets the delegate for a view. The delegate is typically a controller but is 
+     * supposed to be whatevers gives the view its data.
      * 
      * @function
      * 
      * @instance
      * 
-     * @param {Object} delegate The delegate for this view.
+     * @param  {Object} delegate The delegate for this view.
      * 
      * @return {Object}
      */
@@ -268,9 +382,9 @@ define([
      * 
      * @instance
      * 
-     * @param {String} name Name of the handlebars template.
-     * @param {Object|Array} obj Data to be passed to the DOM fragments/template.
-     * @param {Bool} attach Should we attach the rendered data to the DOM?
+     * @param  {String}       name    Name of the handlebars template.
+     * @param  {Object|Array} obj     Data to be passed to the DOM fragments/template.
+     * @param  {Bool}         attach  Should we attach the rendered data to the DOM?
      * 
      * @return {String}
      */
@@ -294,7 +408,7 @@ define([
      * 
      * @instance
      * 
-     * @param {Function} cb Callback function to execute after the element is unloaded. 
+     * @param  {Function} cb Callback function to execute after the element is unloaded. 
      */
     unload: function(cb) {
       this.$el.empty();
@@ -305,13 +419,14 @@ define([
     },
     
     /**
-     * When the delegate for a view as been set, this is called so that the view can bind to property change events and do any necessary logic accordingly.
+     * When the delegate for a view as been set, this is called so that the view can bind to property 
+     * change events and do any necessary logic accordingly.
      * 
      * @function
      * 
      * @instance
      */
-    watchDelegateProperties: function() { }
+    watchDelegateProperties: function() { /* Do nothing. */ }
 
   });
 
@@ -321,14 +436,10 @@ define([
   /**
    * Basic setup of the view object.
    * 
-   * @todo Is this method even used anymore?
-   * 
-   * @memberOf EVIView
-   * 
    * @function
-   * 
-   * @param {Object} element The element we are doing the setup on.
-   * @param {Object} delegate The controller for the view.
+   *
+   * @param  {Object} element   The element we are doing the setup on.
+   * @param  {Object} delegate  The controller for the view.
    * 
    * @return {Object}
    */
@@ -373,10 +484,10 @@ define([
   };
 
   /**
-   * Apply the template object to the render helper
+   * Apply the template object to the render helper.
    *
    * @function
-   * 
+   *
    * @param  {Object} newTemplates 
    */
   EVIView.setupTemplates = function(newTemplates) {
@@ -388,10 +499,10 @@ define([
    *
    * @function
    *
-   * @param  {String} name The name of the template you want to return.
-   * @param  {Object} data The data you want to pass into the template.
+   * @param  {String} name  The name of the template you want to return.
+   * @param  {Object} data  The data you want to pass into the template.
    * 
-   * @return {String} The processed string data returned from Handlebars.
+   * @return {String}       The processed string data returned from Handlebars.
    */
   EVIView.template = function(name, data, options) {
     var template = templates[name];
@@ -407,11 +518,9 @@ define([
   /**
    * Extending the view object by mapping handlebar functions to instance functions that are usable inside the view.
    * 
-   * @memberOf EVIView
-   * 
    * @function
-   * 
-   * @param {Object} proto Default proto value when extending a view.
+   *
+   * @param  {Object} proto Default proto value when extending a view.
    * 
    * @return {Object}
    */
