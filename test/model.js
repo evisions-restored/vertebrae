@@ -1,4 +1,9 @@
-define(['vertebrae/model', 'underscore'], function(Model, _) {
+define([
+        'underscore',
+        'vertebrae/model'
+], function(
+        _,
+        Model) {
 
   // Define some variables that are typically reused in each test
   var SimpleModel,

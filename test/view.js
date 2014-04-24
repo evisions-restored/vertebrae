@@ -1,9 +1,13 @@
 define([
-  'jquery',
-  'vertebrae/view',
-  'vertebrae/controller',
-  'handlebars'
-], function($, BaseView, BaseController, Handlebars) {
+        'jquery',
+        'handlebars',
+        'vertebrae/view',
+        'vertebrae/controller'
+], function(
+        $, 
+        Handlebars,
+        BaseView, 
+        BaseController) {
 
   describe('BaseView', function() {
 

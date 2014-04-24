@@ -2,13 +2,13 @@
  * @namespace Evisions
  */
 define([
-      'backbone', 
-      './object', 
-      './event'
+        'backbone', 
+        './object', 
+        './event'
 ], function(
-      Backbone, 
-      BaseObject, 
-      BaseEvents) {
+        Backbone, 
+        BaseObject, 
+        BaseEvents) {
 
   var templates = {};
 

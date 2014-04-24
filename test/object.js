@@ -1,4 +1,7 @@
-define(['vertebrae/object'], function(BaseObject) {
+define([
+        'vertebrae/object'
+], function(
+        BaseObject) {
 
   describe('BaseObject', function() {
 

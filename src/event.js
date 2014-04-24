@@ -2,9 +2,11 @@
  * @namespace Evisions
  */
 define([
-  'jquery',
-  'backbone'
-], function($, Backbone) {
+			  'jquery',
+			  'backbone'
+], function(
+				$, 
+				Backbone) {
 
   var event = _.extend({}, Backbone.Events);
 
@@ -47,8 +49,10 @@ define([
      *
      * @function
      *
-     * @param {String} event The name of the event that you want to fire.
-     * @param {Object} data The date you want to pass into the function listening to the passed event.
+     * @param  {String} event The name of the event that you want to fire.
+     * @param  {Object} data 	The date you want to pass into the function listening to the passed event.
+     *
+     * @return {Object}
      */
     fire: function() {
       event.trigger.apply(event, arguments);
@@ -56,6 +60,13 @@ define([
       return EVIEvent;
     },
 
+    /**
+     * Trigger an event. This will basically call the fire function.
+     *
+     * @function
+     * 
+     * @return {Object}
+     */
     trigger: function() {
       return EVIEvent.fire.apply(EVIEvent, arguments);
     },
@@ -65,8 +76,10 @@ define([
      *
      * @function
      *
-     * @param {String} event The name of the event that you want to observe.
-     * @param {Function} callback The function you want to call if the observed event is fired.
+     * @param  {String} 	event 		The name of the event that you want to observe.
+     * @param  {Function} callback 	The function you want to call if the observed event is fired.
+     *
+     * @return {Object}
      */
     observe: function(name, callback) {
       event.on.apply(event, arguments);
@@ -78,10 +91,19 @@ define([
       };
     },
 
+    /**
+     * Observing events for a particular element.
+     *
+     * @function
+     * 
+     * @return {Object}
+     */
     on: function() {
       return EVIEvent.observe.apply(EVIEvent, arguments);
     }
+
   };
 
   return EVIEvent;
+
 });

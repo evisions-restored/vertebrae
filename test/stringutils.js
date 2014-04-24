@@ -1,6 +1,7 @@
 define([
-  'vertebrae/stringutils'
-], function(StringUtils) {
+        'vertebrae/stringutils'
+], function(
+        StringUtils) {
   
   describe('String Utilities', function() {
 

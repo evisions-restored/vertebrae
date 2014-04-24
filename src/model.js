@@ -8,7 +8,7 @@ define([
 ], function(
         $, 
         _, 
-        EVIObject) {
+        BaseObject) {
 
   var optionalParam = /\((.*?)\)/g,
       namedParam    = /(\(\?)?:\w+/g,
@@ -24,9 +24,9 @@ define([
    * 
    * @memberOf Evisions
    * 
-   * @augments {Evisions.EVIObject}
+   * @augments {Evisions.BaseObject}
    */
-  var BaseModel = EVIObject.extend(/** @lends  Evisions.BaseModel */{
+  var BaseModel = BaseObject.extend(/** @lends  Evisions.BaseModel */{
 
     /**
      * Setup the object
@@ -414,7 +414,7 @@ define([
       proto.properties = [].concat(serverProperties, properties);
     }
 
-    return EVIObject.extend.apply(this, arguments);
+    return BaseObject.extend.apply(this, arguments);
   };
 
   return BaseModel;

@@ -6,15 +6,13 @@ define([
         'underscore',
         './object',
         './event',
-        './stringutils',
-        './validator'
+        './stringutils'
 ], function(
         $, 
         _, 
-        EVIObject, 
-        EVIEvent, 
-        EVIStringUtils, 
-        EVIValidator) {
+        BaseObject, 
+        BaseEvent, 
+        StringUtils) {
 
   function setupObserves() {
     var inst = this;
@@ -36,7 +34,7 @@ define([
         throw new Error(fnName + ' does not exist for the global event ' + event);
       }
 
-      this.once('unload', EVIEvent.observe(event, _.bind(inst[fnName], this)).remove);
+      this.once('unload', BaseEvent.observe(event, _.bind(inst[fnName], this)).remove);
     }
   };
 
@@ -49,9 +47,9 @@ define([
    * 
    * @memberOf Evisions
    * 
-   * @augments {Evisions.EVIObject}
+   * @augments {Evisions.BaseObject}
    */
-  var EVIController = EVIObject.extend(/** @lends  Evisions.EVIController */{
+  var EVIController = BaseObject.extend(/** @lends  Evisions.EVIController */{
 
     /**
      * @description Base properties container for the controller.
@@ -101,7 +99,7 @@ define([
           that            = this,
           view            = this.getView(),
           hasListened     = false,
-          camelProperty   = EVIStringUtils.camelCase(property),
+          camelProperty   = StringUtils.camelCase(property),
           getter          = null,
           updateOnAvaible = null,
           updateView      = null,
@@ -334,9 +332,9 @@ define([
       };
     }
 
-    return EVIObject.extend.apply(this, arguments);
+    return BaseObject.extend.apply(this, arguments);
   };
 
   return EVIController;
-  
+
 });

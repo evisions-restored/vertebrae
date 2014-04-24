@@ -1,4 +1,11 @@
-define(['vertebrae/controller', 'vertebrae/event', 'vertebrae/view'], function(Controller, Event, View) {
+define([
+        'vertebrae/controller', 
+        'vertebrae/event', 
+        'vertebrae/view'
+], function(
+        Controller, 
+        Event, 
+        View) {
 
   describe('BaseController', function() {
 
