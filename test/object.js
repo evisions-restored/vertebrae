@@ -15,13 +15,13 @@ define([
       myClass = null;
     });
 
-    it('should create a new instance', function() {
+    it('constructor', function() {
       var obj = new BaseObject();
+
       expect(obj).to.be.instanceof(BaseObject);
-    }); // BaseObject instantiation
+    });
 
-
-    it('static.extend - should create a new extended class', function() {
+    it('static.extend', function() {
       var initialized   = false,
           extendedClass = BaseObject.extend({
             initialize: function() { initialized = true; }
@@ -31,10 +31,9 @@ define([
       // Verify extended obj is instance of base object
       expect(extendedObj).to.be.instanceof(BaseObject, 'Base Object instance created');
       expect(initialized).to.equal(true, 'Object instantiate function called');
-    }); // BaseObject.extend
+    });
 
-
-    it('prototype.instantiate - should create getters and setters', function() {
+    it('prototype.instantiate', function() {
       var myObject = new myClass();
 
       expect(myObject).to.respondTo('getProperty1');
@@ -44,10 +43,9 @@ define([
 
       expect(myObject.property1).to.equal('value1');
       expect(myObject.getProperty1()).equal('value1');
-    }); // BaseObject Getters/Setters
+    });
 
-
-    it('prototype._super() - should return parent function', function () {
+    it('prototype._super', function () {
       var func1   = function() { return 'function1' },
           func2   = function() { return this._super(); },
           extend1 = BaseObject.extend({ superfy: func1 }),
@@ -55,10 +53,9 @@ define([
           testObj = new extend2();
 
       expect(testObj.superfy()).to.equal('function1');
-    }); // BaseObject.prototype._super
+    });
 
-
-    it('prototype.applyProperties(jsonObject) - should apply an object\'s property values', function () {
+    it('prototype.applyProperties', function () {
       var myObject = new myClass();
 
       // Apply existing properties and their values
@@ -71,10 +68,9 @@ define([
 
       expect(myObject.property1).to.be.undefined;
       expect(myObject.property2).to.equal('appValue2');
-    }); // BaseObject.prototype.applyProperties
+    });
 
-
-    it('prototype.destroy() - should clear properties and listeners', function () {
+    it('prototype.destroy', function () {
       var aObject  = new myClass(),
           bObject  = new myClass(),
           listened = false;
@@ -90,10 +86,9 @@ define([
       // Verfy listeners not triggered
       bObject.setProperty1('value2');
       expect(listened).to.be.false;
-    }); // BaseObject.prototype.destroy
+    }); 
 
-
-    it('prototype.get(k) - should return the property value', function() {
+    it('prototype.get', function() {
       var myObject = new myClass();
 
       myObject.property1 = 'value1';
@@ -102,10 +97,9 @@ define([
       // Verify use of namespace
       myObject.property1 = { property2: 'value2' };
       expect(myObject.get('property1.property2')).to.equal('value2');
-    }); // BaseObject.prototype.get
+    });
 
-
-    it('prototype.getProperties() - should return obj containing valid property values', function() {
+    it('prototype.getProperties', function() {
       var myObject = new myClass();
 
       myObject.property1 = 'value1';
@@ -117,19 +111,17 @@ define([
       myObject.property1 = undefined;
 
       expect(myObject.getProperties()).to.deep.equal({});
-    }); // BaseObject.prototype.getProperties
+    });
 
-
-    it('prototype.set(k, v, silent) - should set the property value', function() {
+    it('prototype.set', function() {
       var myObject = new myClass();
 
       myObject.set('property1', 'value1');
 
       expect(myObject.property1).to.equal('value1');
-    }); // BaseObject.prototype.set
+    }); 
 
-
-    it('prototype.set(k, v, silent) - should trigger listener on set', function() {
+    it('prototype.set', function() {
       var aObject  = new myClass(),
           bObject  = new myClass(),
           listened = false;
@@ -147,9 +139,9 @@ define([
       expect(aObject.property1).to.equal('value2');
 
       expect(listened).to.be.true;
-    }); // BaseObject.prototype.set
+    });
 
-    it('static.setPropertyByNamespace(obj, key, value) - should set an objects property value by namespace', function() {
+    it('static.setPropertyByNamespace', function() {
       var myObject = { property1: null },
           property = 'property1.property2',
           value    = 'value1';
@@ -157,10 +149,10 @@ define([
       BaseObject.setPropertyByNamespace(myObject, property, value);
 
       expect(myObject.property1).to.have.property('property2').to.equal('value1');
-    }); // BaseObject.static.setPropertyByNamespace
+    });
 
 
-    it('static.getPropertyByNamespace(obj, key) - should return the objects property value using a namespace', function() {
+    it('static.getPropertyByNamespace', function() {
       var myObject = { property1: { property2: 'value2' } },
           value    = null;
 
@@ -173,8 +165,8 @@ define([
       value = BaseObject.getPropertyByNamespace(myObject, 'fakeProperty.property2');
 
       expect(value).to.equal(null);
-    }); // BaseObject.static.getPropertyByNamespace
+    });
 
-  }); // BaseObject Unit Test
+  });
 
 });
