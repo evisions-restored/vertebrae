@@ -117,6 +117,7 @@ define([
       if (this.isRendered() && !this.isHidden()) {
         return true;
       }
+      return false;
     },
 
     getAvailable: function() {
@@ -234,7 +235,6 @@ define([
         
         if (attach) {
           this.constructor.datum(fragItem.get(0), data[i]);
-          fragItem.addClass('__data__');
         }
         
         frag.append(fragItem);
@@ -356,12 +356,17 @@ define([
    * @return {Object}       
    */
   EVIView.datum = function(el, datum) {
+    if (!el) {
+      return undefined;
+    }
+
     if (el instanceof $) {
       el = el.get(0);
     }
     
     if (datum !== undefined) {
       el.__data__ = datum;
+      $(el).addClass('__data__');
     }
 
     return el.__data__;
