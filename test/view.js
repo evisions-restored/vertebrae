@@ -471,8 +471,6 @@ define([
       // Make sure the second template is only on the sub class
       assert.isUndefined(SimpleView.prototype.templates['second.defined.template']);
       assert.equal(NewView.prototype.templates['second.defined.template'],'renderSecondDefinedTemplate');
-
-
     });
 
   }); // BaseView Unit Test
