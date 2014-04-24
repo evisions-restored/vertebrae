@@ -7,21 +7,21 @@ define([
       './event'
 ], function(
       Backbone, 
-      EVIObject, 
-      EVIEvents) {
+      BaseObject, 
+      BaseEvents) {
 
   var templates = {};
 
   /**
    * Helper class for the project views.
    * 
-   * @name EVIView
+   * @name BaseView
    * 
-   * @class EVIView
+   * @class BaseView
    * 
    * @memberOf Evisions
    */
-  var EVIViewTemp = Backbone.View.extend(/** @lends  Evisions.EVIView */{
+  var BaseViewTemp = Backbone.View.extend(/** @lends  Evisions.BaseView */{
 
     /**
      * Is the view rendered?
@@ -54,7 +54,7 @@ define([
     initialize: function() {
       // Binding the view object(this) to the functions defined inside the view.
       // This is getting after the prototype functionality.
-      EVIEvents.bindAll(this);
+      BaseEvents.bindAll(this);
 
       // Creating a temporary variable to hold the original initialization function.
       var oldInit = this.initialize;
@@ -62,8 +62,8 @@ define([
       // Temporarily setting the initialize function to null.
       this.initialize = null;
 
-      // Calling the constructor of the EVIObject to handle proper inheritence.
-      EVIObject.call(this);
+      // Calling the constructor of the BaseObject to handle proper inheritence.
+      BaseObject.call(this);
 
       // Setting the object's initialize function back to the original initialize function.
       this.initialize = oldInit;
@@ -436,7 +436,7 @@ define([
 
   });
 
-  var EVIView = EVIObject.extend(EVIViewTemp.prototype);
+  var BaseView = BaseObject.extend(BaseViewTemp.prototype);
 
   /**
    * Basic setup of the view object.
@@ -448,7 +448,7 @@ define([
    * 
    * @return {Object}
    */
-  EVIView.setup = function(element, delegate) {
+  BaseView.setup = function(element, delegate) {
     if (element instanceof $) {
       element = element.get(0);
     }
@@ -471,7 +471,7 @@ define([
    * 
    * @return {Object}       
    */
-  EVIView.datum = function(el, datum) {
+  BaseView.datum = function(el, datum) {
     if (!el) {
       return undefined;
     }
@@ -493,7 +493,7 @@ define([
     return el.__data__;
   };
 
-  EVIView.getTemplates = function() {
+  BaseView.getTemplates = function() {
     return templates || {};
   };
 
@@ -504,7 +504,7 @@ define([
    *
    * @param  {Object} newTemplates 
    */
-  EVIView.setupTemplates = function(newTemplates) {
+  BaseView.setupTemplates = function(newTemplates) {
     if (_.isObject(newTemplates)) {
       templates = newTemplates;
     }
@@ -520,7 +520,7 @@ define([
    * 
    * @return {String}       The processed string data returned from Handlebars.
    */
-  EVIView.template = function(name, data, options) {
+  BaseView.template = function(name, data, options) {
     var template = templates[name];
 
     if (template) {
@@ -540,7 +540,7 @@ define([
    * 
    * @return {Object}
    */
-  EVIView.extend = function(proto) {
+  BaseView.extend = function(proto) {
     if (_.isObject(proto.events) && !proto.overrideEvents) {
       if (_.isObject(this.prototype.events)) {
         proto.events = _.extend({}, this.prototype.events, proto.events);
@@ -562,9 +562,9 @@ define([
       });
     }
     
-    return EVIObject.extend.apply(this, arguments);
+    return BaseObject.extend.apply(this, arguments);
   };
 
-  return EVIView;
+  return BaseView;
   
 });

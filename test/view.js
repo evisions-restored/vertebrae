@@ -15,6 +15,10 @@ define([
 
     beforeEach(function() {
       SimpleView       = BaseView.extend({
+        templates: {
+          'defined.template' : 'renderDefinedTemplate'
+        },
+
         templateName: 'default.template'
       }, {});
 
@@ -414,7 +418,7 @@ define([
         'render.frag.test': template
       });
 
-      //Make sure the template is defined on the object
+      // Make sure the template is defined on the object
       assert.isFunction(BaseView.getTemplates()['render.frag.test'], 'The template function doesn\'t exist.');
       assert.equal(BaseView.getTemplates()['render.frag.test'], template, 'The template function isn\; what we set it to');
     });
@@ -441,7 +445,34 @@ define([
     });
 
     it('static.extend', function() {
-      
+      var NewView = SimpleView.extend({
+        templates: {
+          'second.defined.template' : 'renderSecondDefinedTemplate'
+        }
+      }, {});
+
+      var myNewView = NewView.setup($("<div>"),myDelegate);
+
+      assert.instanceOf(myNewView, BaseView);
+      assert.instanceOf(myNewView, SimpleView);
+      assert.instanceOf(myNewView, NewView);
+
+      // Make sure we have template functions from the old and new classes
+      assert.isFunction(myNewView.renderDefinedTemplate);
+      assert.isFunction(myNewView.renderSecondDefinedTemplate);
+
+      assert.isObject(SimpleView.prototype.templates);
+      assert.isObject(NewView.prototype.templates);
+
+      // Make sure the first template exists on both the sub and super class
+      assert.equal(SimpleView.prototype.templates['defined.template'],'renderDefinedTemplate');
+      assert.equal(NewView.prototype.templates['defined.template'],'renderDefinedTemplate');
+     
+      // Make sure the second template is only on the sub class
+      assert.isUndefined(SimpleView.prototype.templates['second.defined.template']);
+      assert.equal(NewView.prototype.templates['second.defined.template'],'renderSecondDefinedTemplate');
+
+
     });
 
   }); // BaseView Unit Test
