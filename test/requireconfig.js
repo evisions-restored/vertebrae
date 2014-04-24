@@ -23,6 +23,7 @@ require.config({
     vertebrae  : './src'
   },
 
+<<<<<<< HEAD
   shim: {
     handlebars: {
       exports: 'Handlebars'
@@ -30,21 +31,15 @@ require.config({
   },
 
   deps: tests,
+=======
+  deps: ['chai', 'jquery'].concat(tests),
+>>>>>>> 568f229c7b5f75bf82b574fb5bb67bb033730235
 
-  callback: function() {
-    require([
-      'chai',
-      'jquery'
-    ], function (chai, jquery) {
-      $ = jquery;
-
-      // Global Assertion Libraries
-      assert  = chai.assert;
-      expect  = chai.expect;
-      should  = chai.should();
-
-      window.__karma__.start();
-    });
+  callback: function(chai) {
+    assert  = chai.assert;
+    expect  = chai.expect;
+    should  = chai.should();
+    window.__karma__.start();
   }
 
 });

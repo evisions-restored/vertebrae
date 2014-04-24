@@ -20,7 +20,9 @@
     "bower_components",
     "libs",
     "test",
-    "tests"
+    "tests",
+    "karma.conf.js",
+    "Gruntfile.js"
   ],
   "dependencies": {
     "underscore": "1.6.0",

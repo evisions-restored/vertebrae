@@ -146,19 +146,6 @@ define(['vertebrae/object'], function(BaseObject) {
       expect(listened).to.be.true;
     }); // BaseObject.prototype.set
 
-
-    it('static.camelCase(str) - should return string with first letter capitalized', function() {
-      var str = 'falsyCamelCase';
-      expect(BaseObject.camelCase(str)).to.equal('FalsyCamelCase');
-    }); // BaseObject.static.camelCase
-
-
-    it('static.camelCaseFromNamespace(str) - should return a namespace string as camel cased', function() {
-      var str = 'camel.case.me';
-      expect(BaseObject.camelCaseFromNamespace(str)).to.equal('CamelCaseMe');
-    }); // BaseObject.static.camelCaseFromNamespace
-
-
     it('static.setPropertyByNamespace(obj, key, value) - should set an objects property value by namespace', function() {
       var myObject = { property1: null },
           property = 'property1.property2',
