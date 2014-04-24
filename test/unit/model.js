@@ -1,14 +1,14 @@
 define(['vertebrae/model', 'underscore'], function(Model, _) {
 
-  //Define some variables that are typically reused in each test
+  // Define some variables that are typically reused in each test
   var SimpleModel,
       instA,
       instB;
 
   describe('BaseModel', function() {
 
-    //Setup a simple class to test with
-    //and empty out some variables I use alot
+    // Setup a simple class to test with
+    // and empty out some variables I use alot
     beforeEach(function() {
       SimpleModel = Model.extend({
           properties: [
@@ -29,7 +29,7 @@ define(['vertebrae/model', 'underscore'], function(Model, _) {
             }
           }
         });
-      //Setup up some simple models with defined properties
+      // Setup up some simple models with defined properties
       instA = new SimpleModel({
         prop1: 'a',
         prop2: 'b'
@@ -52,18 +52,18 @@ define(['vertebrae/model', 'underscore'], function(Model, _) {
       //Run the function in question
       instA.updateWith(instB);
 
-      //Make sure that the properties copied
+      // Make sure that the properties copied
       assert.equal(instA.prop1, 'c', 'Property not set on instantiation.');
       assert.equal(instA.prop2, 'd', 'Property not set on instantiation.');
 
-      //Setup a new model with more interesting properties,
-      //(undefined shouldn't copy)
+      // Setup a new model with more interesting properties,
+      // (undefined shouldn't copy)
       instB = new SimpleModel({
         prop1: null,
         prop2: undefined
       });
 
-      //Copy it over
+      // Copy it over
       instA.updateWith(instB);
 
       assert.isNull(instA.prop1, 'Property wasn\'t set to null.');
@@ -71,7 +71,7 @@ define(['vertebrae/model', 'underscore'], function(Model, _) {
     });
 
     it('prototype.when', function(done) {
-      //I need to call this 4 times to be done
+      // I need to call this 4 times to be done
       var doneCount = _.after(4, done);
 
       instA = new SimpleModel();
@@ -104,21 +104,21 @@ define(['vertebrae/model', 'underscore'], function(Model, _) {
     });
 
     it('prototype.toJSON', function() {
-      //Setup initial instance with no server properties
+      // Setup initial instance with no server properties
       instA.serverProperties = [];
       var output = instA.toJSON();
 
       assert.isUndefined(output.prop1);
       assert.isUndefined(output.prop2);
 
-      //redefine instance server properties for differrent output
+      // redefine instance server properties for differrent output
       instA.serverProperties = ['prop1'];
       output = instA.toJSON();
 
       assert.equal(output.prop1, 'a');
       assert.isUndefined(output.prop2);
 
-      //redefine instance server properties for differrent output
+      // redefine instance server properties for differrent output
       instA.serverProperties = ['prop1', 'prop2'];
       output = instA.toJSON();
 
@@ -181,18 +181,18 @@ define(['vertebrae/model', 'underscore'], function(Model, _) {
       assert.equal(SimpleModel.getAjaxTimeout(), 12345);
 
       SimpleModel.timeout = undefined;
-      //We should still get a number even if we set it to undefined.
+      // We should still get a number even if we set it to undefined.
       assert.typeOf(SimpleModel.getAjaxTimeout(), "number");
     });
 
     it('static.request', function(done) {
-      //Don't delete this line! need to replace ajax
+      // Don't delete this line! need to replace ajax
       var originalAjax = $.ajax,
           params       = { "key1" : "value1" },
           ajaxValid    = true,
           ajaxData     = { "key2" : "value2" };
 
-      //Setup ajax to respond as a success
+      // Setup ajax to respond as a success
       $.ajax = function(opts) {
         setTimeout(function() {
           if (ajaxValid) {
@@ -214,11 +214,11 @@ define(['vertebrae/model', 'underscore'], function(Model, _) {
           assert.isObject(data);
           assert.equal(data.key2, "value2");
 
-          //setup a failure
+          // setup a failure
           ajaxValid = false;
           ajaxData = {error:'message'};
 
-          //lets ttest a failure now.
+          // lets ttest a failure now.
           return Model.request('/test/endpoint', params, {})
         })
         .then(null, function(error) {
@@ -227,7 +227,7 @@ define(['vertebrae/model', 'underscore'], function(Model, _) {
           assert.isObject(error.data);
           assert.equal(error.data.error, "message");
 
-          //Dont delete this line!  Need to restore ajax!
+          // Dont delete this line!  Need to restore ajax!
           $.ajax = originalAjax;
           done();
         })
@@ -324,8 +324,8 @@ define(['vertebrae/model', 'underscore'], function(Model, _) {
     });
 
     it('static.extend', function() {
-      //need to check that new subclasses contain
-      //the old properties and _parsers and serverProperties
+      // need to check that new subclasses contain
+      // the old properties and _parsers and serverProperties
       var NewModel = SimpleModel.extend({
         properties: ['newprop'],
         serverProperties: ['serverProp']
@@ -335,18 +335,18 @@ define(['vertebrae/model', 'underscore'], function(Model, _) {
         }
       });
 
-      //All the parsers are there (3 from old, 1 from new)
+      // All the parsers are there (3 from old, 1 from new)
       assert.lengthOf(NewModel._parsers, 4);
       assert.equal(NewModel._parsers[0].callback(), 'static.extend.test');
 
-      //All the properties are there (1 regular and 1 server additional, 2 on SimpleModel)
+      // All the properties are there (1 regular and 1 server additional, 2 on SimpleModel)
       assert.lengthOf(NewModel.prototype.properties, 4);
       assert.include(NewModel.prototype.properties, 'newprop');
       assert.include(NewModel.prototype.properties, 'serverProp');
       assert.include(NewModel.prototype.properties, 'prop1');
       assert.include(NewModel.prototype.properties, 'prop2');
 
-      //Verify server properties is what it should be.
+      // Verify server properties is what it should be.
       assert.lengthOf(NewModel.prototype.serverProperties, 1);
       assert.include(NewModel.prototype.serverProperties, 'serverProp');
     });

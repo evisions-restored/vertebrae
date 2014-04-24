@@ -19,7 +19,14 @@ require.config({
     qunit      : './libs/qunit/qunit/qunit',
     underscore : './libs/underscore/underscore',
     chai       : './libs/chai/chai',
+    handlebars : './libs/handlebars/handlebars',
     vertebrae  : './src'
+  },
+
+  shim: {
+    handlebars: {
+      exports: 'Handlebars'
+    }
   },
 
   deps: tests,
