@@ -13,10 +13,10 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      { pattern: 'test/unit/**/*.js', included: false },
+      { pattern: 'test/**/*.js', included: false },
       { pattern: 'libs/**/*.js', included: false, watch : false },
       { pattern: 'src/**/*.js', included: false },
-      'test/requireconfig.js'
+      'requireconfig.js'
     ],
 
     // test results reporter to use
