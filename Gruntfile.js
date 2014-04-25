@@ -15,6 +15,7 @@ module.exports = function(grunt) {
 
 
   grunt.initConfig({
+    pkg: grunt.file.readJSON("package.json"),
     karma: {
       options: {
         browsers: browsers || ['PhantomJS'],
@@ -28,13 +29,48 @@ module.exports = function(grunt) {
         autoWatch: true,
         singleRun: false
       }
+    },
+
+    build: {
+      all: {
+        dest: 'dist/vertebrae.js',
+        ignore: ['jquery', 'underscore', 'backbone']
+      }
+    },
+
+    uglify: {
+      all: {
+        files: {
+          "dist/vertebrae.min.js": [ "dist/vertebrae.js" ]
+        },
+        options: {
+          preserveComments: false,
+          sourceMap: "dist/vertebrae.min.map",
+          sourceMappingURL: "vertebrae.min.map",
+          report: "min",
+          beautify: {
+            ascii_only: true
+          },
+          banner: "/*! Vertebrae v<%= pkg.version %> */",
+          compress: {
+            hoist_funs: false,
+            loops: false,
+            unused: false
+          }
+        }
+      }
     }
   });
 
-  grunt.loadNpmTasks('grunt-karma');
+  require('load-grunt-tasks')(grunt);
+
+  // grunt.loadNpmTasks('grunt-karma');
+  grunt.loadTasks('tasks');
 
   grunt.registerTask('test', ['karma:vertebrae']);
   grunt.registerTask('auto', ['karma:auto']);
 
   grunt.registerTask('default', ['auto']);
+
+  grunt.registerTask('dist', ['build:*:*', 'uglify']);
 };

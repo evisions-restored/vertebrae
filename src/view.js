@@ -566,5 +566,4 @@ define([
   };
 
   return BaseView;
-  
 });

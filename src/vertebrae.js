@@ -1,5 +1,7 @@
 define([
-  './src/vertebrae'
+  './core',
+  './exports/amd',
+  './exports/global'
 ], function(Vertebrae) {
 
   return Vertebrae;

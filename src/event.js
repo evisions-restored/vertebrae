@@ -10,7 +10,7 @@ define([
 
   var event = _.extend({}, Backbone.Events);
 
-  var EVIEvent = {
+  var BaseEvent = {
     /**
      * Bind all the function on an object to the obj itself.
      * This will cause all functions to ALWAYS have the correct 'this'.
@@ -57,7 +57,7 @@ define([
     fire: function() {
       event.trigger.apply(event, arguments);
 
-      return EVIEvent;
+      return BaseEvent;
     },
 
     /**
@@ -68,7 +68,7 @@ define([
      * @return {Object}
      */
     trigger: function() {
-      return EVIEvent.fire.apply(EVIEvent, arguments);
+      return BaseEvent.fire.apply(BaseEvent, arguments);
     },
 
     /**
@@ -99,11 +99,11 @@ define([
      * @return {Object}
      */
     on: function() {
-      return EVIEvent.observe.apply(EVIEvent, arguments);
+      return BaseEvent.observe.apply(BaseEvent, arguments);
     }
 
   };
 
-  return EVIEvent;
+  return BaseEvent;
 
 });

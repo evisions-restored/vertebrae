@@ -41,15 +41,15 @@ define([
   /**
    * Base Controller Object for all Controller
    *
-   * @name EVIController
+   * @name BaseController
    * 
-   * @class EVIController
+   * @class BaseController
    * 
    * @memberOf Evisions
    * 
    * @augments {Evisions.BaseObject}
    */
-  var EVIController = BaseObject.extend(/** @lends  Evisions.EVIController */{
+  var BaseController = BaseObject.extend(/** @lends  Evisions.BaseController */{
 
     /**
      * @description Base properties container for the controller.
@@ -309,7 +309,7 @@ define([
   });
   
   /**
-   * @function Evisions.EVIController.extend
+   * @function Evisions.BaseController.extend
    *
    * @function
    * 
@@ -319,7 +319,7 @@ define([
    * 
    * @return {Constructor}   
    */
-  EVIController.extend = function(proto) {
+  BaseController.extend = function(proto) {
     if (_.isObject(proto.observes)) {
       if (_.isObject(this.prototype.observes)) {
         proto.observes = _.extend({}, this.prototype.observes, proto.observes);
@@ -335,6 +335,6 @@ define([
     return BaseObject.extend.apply(this, arguments);
   };
 
-  return EVIController;
+  return BaseController;
 
 });
