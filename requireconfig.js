@@ -1,13 +1,15 @@
 var tests = [],
     assert, expect, should;
 
-for (var file in window.__karma__.files) {
-  if (window.__karma__.files.hasOwnProperty(file)) {
-    if (file.indexOf('/base/test') == 0) {
-      tests.push(file);
+try {
+  for (var file in window.__karma__.files) {
+    if (window.__karma__.files.hasOwnProperty(file)) {
+      if (file.indexOf('/base/test') == 0) {
+        tests.push(file);
+      }
     }
   }
-}
+} catch (e) {}
 
 require.config({
 
