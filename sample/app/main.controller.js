@@ -7,7 +7,7 @@ define([
 
     routes: {
       'page1' : 'app/page1/page1.controller',
-      'page2' : 'app/page2/page2.controller'
+      'page1' : 'app/page2/page2.controller'
     },
 
     defaultRoute: '',
@@ -55,7 +55,39 @@ define([
       var routes  = {},
           that    = this;
 
-      this._router = new Backbone.Router({ routes: this.routes });
+      _.each(this.routes, function(controllerPath, route) {
+        routes[route] = function() {
+          var controller            = null,
+              controllerConstructor = null,
+              routesArgs            = arguments,
+              previousRoute         = that.getCurrentRoute(),
+              previousRouteDeferred = that.currentRouteDeferred;
+
+          return that.currentRouteDeferred = $.when(that.canLeaveContentController())
+            .then(function() {
+              that.routeDidChange(that.getHash());
+            }, function() {
+              that.navigate(previousRoute);
+
+              return 'cancelled';
+            }).always(function() {
+              that.hideContentLoading();
+            }).fail(function(cancelled) {
+              if (cancelled == "cancelled") {
+                return;
+              }
+
+              var handled = that.routeDidFail(that.getHash(), routeArgs);
+
+              that.clearCurrentRoute();
+              if (handled !== true) {
+                that.navigate(previousRoute || that.defaultRoute, { trigger: true });
+              }
+            });
+        }
+      });
+
+      this._router = new Backbone.Router({ routes: routes });
     },
 
     routeDidFail: function() { /* Do nothing. */ },
