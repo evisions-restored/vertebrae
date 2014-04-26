@@ -8,7 +8,7 @@ define([
 ], function(
         Backbone, 
         BaseObject, 
-        BaseEvents) {
+        BaseEvent) {
 
   var templates = {};
 
@@ -54,7 +54,7 @@ define([
     initialize: function() {
       // Binding the view object(this) to the functions defined inside the view.
       // This is getting after the prototype functionality.
-      BaseEvents.bindAll(this);
+      BaseEvent.bindAll(this);
 
       // Creating a temporary variable to hold the original initialization function.
       var oldInit = this.initialize;

@@ -18,7 +18,11 @@
         return factory(w);
       };
   } else {
-    factory(global);
+    if (typeof define === 'function' && define.amd) {
+      define('vertebrae', ['jquery', 'backbone', 'underscore'], factory);
+    } else {
+      factory(global);
+    }
   }
 
 // Pass this if window is not defined yet

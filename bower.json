@@ -22,7 +22,12 @@
     "test",
     "tests",
     "karma.conf.js",
-    "Gruntfile.js"
+    "Gruntfile.js",
+    ".bowerrc",
+    ".editorconfig",
+    ".gitattributes",
+    ".gitignore",
+    ".travis.yml"
   ],
   "dependencies": {
     "underscore": "1.6.0",

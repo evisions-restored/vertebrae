@@ -2,7 +2,7 @@ define([
   '../core'
 ], function(Vertebrae) {
 
-  var Vertebrae = window.Vertebrae,
+  var _Vertebrae = window.Vertebrae,
       _V        = window.V;
 
   Vertebrae.noConflict = function( deep ) {
@@ -11,7 +11,7 @@ define([
     }
 
     if (deep && window.Vertebrae === Vertebrae) {
-      window.Vertebrae = Vertebrae;
+      window.Vertebrae = _Vertebrae;
     }
 
     return Vertebrae;
