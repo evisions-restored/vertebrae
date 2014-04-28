@@ -304,11 +304,59 @@ define([
                       .replace(splatParam, '(.*?)');
 
         return { 
-          uri       : new RegExp('^' + route + '$'), 
+          uri       : new RegExp('^' + route + '$'),
           callback  : fn, 
           type      : type 
         };
       });
+    },
+
+    createRouteReplacer: function(route ) {
+      var names   = [],
+          counter = 0;
+
+      route.replace(escapeRegExp, '\\$&')
+                    // .replace(optionalParam, function(match) {
+                    //   var index = match.indexOf(':');
+
+                    //   if (index > -1) {
+                    //     names.push({
+                    //       name: match,
+                    //       index: counter
+                    //     })
+                    //     // names[match] = counter;
+                    //   }
+
+                    //   counter++;
+                    //   return '(?:$1)?';
+                    // }))
+                    .replace(/:\w+/g, function(match, optional) {
+                      if (!optional) {
+                        names.push({
+                          name: match.slice(1),
+                          index: counter
+                        })
+                        // names[] = counter;
+                        counter++;
+                      }
+                      return match;
+                    })
+                    // .replace(splatParam, function() {
+                    //   counter++;
+                    //   return '(.*?)';
+                    // });
+
+      return {
+        // regexp: new RegExp('^' + route + '$'),
+        // names: names,
+        replace: function(data) {
+          _.each(names, function(item) {
+            if (data[item.name]) {
+              regexp.replace();
+            }
+          });
+        }
+      };
     },
 
     /**
@@ -396,10 +444,49 @@ define([
 
   });
 
+  function createModelRequestMethods(map) {
+    var routes = {};
+
+    _.each(map, function(name, route) {
+      var sections     = route.split(/\s+/),
+          method       = String(sections[0]).trim().toLowerCase(),
+          uri          = sections.slice(1).join('');
+
+
+      if (method == 'delete') {
+        method = 'del';
+      }
+
+      routes[name] = function(params, options) {
+        
+        var replacedUri = String(uri).replace(escapeRegExp, '\\$&')
+            .replace(/:\w+/g, function(match) {
+              var name = match.slice(1);
+
+              if (params && params[name]) {
+
+                return params[name];
+              } else {
+
+                throw new Error('The route ' + route + ' must include ' + name + ' in your params');
+              }
+            });
+
+        return this[method](replacedUri, params, options);
+      };
+    });
+
+    return routes;
+  };
+
   BaseModel.extend = function(proto, stat) {
     // See if the static properties has a parsers object.
     if (this.parsers && stat && stat.parsers) {
       stat._parsers = this.parseParsers.call(stat).concat(this._parsers || []);
+    }
+
+    if (stat && stat.routes) {
+      _.extend(stat, createModelRequestMethods(stat.routes));
     }
 
     // Extends properties with server properties.

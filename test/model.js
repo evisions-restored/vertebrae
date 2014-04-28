@@ -332,9 +332,12 @@ define([
       // need to check that new subclasses contain
       // the old properties and _parsers and serverProperties
       var NewModel = SimpleModel.extend({
+
         properties: ['newprop'],
         serverProperties: ['serverProp']
-      }, {
+
+      }, 
+      {
         parsers: {
           'newParser': function() { return 'static.extend.test'}
         }
@@ -354,6 +357,60 @@ define([
       // Verify server properties is what it should be.
       assert.lengthOf(NewModel.prototype.serverProperties, 1);
       assert.include(NewModel.prototype.serverProperties, 'serverProp');
+    });
+
+    it('static.routes', function(done) {
+      var originalAjax = $.ajax,
+          parserCount  = 0;
+
+      // Setup ajax to respond as a success
+      $.ajax = function(opts) {
+        
+        if (opts.type == 'GET') {
+
+          expect(opts.url).to.equal('/api/test/api');
+          opts.success({ valid: true });
+        } else if (opts.type == 'POST') {
+          expect(opts.url).to.equal('/api/test/10');
+          opts.success({ valid: true, data: { id: 10 } });
+        }
+      };
+
+      var NewModel = Model.extend({
+
+      },
+      {
+        routes: {
+          'GET api/test/api': 'requestTestMethod',
+          // keep extra space to test parsing
+          'POST    api/test/:id': 'requestUpdate'
+        },
+
+        parsers: {
+          'api/test/api': function(data) {
+            parserCount++;
+            return data;
+          },
+          'api/test/:id': function(data) {
+            parserCount++;
+            return data;
+          }
+        }
+      });
+
+      NewModel.requestTestMethod().then(function() {
+
+        return NewModel.requestUpdate({ id: 10 });
+      }).then(function(data) {
+
+        expect(data.id).to.equal(10);
+        expect(parserCount).to.equal(2);
+
+        $.ajax = originalAjax;
+
+        done();
+      });
+
     });
 
   });
