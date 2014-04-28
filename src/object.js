@@ -2,13 +2,13 @@
  * @namespace Vertebrae
  */
 define([
-        'backbone', 
-        'underscore',
-        './stringutils'
+  'backbone', 
+  'underscore',
+  './stringutils'
 ], function(
-        Backbone, 
-        _,
-        StringUtils) {
+  Backbone, 
+  _,
+  StringUtils) {
 
   /**
    * Base Class for All Project Objects

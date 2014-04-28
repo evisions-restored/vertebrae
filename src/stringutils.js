@@ -1,15 +1,12 @@
 define([
-        'underscore'
+  'underscore'
 ], function(
-        _) {
+  _) {
   
   /**
    * @class StringUtils
    *
    * @classdesc Common helper functions that haven't been categorized yet.
-   *
-   * @memberOf Vertebrae.Helper
-   * @augments {Vertebrae.Helper}
    */
   var StringUtils = _.extend(/** @lends Vertebrae.StringUtils */{
 

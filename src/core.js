@@ -4,7 +4,12 @@ define([
   './view',
   './model',
   './event'
-], function(BaseObject, BaseController, BaseView, BaseModel, BaseEvent) {
+], function(
+  BaseObject, 
+  BaseController, 
+  BaseView, 
+  BaseModel, 
+  BaseEvent) {
 
   var Vertebrae = {
     Object     : BaseObject,
@@ -15,4 +20,5 @@ define([
   };
 
   return Vertebrae;
+  
 });

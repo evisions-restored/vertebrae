@@ -2,11 +2,11 @@
  * @namespace Evisions
  */
 define([
-			  'jquery',
-			  'backbone'
+  'jquery',
+  'backbone'
 ], function(
-				$, 
-				Backbone) {
+	$, 
+	Backbone) {
 
   var event = _.extend({}, Backbone.Events);
 

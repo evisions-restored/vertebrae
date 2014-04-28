@@ -2,13 +2,13 @@
  * @namespace Evisions
  */
 define([
-        'jquery',
-        'underscore',
-        './object'
+  'jquery',
+  'underscore',
+  './object'
 ], function(
-        $, 
-        _, 
-        BaseObject) {
+    $, 
+    _, 
+    BaseObject) {
 
   var optionalParam = /\((.*?)\)/g,
       namedParam    = /(\(\?)?:\w+/g,

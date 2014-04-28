@@ -2,17 +2,17 @@
  * @namespace Evisions
  */
 define([
-        'jquery',
-        'underscore',
-        './object',
-        './event',
-        './stringutils'
+  'jquery',
+  'underscore',
+  './object',
+  './event',
+  './stringutils'
 ], function(
-        $, 
-        _, 
-        BaseObject, 
-        BaseEvent, 
-        StringUtils) {
+  $, 
+  _, 
+  BaseObject, 
+  BaseEvent, 
+  StringUtils) {
 
   function setupObserves() {
     var inst = this;
