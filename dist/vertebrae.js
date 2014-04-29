@@ -3,7 +3,7 @@
  *
  * Released under the MIT license
  *
- * Date: 2014-04-25T23:11Z
+ * Date: 2014-04-29T00:22Z
  */
 
 (function(global, factory) {
@@ -34,9 +34,6 @@
    * @class StringUtils
    *
    * @classdesc Common helper functions that haven't been categorized yet.
-   *
-   * @memberOf Vertebrae.Helper
-   * @augments {Vertebrae.Helper}
    */
   var StringUtils = _.extend(/** @lends Vertebrae.StringUtils */{
 
@@ -525,6 +522,236 @@
   });
 
   _.extend(BaseObject.prototype, Backbone.Events);
+
+
+  var BaseApp = BaseObject.extend({
+
+    properties: [
+      'activeRoute',
+      'controller',
+      'options',
+      'router'
+    ],
+
+    routes: {
+
+    },
+
+    defaultRoute: '',
+
+    initialize: function(el, options) {
+      this.$el = $(el);
+      this.el = this.$el.get(0);
+      this.setOptions(options || {});
+    },
+
+    navigate: function(url, options) {
+      this.getRouter().navigate.apply(this, arguments);
+
+      return url;
+    },
+
+    getHash: function() {
+      return Backbone.history.getHash();
+    },
+
+    /**
+     * Hide the current content controller
+     */
+    hideController: function() {
+
+    },
+
+    unloadController: function() {
+      var controller = this.getController();
+
+      return controller && controller.unload();
+    },
+
+    destroyController: function() {
+      var controller = this.getController();
+
+      return controller && controller.destroy();
+    },
+
+    showLoading: function() {
+
+    },
+
+    hideLoading: function() {
+
+    },
+
+    getControllerElement: function() {
+      return this.$el;
+    },
+
+    getInitialRoute: function() {
+      return this.defaultRoute;
+    },
+
+    getControllerPath: function(path) {
+      return path;
+    },
+
+    initializeController: function(Controller) {
+      var controller      = new Controller(),
+          name            = controller.name || controller.contentName,
+          el              = this.getControllerElement(),
+          originalClasses = this._originalClasses || (this._originalClasses = el.attr('class'));
+
+      el.empty().removeClass().addClass(originalClasses);
+
+      if (_.isString(name)) {
+        //dasherize the name
+        name = name.replace(/[\s_]+/, '-');
+        el.addClass(name);
+      }
+
+      if (_.isString(controller.id)) {
+        el.attr('id', controller.id);
+      }
+
+      controller.setupViewProperties(el);
+
+      return controller;
+    },
+
+    setupRoutes: function() {
+      var routes = {},
+          route  = null,
+          router = null;
+
+      if (!this.routes) { return this; }
+
+      for (route in this.routes) {
+        routes[route] = this.generateRouteHandler(route, this.routes[route]);
+      }
+
+      router = new Backbone.Router({ routes: routes });
+
+      this.setRouter(router);
+
+      return this;
+    },
+
+    canLeaveCurrentController: function() {
+      return true;
+    },
+
+    generateRouteHandler: function(route, Controller) {
+      var fn   = null,
+          that = this;
+
+      fn = function() {
+        var controller            = null,
+            d                     = null,
+            args                  = arguments,
+            previousRoute         = this.getActiveRoute(),
+            controllerD           = $.Deferred(),
+            previousRouteDeferred = $.when(previousRouteDeferred).then(null, function() { return $.Deferred().resolve(); });
+
+
+        return that.currentRouteDeferred = d = $.when(that.canLeaveCurrentController())
+        .then(function() {
+
+
+          that.showLoading();
+
+          // if the Controller is a string then it is a path to load the controller
+          if (_.isString(Controller)) {
+            require([that.getControllerPath(Controller)], function(ctor) {
+              Controller = ctor;
+              controllerD.resolve();
+            });
+          } else {
+            controllerD.resolve();
+          }
+
+          return previousRouteDeferred;
+        }, 
+        function() {
+          // if the failed route is the same as the previous route then we have an inifite fail loop....BIG problem
+          if (route != previousRoute) {
+            that.navigate(previousRoute);
+          }
+
+          return BaseApp.RouteErrors.CANCELLED;
+        }).then(function() {
+
+          that.setActiveRoute(route);
+          that.trigger('route', route);
+
+          return that.hideController();
+        }).then(function() {
+
+          that.showLoading();
+
+          return $.when(that.unloadController(), controllerD);
+        }).then(function() {
+
+          return that.destroyController();
+        }).then(function() {
+          controller = that.initializeController(Controller);
+
+          that.setController(controller);
+
+          that.trigger('init:controller', controller);
+
+          return controller.start.apply(controller, args);
+        }).then(function() {
+
+          that.trigger('start:controller', controller);
+
+        }).always(function() {
+
+          that.hideLoading();
+
+        }).fail(function(reason) {
+
+          switch (reason) {
+            case BaseApp.RouteErrors.CANCELLED:
+              return;
+          };
+
+          var handled = that.routeDidFail(that.getHash(), args);
+
+          that.setActiveRoute(null);
+
+          if (handled !== true) {
+            that.navigate(previousRoute || that.defaultRoute, { trigger: true });
+          }
+        });
+
+      };
+
+      return $.proxy(fn, this);
+    },
+
+    start: function() {
+      this.setupRoutes();
+
+      if (!Backbone.history.start()) {
+        this.navigate(this.getInitialRoute(), { trigger: true, replace: true });
+      }
+    }
+
+  },
+  {
+
+    RouteErrors: {
+      CANCELLED: 'cancelled'
+    },
+
+    launch: function(el, options) {
+      var inst = new this(el, options);
+
+      inst.start();
+
+      return inst;
+    }
+
+  });
 /**
  * @namespace Evisions
  */
@@ -1808,11 +2035,59 @@
                       .replace(splatParam, '(.*?)');
 
         return { 
-          uri       : new RegExp('^' + route + '$'), 
+          uri       : new RegExp('^' + route + '$'),
           callback  : fn, 
           type      : type 
         };
       });
+    },
+
+    createRouteReplacer: function(route ) {
+      var names   = [],
+          counter = 0;
+
+      route.replace(escapeRegExp, '\\$&')
+                    // .replace(optionalParam, function(match) {
+                    //   var index = match.indexOf(':');
+
+                    //   if (index > -1) {
+                    //     names.push({
+                    //       name: match,
+                    //       index: counter
+                    //     })
+                    //     // names[match] = counter;
+                    //   }
+
+                    //   counter++;
+                    //   return '(?:$1)?';
+                    // }))
+                    .replace(/:\w+/g, function(match, optional) {
+                      if (!optional) {
+                        names.push({
+                          name: match.slice(1),
+                          index: counter
+                        })
+                        // names[] = counter;
+                        counter++;
+                      }
+                      return match;
+                    })
+                    // .replace(splatParam, function() {
+                    //   counter++;
+                    //   return '(.*?)';
+                    // });
+
+      return {
+        // regexp: new RegExp('^' + route + '$'),
+        // names: names,
+        replace: function(data) {
+          _.each(names, function(item) {
+            if (data[item.name]) {
+              regexp.replace();
+            }
+          });
+        }
+      };
     },
 
     /**
@@ -1900,10 +2175,49 @@
 
   });
 
+  function createModelRequestMethods(map) {
+    var routes = {};
+
+    _.each(map, function(name, route) {
+      var sections     = route.split(/\s+/),
+          method       = String(sections[0]).trim().toLowerCase(),
+          uri          = sections.slice(1).join('');
+
+
+      if (method == 'delete') {
+        method = 'del';
+      }
+
+      routes[name] = function(params, options) {
+        
+        var replacedUri = String(uri).replace(escapeRegExp, '\\$&')
+            .replace(/:\w+/g, function(match) {
+              var name = match.slice(1);
+
+              if (params && params[name]) {
+
+                return params[name];
+              } else {
+
+                throw new Error('The route ' + route + ' must include ' + name + ' in your params');
+              }
+            });
+
+        return this[method](replacedUri, params, options);
+      };
+    });
+
+    return routes;
+  };
+
   BaseModel.extend = function(proto, stat) {
     // See if the static properties has a parsers object.
     if (this.parsers && stat && stat.parsers) {
       stat._parsers = this.parseParsers.call(stat).concat(this._parsers || []);
+    }
+
+    if (stat && stat.routes) {
+      _.extend(stat, createModelRequestMethods(stat.routes));
     }
 
     // Extends properties with server properties.
@@ -1924,6 +2238,7 @@
 
   var Vertebrae = {
     Object     : BaseObject,
+    App        : BaseApp,
     Controller : BaseController,
     View       : BaseView,
     Model      : BaseModel,
@@ -1931,10 +2246,10 @@
   };
 
 
-  var _Vertebrae = window.Vertebrae,
-      _V        = window.V;
+  var _Vertebrae  = window.Vertebrae,
+      _V          = window.V;
 
-  Vertebrae.noConflict = function( deep ) {
+  Vertebrae.noConflict = function(deep) {
     if (window.V === Vertebrae) {
       window.V = _V;
     }
@@ -1949,9 +2264,11 @@
   if (typeof noGlobal === 'undefined') {
     window.Vertebrae = window.V = Vertebrae;
   }
+  
 
 
 
   return Vertebrae;
+  
 
 }));
