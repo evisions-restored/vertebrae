@@ -79,13 +79,13 @@ define([
       var controller      = new Controller(),
           name            = controller.name || controller.contentName,
           el              = this.getControllerElement(),
-          originalClasses = this._originalClasses || (this._originalClasses = el.attr('class'));
+          originalClasses = this._originalClasses || (this._originalClasses = (el.attr('class') || ' '));
 
       el.empty().removeClass().addClass(originalClasses);
 
       if (_.isString(name)) {
         //dasherize the name
-        name = name.replace(/[\s_]+/, '-');
+        name = name.replace(/[\s_]+/g, '-');
         el.addClass(name);
       }
 
