@@ -1,11 +1,13 @@
 define([
   './object',
+  './app',
   './controller',
   './view',
   './model',
   './event'
 ], function(
   BaseObject, 
+  BaseApp,
   BaseController, 
   BaseView, 
   BaseModel, 
@@ -13,6 +15,7 @@ define([
 
   var Vertebrae = {
     Object     : BaseObject,
+    App        : BaseApp,
     Controller : BaseController,
     View       : BaseView,
     Model      : BaseModel,
