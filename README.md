@@ -11,6 +11,7 @@ These toolsets can be used for large scale enterprise applications or your basic
 * Inheritance with the _.super() command
 * Object cleanup
 * View functionality (templates/observers/functions)
+* Route handling
 
 Don't worry, we will be going through each of the above items in greater detail. 
 
@@ -92,6 +93,22 @@ anotherObject.listenTo(myObject, 'change:myProperty', function() { });
 // I want to kill anotherObject.
 anotherObject.destroy();
 anotherObject = null;
+```
+
+## BaseApp
+
+BaseApp is a wrapper for your entire application. Its main functionality is to help you setup routes that will call a specific controller.
+(most like extended off of BaseController)
+
+```javascript
+var MyApp = BaseApp.extend({
+
+  // When navigating to #myRoute1, the myRoute1.controller.js file's initialize function will be executed.
+  var routes = {
+    'myRoute1' : 'app/myRoute1.controller'
+  };
+
+});
 ```
 
 ## BaseController
@@ -212,7 +229,7 @@ var MyView = BaseView.extend({
 
   render: function() {
     var data = this.getDelegate().getViewProperties();
-    
+
     this.$el.html(this.renderTemplateFragment(data));
   }
 });
