@@ -1,11 +1,11 @@
 /**
- * @namespace Evisions
+ * @namespace Vertebrae
  */
 define([
   'jquery',
   'backbone',
   'underscore',
-  './object'
+  '../object'
 ], function(
   $,
   Backbone,
@@ -19,9 +19,9 @@ define([
    *
    * @class BaseApp
    *
-   * @memberOf Evisions
+   * @memberOf Vertebrae
    *
-   * @augments {Evisions.BaseObject}
+   * @augments {Vertebrae.BaseObject}
    */
   var BaseApp = BaseObject.extend({
 
@@ -344,7 +344,6 @@ define([
 
           that.setController(controller);
           that.trigger('init:controller', controller);
-
           return controller.start.apply(controller, args);
         }).then(function() {
           that.trigger('start:controller', controller);

@@ -1,5 +1,5 @@
 /**
- * @namespace Evisions
+ * @namespace Vertebrae
  */
 define([
   'jquery',
@@ -22,11 +22,11 @@ define([
    * 
    * @class BaseModel
    * 
-   * @memberOf Evisions
+   * @memberOf Vertebrae
    * 
-   * @augments {Evisions.BaseObject}
+   * @augments {Vertebrae.BaseObject}
    */
-  var BaseModel = BaseObject.extend(/** @lends  Evisions.BaseModel */{
+  var BaseModel = BaseObject.extend(/** @lends  Vertebrae.BaseModel */{
 
     /**
      * Setup the object
@@ -50,9 +50,9 @@ define([
      *
      * @instance
      *
-     * @param  {Evisions.BaseModel} model
+     * @param  {Vertebrae.BaseModel} model
      *
-     * @return {Evisions.BaseModel}
+     * @return {Vertebrae.BaseModel}
      */
     updateWith: function(model) {
       this.applyProperties(model.getProperties());
@@ -92,7 +92,7 @@ define([
       return properties;
     }
 
-  },/** @lends Evisions.BaseModel */{
+  },/** @lends Vertebrae.BaseModel */{
 
     /**
      * @description Default timeout value for API calls.

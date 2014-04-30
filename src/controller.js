@@ -1,5 +1,5 @@
 /**
- * @namespace Evisions
+ * @namespace Vertebrae
  */
 define([
   'jquery',
@@ -45,11 +45,11 @@ define([
    * 
    * @class BaseController
    * 
-   * @memberOf Evisions
+   * @memberOf Vertebrae
    * 
-   * @augments {Evisions.BaseObject}
+   * @augments {Vertebrae.BaseObject}
    */
-  var BaseController = BaseObject.extend(/** @lends  Evisions.BaseController */{
+  var BaseController = BaseObject.extend(/** @lends  Vertebrae.BaseController */{
 
     /**
      * @description Base properties container for the controller.
@@ -309,7 +309,7 @@ define([
   });
   
   /**
-   * @function Evisions.BaseController.extend
+   * @function Vertebrae.BaseController.extend
    *
    * @function
    * 

@@ -1,5 +1,5 @@
 /**
- * @namespace Evisions
+ * @namespace Vertebrae
  */
 define([
   'backbone', 
@@ -19,9 +19,9 @@ define([
    * 
    * @class BaseView
    * 
-   * @memberOf Evisions
+   * @memberOf Vertebrae
    */
-  var BaseViewTemp = Backbone.View.extend(/** @lends  Evisions.BaseView */{
+  var BaseViewTemp = Backbone.View.extend(/** @lends  Vertebrae.BaseView */{
 
     /**
      * Is the view rendered?

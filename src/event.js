@@ -1,5 +1,5 @@
 /**
- * @namespace Evisions
+ * @namespace Vertebrae
  */
 define([
   'jquery',

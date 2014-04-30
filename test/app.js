@@ -1,5 +1,5 @@
 define([
-  'vertebrae/app',
+  'vertebrae/application/app',
   'vertebrae/controller',
   'vertebrae/view',
   'jquery'
