@@ -311,54 +311,6 @@ define([
       });
     },
 
-    createRouteReplacer: function(route ) {
-      var names   = [],
-          counter = 0;
-
-      route.replace(escapeRegExp, '\\$&')
-                    // .replace(optionalParam, function(match) {
-                    //   var index = match.indexOf(':');
-
-                    //   if (index > -1) {
-                    //     names.push({
-                    //       name: match,
-                    //       index: counter
-                    //     })
-                    //     // names[match] = counter;
-                    //   }
-
-                    //   counter++;
-                    //   return '(?:$1)?';
-                    // }))
-                    .replace(/:\w+/g, function(match, optional) {
-                      if (!optional) {
-                        names.push({
-                          name: match.slice(1),
-                          index: counter
-                        })
-                        // names[] = counter;
-                        counter++;
-                      }
-                      return match;
-                    })
-                    // .replace(splatParam, function() {
-                    //   counter++;
-                    //   return '(.*?)';
-                    // });
-
-      return {
-        // regexp: new RegExp('^' + route + '$'),
-        // names: names,
-        replace: function(data) {
-          _.each(names, function(item) {
-            if (data[item.name]) {
-              regexp.replace();
-            }
-          });
-        }
-      };
-    },
-
     /**
      * Taking the model request and executing it as a POST.
      *

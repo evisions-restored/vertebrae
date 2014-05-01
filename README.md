@@ -234,3 +234,38 @@ var MyView = Vertebrae.View.extend({
   }
 });
 ```
+
+## BaseModel
+
+The model is very similar to Backbone.Model but has a lightly different paradigm shift.  Backbone.Model assumes that every model will use a standard CRUD interface on the server.  In the applications we have created, we ran accross many situations where our API calls did not adhere to the standard CRUD interface.  To solve this problem, we made the Vertebrae Model use a declarative notation to define how you want your models to communicate with the server.
+
+```javascript
+var MyModel = Vertebrae.Model.extend({
+  
+  serverProperties: [
+    'property'
+  ],
+
+  requestUpdate: function() {
+    return this.constructor.requestUpdate(this);
+  }
+  
+},
+{
+  rootURI: '/api/resource/',
+
+  routes: {
+    'GET :id': 'requestOne', 
+    'PUT :id': 'requestUpdate'
+  }
+});
+
+// will make GET request at /api/resource/10
+MyModel.requestOne({ id : 10 }).then(function(model) {
+  
+  model.setProperty('updated!!!');
+  
+  // will make PUT request at /api/resource/10
+  return model.requestUpdate();
+});
+```

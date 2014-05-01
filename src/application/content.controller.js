@@ -10,7 +10,7 @@ define([
   var BaseContentController = BaseController.extend(/** @lends  Vertebrae.BaseContentController */{
 
     properties: [
-      'AppController'
+      'appController'
     ],
 
     contentName: '',
