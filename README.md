@@ -29,7 +29,7 @@ It also serves the purpose of clearly defining which properties are on an Object
 Those familar with @synthesize in Objective-C should feel right at home.
 
 ```javascript
-var MyObject = BaseObject.extend({
+var MyObject = Vertebrae.Object.extend({
   // A setter will automatically be created for this.setMyProperty()
   properties: ['myProperty']
 });
@@ -67,7 +67,7 @@ myObject.setMyProperty('I will call the change event for myProperty.');
 We all know Class inheritance can be a real pain in Javascript.  Fortunately, we have build this._super into BaseObject.
 
 ```javascript
-var MyBaseClass = BaseObject.extend({
+var MyBaseClass = Vertebrae.Object.extend({
   myFunction: function() { 
   }
 });
@@ -101,12 +101,12 @@ BaseApp is a wrapper for your entire application. Its main functionality is to h
 (most like extended off of BaseController)
 
 ```javascript
-var MyApp = BaseApp.extend({
+var MyApp = Vertebrae.App.extend({
 
   // When navigating to #myRoute1, the myRoute1.controller.js file's initialize function will be executed.
-  var routes = {
+  routes: {
     'myRoute1' : 'app/myRoute1.controller'
-  };
+  }
 
 });
 ```
@@ -136,9 +136,9 @@ In order to follow our convention of setting up a view, you need two functions.
 **viewIsReady**: should kick off the main logic of the controller since the view is ready
 
 ```javascript
-var MyView = new BaseView.extend({ });
+var MyView = new View.extend({ });
 
-var MyController = BaseController.extend({
+var MyController = Vertebrae.Controller.extend({
   setupView: function() {
     this.setView(new MyView());
   },
@@ -169,7 +169,7 @@ If a controller has a sub-controller whose view needs to be setup, then the main
 Many times we want controllers to do things when events happen. NEVER DOM events but application events/notifications. You can easly define application observers via the observes property.
 
 ```javascript
-var myController = BaseController.extend({
+var myController = Vertebrae.Controller.extend({
   observes: {
     'global-event': 'handleGlobalEvent'
   },
@@ -178,7 +178,7 @@ var myController = BaseController.extend({
     // I am called when global-event was triggered.
   }
 });
-$.trigger('global-event');
+Vertebrae.Event.trigger('global-event');
 ```
 
 ## BaseView
@@ -193,7 +193,7 @@ Typically the delegate will be a controller.
 
 ```javascript
 //Create my custom view.
-var MyView = BaseView.extend({
+var MyView = View.extend({
   render: function() {
     // Views should get data from their delegate.
     var data = this.getDelegate().getViewProperties();
@@ -201,7 +201,7 @@ var MyView = BaseView.extend({
 });
 
 // Create my custom controller that will be the delegate.
-var Delegate = BaseController.extend({
+var Delegate = Vertebrae.Controller.extend({
   setupView: function() {
     this.setView(new MyView());
   },
@@ -222,7 +222,7 @@ delegate.setupViewProperties(document.getElementById('main'));
 All web apps need templates of some sort. BaseView makes rendering templates extremely easy and also allows you to clearly see what templates a view is using.
 
 ```javascript
-var MyView = BaseView.extend({
+var MyView = View.extend({
   templates: {
     'my_template': 'renderTemplateFragment'
   },
