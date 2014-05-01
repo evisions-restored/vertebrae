@@ -136,7 +136,7 @@ In order to follow our convention of setting up a view, you need two functions.
 **viewIsReady**: should kick off the main logic of the controller since the view is ready
 
 ```javascript
-var MyView = new View.extend({ });
+var MyView = new Vertebrae.View.extend({ });
 
 var MyController = Vertebrae.Controller.extend({
   setupView: function() {
@@ -193,7 +193,7 @@ Typically the delegate will be a controller.
 
 ```javascript
 //Create my custom view.
-var MyView = View.extend({
+var MyView = Vertebrae.View.extend({
   render: function() {
     // Views should get data from their delegate.
     var data = this.getDelegate().getViewProperties();
@@ -222,7 +222,7 @@ delegate.setupViewProperties(document.getElementById('main'));
 All web apps need templates of some sort. BaseView makes rendering templates extremely easy and also allows you to clearly see what templates a view is using.
 
 ```javascript
-var MyView = View.extend({
+var MyView = Vertebrae.View.extend({
   templates: {
     'my_template': 'renderTemplateFragment'
   },
