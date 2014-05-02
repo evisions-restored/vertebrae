@@ -5,7 +5,7 @@ define([
   'jquery',
   'backbone',
   'underscore',
-  '../object'
+  './object'
 ], function(
   $,
   Backbone,

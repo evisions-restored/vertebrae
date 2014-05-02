@@ -1,6 +1,6 @@
 define([
-        'underscore',
-        'vertebrae/model'
+  'underscore',
+  'vertebrae/model'
 ], function(
         _,
         Model) {

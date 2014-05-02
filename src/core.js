@@ -4,7 +4,7 @@ define([
   './view',
   './model',
   './event',
-  './application/app'
+  './app'
 ], function(
   BaseObject, 
   BaseController, 
