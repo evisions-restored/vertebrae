@@ -1,3 +1,5 @@
+var path = require("path");
+
 module.exports = function(grunt) {
 
   var browsers    = grunt.option('browsers'),
@@ -38,6 +40,35 @@ module.exports = function(grunt) {
       }
     },
 
+    connect: {
+      sample_server: {
+        options: {
+          port: 1234,
+          hostname: '*',
+          base: './',
+          keepalive: true
+        }
+      }
+    },
+
+    handlebars: {
+      sample_hbs_compile: {
+        options: {
+          amd: true,
+          namespace: 'Templates',
+          processName: function(filePath) {
+            var ext = path.extname(filePath);
+            return path.basename(filePath).slice(0, -ext.length);
+          }
+        },
+        files: {
+          'sample/app/templates.js': [
+            'sample/**/*.hbs',
+          ]
+        }
+      }
+    },
+
     uglify: {
       all: {
         files: {
@@ -71,6 +102,8 @@ module.exports = function(grunt) {
   grunt.registerTask('auto', ['karma:auto']);
 
   grunt.registerTask('default', ['auto']);
+
+  grunt.registerTask('sample', ['handlebars','connect:sample_server']);
 
   grunt.registerTask('dist', ['build:*:*', 'uglify']);
 };

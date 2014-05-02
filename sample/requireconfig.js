@@ -6,7 +6,7 @@ require.config({
     backbone   : '../libs/backbone/backbone',
     jquery     : '../libs/jquery/dist/jquery',
     underscore : '../libs/underscore/underscore',
-    handlebars : '../libs/handlebars/handlebars',
+    handlebars : '../libs/handlebars/handlebars.runtime',
     vertebrae  : '../src'
   },
 

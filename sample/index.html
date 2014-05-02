@@ -1,18 +1,18 @@
 <html>
 <head>
+  <link rel="stylesheet" type="text/css" href="app/app.css">
   <script src="../libs/requirejs/require.js"></script>
   <script src="./requireconfig.js"></script>
   <script>
     require([
             'jquery',
-            'app/main'
+            'app/app.loader'
     ], function(
             $,
-            App) { 
+            AppLoader) { 
 
       $(function() {
-        var app = new App(document.body);
-        window.app = app;
+        AppLoader.initialize(document.body);
       });
 
     });

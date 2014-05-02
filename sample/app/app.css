@@ -1,0 +1,10 @@
+#header {
+  margin: auto;
+  width: 90%;
+}
+#content-controllers {
+  width: 90%;
+  margin: auto;
+  min-height: 100px;
+  border: 1px solid gray;
+}

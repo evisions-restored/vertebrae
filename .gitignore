@@ -21,3 +21,5 @@ libs
 node_modules
 
 npm-debug.log
+
+sample/app/templates.js

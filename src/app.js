@@ -5,12 +5,12 @@ define([
   'jquery',
   'backbone',
   'underscore',
-  './object'
+  './controller'
 ], function(
   $,
   Backbone,
   _,
-  BaseObject) {
+  BaseController) {
 
   /**
    * Base app object to extend an applications main file.
@@ -21,9 +21,9 @@ define([
    *
    * @memberOf Vertebrae
    *
-   * @augments {Vertebrae.BaseObject}
+   * @augments {Vertebrae.BaseController}
    */
-  var BaseApp = BaseObject.extend({
+  var BaseApp = BaseController.extend({
 
     /**
      * Base properties container.
@@ -64,6 +64,8 @@ define([
      * @param  {Object} options The options object we are using within our application.
      */
     initialize: function(el, options) {
+      this._super.apply(this,arguments);
+      
       this.$el = $(el);
       this.el = this.$el.get(0);
       this.setOptions(options || {});

@@ -292,6 +292,17 @@ define([
     },
 
     /**
+     * Stub function to be overridden that should render html into the view's element.
+     *
+     * @function
+     *
+     * @instance
+     */
+    render: function() {
+
+    },
+
+    /**
      * Takes the handlebars output and converts it to a document fragment.
      * 
      * @function
