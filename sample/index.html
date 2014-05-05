@@ -6,13 +6,15 @@
   <script>
     require([
       'jquery',
-      'app/app.loader'
+      'app/app'
     ], function(
       $,
-      AppLoader) { 
+      App) { 
 
       $(function() {
-        AppLoader.initialize(document.body);
+
+        App.launch(document.body);
+        
       });
 
     });

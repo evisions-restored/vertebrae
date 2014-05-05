@@ -5,12 +5,14 @@ define([
   'jquery',
   'backbone',
   'underscore',
-  './object'
+  './object',
+  './view'
 ], function(
   $,
   Backbone,
   _,
-  BaseObject) {
+  BaseObject,
+  BaseView) {
 
   /**
    * Base app object to extend an applications main file.

@@ -1,9 +1,9 @@
 define([
-  'vertebrae/content.controller',
+  'vertebrae/controller',
   './page1.view'
-], function(BaseContentController, Page1View) {
+], function(BaseController, Page1View) {
  
-  var Page1Controller = BaseContentController.extend({
+  var Page1Controller = BaseController.extend({
  
     setupView: function() {
       this.setView(new Page1View());

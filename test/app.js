@@ -142,7 +142,7 @@ define([
       expect(app.getHeader()).to.be.an.instanceof(HeaderController);
 
       expect(app).to.have.property('getFooter');
-      expect(app.getHeader()).to.be.an.instanceof(FooterController);
+      expect(app.getFooter()).to.be.an.instanceof(FooterController);
 
     });
 
