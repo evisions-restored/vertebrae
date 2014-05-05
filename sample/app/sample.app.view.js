@@ -1,7 +1,7 @@
 define([
-        'vertebrae/view',
+  'vertebrae/view',
 ], function(
-        BaseView) {
+  BaseView) {
 
   var SampleAppView = BaseView.extend({
 
@@ -14,7 +14,7 @@ define([
     },
 
     getContentElement: function() {
-      return this.$("#content-controllers");
+      return this.$("#content");
     }
 
   });
