@@ -5,12 +5,12 @@ define([
   'jquery',
   'backbone',
   'underscore',
-  './controller'
+  './object'
 ], function(
   $,
   Backbone,
   _,
-  BaseController) {
+  BaseObject) {
 
   /**
    * Base app object to extend an applications main file.
@@ -23,7 +23,7 @@ define([
    *
    * @augments {Vertebrae.BaseController}
    */
-  var BaseApp = BaseController.extend({
+  var BaseApp = BaseObject.extend({
 
     /**
      * Base properties container.
@@ -44,6 +44,12 @@ define([
      * @type {Object}
      */
     routes: { },
+
+    /**
+     * The controller container us for mapping static controllers to elements
+     * @type {Object}
+     */
+    controllers: { },
 
     /**
      * The default route for your application.
@@ -69,6 +75,39 @@ define([
       this.$el = $(el);
       this.el = this.$el.get(0);
       this.setOptions(options || {});
+
+      this.initializeControllerMappings();
+    },
+
+    initializeControllerMappings: function() {
+      var map = null,
+          len = this.controllerMappings ? this.controllerMappings.length : 0,
+          i   = 0;
+
+      for (i = 0; i < len; ++i) {
+        map = this.controllerMappings[i];
+        this.setter(map.name, new map.controller(this));
+      }
+    },
+
+    setupControllerMappings: function() {
+      var map        = null,
+          d          = $.when(),
+          controller = null,
+          len        = this.controllerMappings ? this.controllerMappings.length : 0,
+          i          = 0;
+
+      for (i = 0; i < len; ++i) {
+        map = this.controllerMappings[i];
+        controller = this.getter(map.name);
+
+        controller.setupViewProperties(this.$(map.selector));
+        if (controller.start) {
+          d = $.when(d, controller.start());
+        }
+      }
+
+      return d;
     },
 
     /**
@@ -172,9 +211,22 @@ define([
      * 
      * @return {Object}
      */
-    getControllerElement: function() {
-      return this.$el;
+    getContentElement: function() {
+      if (this.content) {
+
+        return this.$(this.content);
+      } else if (this.controllerMappings.length == 0) {
+
+        return this.$el;
+      }
+
+      throw new Error('You must specific the "content" property when using the "controllers" property.');
     },
+
+    /**
+     * Copy over the $ function from Backbone View to App
+     */
+    $: Backbone.View.prototype.$,
 
     /**
      * Getting the initial/default route for the app.
@@ -218,7 +270,7 @@ define([
     initializeController: function(Controller) {
       var controller      = new Controller(),
           name            = controller.name || controller.contentName,
-          el              = this.getControllerElement(),
+          el              = this.getContentElement(),
           originalClasses = this._originalClasses || (this._originalClasses = (el.attr('class') || ' '));
 
       el.empty().removeClass().addClass(originalClasses);
@@ -346,7 +398,11 @@ define([
 
           that.setController(controller);
           that.trigger('init:controller', controller);
-          return controller.start.apply(controller, args);
+          
+          if (controller.start) {
+
+            return controller.start.apply(controller, args);
+          }
         }).then(function() {
           that.trigger('start:controller', controller);
         }).always(function() {
@@ -381,11 +437,30 @@ define([
      * @instance
      */
     start: function() {
+      // render the app skeleton
+      this.render();
+
+      // setup the controller mappings
+      var d = this.setupControllerMappings();
+
+      // setup the dynamic controller routes
       this.setupRoutes();
 
       if (!Backbone.history.start()) {
         this.navigate(this.getInitialRoute(), { trigger: true, replace: true });
       }
+
+      return d;
+    },
+
+    render: function() {
+      if (_.isString(this.template)) {
+        this.$el.html(BaseView.template(this.template, this.getOptions()));
+      } else if (_.isFunction(this.template)) {
+        this.$el.html(this.template(this.getOptions()));
+      }
+
+      return this;
     }
 
   },
@@ -421,7 +496,39 @@ define([
     }
 
   });
+  
+  BaseApp.extend = function(proto) {
+    proto.controllerMappings = _.isArray(proto.controllerMappings) ? proto.controllerMappings : [];
+    proto.properties = _.isArray(proto.properties) ? proto.properties : [];
+
+    // parse and copy over the information from proto.controllers to proto.controllerMappings
+    _.each(proto.controllers, function(Controller, map) {
+      var sections = map.split(/\s+/),
+          name     = sections[0],
+          selector = sections.slice(1).join('');
+
+      if (name && selector) {
+        proto.controllerMappings.push({
+          selector   : selector,
+          name       : name,
+          controller : Controller
+        });
+      }
+
+    });
+
+    // Create gettes and setters for the controllers by putting them in the properties array
+    _.each(proto.controllerMappings, function(item) {
+      proto.properties.push(item.name);
+    });
+
+    // Copy over any existing controller mappings onto the proto controllerMappings
+    if (_.isArray(this.prototype.controllerMappings)) {
+      proto.controllerMappings = [].concat(this.prototype.controllerMappings, proto.controllerMappings);
+    }
+
+    return BaseObject.extend.apply(this, arguments);
+  };
 
   return BaseApp;
-  
 });

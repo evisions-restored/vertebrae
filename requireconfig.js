@@ -31,9 +31,9 @@ require.config({
     }
   },
 
-  deps: ['chai', 'jquery'].concat(tests),
+  deps: ['chai', 'vertebrae/view', 'jquery'].concat(tests),
 
-  callback: function(chai) {
+  callback: function(chai, BaseView) {
     assert  = chai.assert;
     expect  = chai.expect;
     should  = chai.should();

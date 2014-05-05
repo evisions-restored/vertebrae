@@ -235,6 +235,29 @@ define([
     },
 
     /**
+     * Call the appropriate getter for the given property
+     * 
+     * @param  {String} name 
+     * 
+     */
+    getter: function(name) {
+      var fn = 'get' + StringUtils.camelCase(name);
+
+      return this[fn].apply(this, _.toArray(arguments).slice(1));
+    },
+
+    /**
+     * Call the appropriate setter for the given property
+     * 
+     * @param  {String} name 
+     * 
+     */
+    setter: function(name) {
+      var fn = 'set' + StringUtils.camelCase(name);
+      return this[fn].apply(this, _.toArray(arguments).slice(1));
+    },
+
+    /**
      * Gets all the properties as an object
      *
      * @function

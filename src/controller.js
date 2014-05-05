@@ -204,7 +204,11 @@ define([
      * @override
      */
     setupView: function() {
-      throw "'setupView' needs to be overridden";
+      if (this.view) {
+        this.setView(new this.view());
+      } else {
+        throw "'setupView' needs to be overridden";
+      }
     },
 
     /**

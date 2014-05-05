@@ -5,7 +5,7 @@ define([
   'jquery'
 ], function(BaseApp, BaseController, BaseView, $) {
 
-  var TestApp, TestView, TestController1, TestController2, test1, test2, app, div;
+  var TestApp, TestView, TestController1, TestController2, HeaderController, FooterController, test1, test2, app, div;
 
   test1 = $.Deferred();
   test2 = $.Deferred();
@@ -14,6 +14,7 @@ define([
 
     render: function() {
       var data = this.getDelegate().getTemplateProperties();
+
       this.$el.html(data.name);
     }
 
@@ -24,12 +25,10 @@ define([
 
     name: 'test controller 1',
 
+    view: TestView,
+
     start: function() {
       test1.resolve();
-    },
-
-    setupView: function() {
-      this.setView(new TestView());
     },
 
     getTemplateProperties: function() {
@@ -48,17 +47,48 @@ define([
 
   });
 
+  HeaderController = BaseController.extend({
+
+    name: 'header controller',
+
+    view: BaseView,
+
+    start: function() {
+
+    }
+
+  });
+
+  FooterController = BaseController.extend({
+
+    name: 'header controller',
+
+    view: BaseView,
+
+    start: function() {
+
+    }
+
+  });
+
   TestApp = BaseApp.extend({
 
     defaultRoute: '',
+
+    content: '#app',
 
     routes: {
       'test/constructor' : TestController1,
       'test/amd'         : 'my/amd/test'
     },
 
-    setupView: function() {
-      this.setView(new TestView());
+    controllers: {
+      'header #header' : HeaderController,
+      'footer #footer' : FooterController
+    },
+
+    render: function() {
+      this.$el.html('<div id="header"></div><div id="app"></div><div id="footer"></div>');
     }
 
   });
@@ -74,8 +104,8 @@ define([
 
       test1.then(function() {
         expect(app.getController()).to.be.an.instanceof(TestController1);
-        expect(app.$el.html()).to.equal(app.getController().name);
-        expect(app.$el.hasClass('test-controller-1')).to.be.true;
+        expect(app.getContentElement().html()).to.equal(app.getController().name);
+        expect(app.getContentElement().hasClass('test-controller-1')).to.be.true;
         done();
       });
 
@@ -93,15 +123,26 @@ define([
 
       test2.then(function() {
         expect(app.getController()).to.be.an.instanceof(TestController2);
-        expect(app.$el.html()).to.equal(app.getController().name);
-        expect(app.$el.hasClass('test-controller-1')).to.be.false;
-        expect(app.$el.hasClass('test-controller-2')).to.be.true;
+        expect(app.getContentElement().html()).to.equal(app.getController().name);
+        expect(app.getContentElement().hasClass('test-controller-1')).to.be.false;
+        expect(app.getContentElement().hasClass('test-controller-2')).to.be.true;
         window.replace = oldRequire;
         app.navigate('', { trigger: true });
         done();
       });
 
       app.navigate('test/amd', { trigger: true });
+
+    });
+
+
+    it('proto.controllers should handle controller mapping', function() {
+
+      expect(app).to.have.property('getHeader');
+      expect(app.getHeader()).to.be.an.instanceof(HeaderController);
+
+      expect(app).to.have.property('getFooter');
+      expect(app.getHeader()).to.be.an.instanceof(FooterController);
 
     });
 

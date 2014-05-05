@@ -34,6 +34,12 @@ define([
 
     });
 
+    var View2 = View.extend({});
+
+    var TestController2 = Controller.extend({ view: View });
+
+    var TestController3 = Controller.extend({ view: View2 });
+
     var controller = null;
 
     beforeEach(function() {
@@ -119,6 +125,16 @@ define([
       controller.setupViewProperties(document.body);
 
       expect(called).to.be.true;
+    });
+
+    it('prototype.setupView', function() {
+
+      controller = new TestController2();
+      expect(controller.getView()).to.be.an.instanceof(View);
+
+      controller = new TestController3();
+
+      expect(controller.getView()).to.be.an.instanceof(View2);
     });
 
     it('prototype.viewIsAvailable', function() {
