@@ -27,7 +27,7 @@ require.config({
 
   shim: {
     handlebars: {
-      exports: 'Templates'
+      exports: 'Handlebars'
     }
   },
 

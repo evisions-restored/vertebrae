@@ -55,6 +55,10 @@ define([
     routes: {
       'test/constructor' : TestController1,
       'test/amd'         : 'my/amd/test'
+    },
+
+    setupView: function() {
+      this.setView(new TestView());
     }
 
   });
