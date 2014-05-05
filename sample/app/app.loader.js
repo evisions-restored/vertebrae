@@ -1,11 +1,11 @@
 define([
-  'app/sample.app.controller',
   'vertebrae/view',
+  'app/sample.app.controller',
   './templates',
   'handlebars'
 ], function(
-  SampleAppController,
   BaseView,
+  SampleAppController,
   HandlebarsTemplates
 ) {
 

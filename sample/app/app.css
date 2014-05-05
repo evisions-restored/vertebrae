@@ -1,10 +1,55 @@
-#header {
-  margin: auto;
-  width: 90%;
+body {
+  font: normal 12px Arial;
 }
-#content-controllers {
-  width: 90%;
-  margin: auto;
-  min-height: 100px;
-  border: 1px solid gray;
+h1 {
+  margin: 0;
+  padding: 0;
+  line-height: 50px;
+  padding-left: 15px;
+}
+.main-app {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+.main-app .header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  background-color: #c7c7c7;
+}
+.main-app .side-bar {
+  position: absolute;
+  top: 50px;
+  left: 0;
+  bottom: 0;
+  width: 250px;
+  background-color: #e9e9e9;
+}
+.main-app .side-bar a {
+  width: 100%;
+  display: block;
+  background-color: #ddd;
+  text-decoration: none;
+  color: #000;
+}
+.main-app .side-bar a:hover {
+  background-color: #fff;
+}
+.main-app .side-bar a span {
+  display: inline-block;
+  margin: 8px 15px;
+}
+.main-app #content {
+  position: absolute;
+  top: 50px;
+  left: 250px;
+  right: 0;
+  bottom: 0;
+  background-color: #fff;
+  padding: 15px;
 }

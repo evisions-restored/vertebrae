@@ -43,49 +43,6 @@ define([
       console.log('Window resize occured.');
     },
 
-    // start: function() {
-    //   this.setupRoutes();
-    // },
-
-    // setupRoutes: function() {
-    //   var routes  = {},
-    //       that    = this;
-
-    //   _.each(this.routes, function(controllerPath, route) {
-    //     routes[route] = function() {
-    //       var controller            = null,
-    //           controllerConstructor = null,
-    //           routesArgs            = arguments,
-    //           previousRoute         = that.getCurrentRoute(),
-    //           previousRouteDeferred = that.currentRouteDeferred;
-
-    //       return that.currentRouteDeferred = $.when(that.canLeaveContentController())
-    //         .then(function() {
-    //           that.routeDidChange(that.getHash());
-    //         }, function() {
-    //           that.navigate(previousRoute);
-
-    //           return 'cancelled';
-    //         }).always(function() {
-    //           that.hideContentLoading();
-    //         }).fail(function(cancelled) {
-    //           if (cancelled == "cancelled") {
-    //             return;
-    //           }
-
-    //           var handled = that.routeDidFail(that.getHash(), routeArgs);
-
-    //           that.clearCurrentRoute();
-    //           if (handled !== true) {
-    //             that.navigate(previousRoute || that.defaultRoute, { trigger: true });
-    //           }
-    //         });
-    //     }
-    //   });
-
-    //   this._router = new Backbone.Router({ routes: routes });
-    // },
-
     routeDidFail: function() { /* Do nothing. */ },
 
     routeDidChange: function(route) {
