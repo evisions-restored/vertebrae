@@ -3,7 +3,7 @@
  *
  * Released under the MIT license
  *
- * Date: 2014-05-02T16:40Z
+ * Date: 2014-05-05T23:06Z
  */
 
 (function(global, factory) {
@@ -374,6 +374,29 @@
       } else {
         return this[k];
       }
+    },
+
+    /**
+     * Call the appropriate getter for the given property
+     * 
+     * @param  {String} name 
+     * 
+     */
+    getter: function(name) {
+      var fn = 'get' + StringUtils.camelCase(name);
+
+      return this[fn].apply(this, _.toArray(arguments).slice(1));
+    },
+
+    /**
+     * Call the appropriate setter for the given property
+     * 
+     * @param  {String} name 
+     * 
+     */
+    setter: function(name) {
+      var fn = 'set' + StringUtils.camelCase(name);
+      return this[fn].apply(this, _.toArray(arguments).slice(1));
     },
 
     /**
@@ -817,7 +840,11 @@
      * @override
      */
     setupView: function() {
-      throw "'setupView' needs to be overridden";
+      if (this.view) {
+        this.setView(new this.view());
+      } else {
+        throw "'setupView' needs to be overridden";
+      }
     },
 
     /**
@@ -1231,6 +1258,17 @@
      */
     getRendered: function() {
       return this.get('rendered');
+    },
+
+    /**
+     * Stub function to be overridden that should render html into the view's element.
+     *
+     * @function
+     *
+     * @instance
+     */
+    render: function() {
+
     },
 
     /**
@@ -1970,7 +2008,7 @@
    *
    * @memberOf Vertebrae
    *
-   * @augments {Vertebrae.BaseObject}
+   * @augments {Vertebrae.BaseController}
    */
   var BaseApp = BaseObject.extend({
 
@@ -1995,6 +2033,12 @@
     routes: { },
 
     /**
+     * The controller container us for mapping static controllers to elements
+     * @type {Object}
+     */
+    controllers: { },
+
+    /**
      * The default route for your application.
      * This should be overwritten in your main app file.
      * 
@@ -2013,9 +2057,44 @@
      * @param  {Object} options The options object we are using within our application.
      */
     initialize: function(el, options) {
+      this._super.apply(this,arguments);
+      
       this.$el = $(el);
       this.el = this.$el.get(0);
       this.setOptions(options || {});
+
+      this.initializeControllerMappings();
+    },
+
+    initializeControllerMappings: function() {
+      var map = null,
+          len = this.controllerMappings ? this.controllerMappings.length : 0,
+          i   = 0;
+
+      for (i = 0; i < len; ++i) {
+        map = this.controllerMappings[i];
+        this.setter(map.name, new map.controller(this));
+      }
+    },
+
+    setupControllerMappings: function() {
+      var map        = null,
+          d          = $.when(),
+          controller = null,
+          len        = this.controllerMappings ? this.controllerMappings.length : 0,
+          i          = 0;
+
+      for (i = 0; i < len; ++i) {
+        map = this.controllerMappings[i];
+        controller = this.getter(map.name);
+
+        controller.setupViewProperties(this.$(map.selector));
+        if (controller.start) {
+          d = $.when(d, controller.start());
+        }
+      }
+
+      return d;
     },
 
     /**
@@ -2119,9 +2198,22 @@
      * 
      * @return {Object}
      */
-    getControllerElement: function() {
-      return this.$el;
+    getContentElement: function() {
+      if (this.content) {
+
+        return this.$(this.content);
+      } else if (this.controllerMappings.length == 0) {
+
+        return this.$el;
+      }
+
+      throw new Error('You must specific the "content" property when using the "controllers" property.');
     },
+
+    /**
+     * Copy over the $ function from Backbone View to App
+     */
+    $: Backbone.View.prototype.$,
 
     /**
      * Getting the initial/default route for the app.
@@ -2165,7 +2257,7 @@
     initializeController: function(Controller) {
       var controller      = new Controller(),
           name            = controller.name || controller.contentName,
-          el              = this.getControllerElement(),
+          el              = this.getContentElement(),
           originalClasses = this._originalClasses || (this._originalClasses = (el.attr('class') || ' '));
 
       el.empty().removeClass().addClass(originalClasses);
@@ -2293,7 +2385,11 @@
 
           that.setController(controller);
           that.trigger('init:controller', controller);
-          return controller.start.apply(controller, args);
+          
+          if (controller.start) {
+
+            return controller.start.apply(controller, args);
+          }
         }).then(function() {
           that.trigger('start:controller', controller);
         }).always(function() {
@@ -2328,11 +2424,30 @@
      * @instance
      */
     start: function() {
+      // render the app skeleton
+      this.render();
+
+      // setup the controller mappings
+      var d = this.setupControllerMappings();
+
+      // setup the dynamic controller routes
       this.setupRoutes();
 
       if (!Backbone.history.start()) {
         this.navigate(this.getInitialRoute(), { trigger: true, replace: true });
       }
+
+      return d;
+    },
+
+    render: function() {
+      if (_.isString(this.template)) {
+        this.$el.html(BaseView.template(this.template, this.getOptions()));
+      } else if (_.isFunction(this.template)) {
+        this.$el.html(this.template(this.getOptions()));
+      }
+
+      return this;
     }
 
   },
@@ -2368,6 +2483,39 @@
     }
 
   });
+  
+  BaseApp.extend = function(proto) {
+    proto.controllerMappings = _.isArray(proto.controllerMappings) ? proto.controllerMappings : [];
+    proto.properties = _.isArray(proto.properties) ? proto.properties : [];
+
+    // parse and copy over the information from proto.controllers to proto.controllerMappings
+    _.each(proto.controllers, function(Controller, map) {
+      var sections = map.split(/\s+/),
+          name     = sections[0],
+          selector = sections.slice(1).join('');
+
+      if (name && selector) {
+        proto.controllerMappings.push({
+          selector   : selector,
+          name       : name,
+          controller : Controller
+        });
+      }
+
+    });
+
+    // Create gettes and setters for the controllers by putting them in the properties array
+    _.each(proto.controllerMappings, function(item) {
+      proto.properties.push(item.name);
+    });
+
+    // Copy over any existing controller mappings onto the proto controllerMappings
+    if (_.isArray(this.prototype.controllerMappings)) {
+      proto.controllerMappings = [].concat(this.prototype.controllerMappings, proto.controllerMappings);
+    }
+
+    return BaseObject.extend.apply(this, arguments);
+  };
 
 
   var Vertebrae = {
