@@ -6,7 +6,7 @@ define([
 
   var ReposController = AbstractController.extend({
 
-    name: 'repos abc',
+    name: 'repos',
 
     view: ReposView,
 

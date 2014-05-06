@@ -45,7 +45,7 @@ define([
     },
 
     controllerDidChange: function() {
-      var controller = this.getController();
+      var controller = this.getContentController();
       this.setActiveLinkByName(controller.name);
     },
 

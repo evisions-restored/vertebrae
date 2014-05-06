@@ -81,17 +81,32 @@ define([
       this.initializeControllerMappings();
     },
 
+    /**
+     * Loops through the controller mappings and initialize all the controller instances
+     */
     initializeControllerMappings: function() {
-      var map = null,
-          len = this.controllerMappings ? this.controllerMappings.length : 0,
-          i   = 0;
+      var map        = null,
+          len        = this.controllerMappings ? this.controllerMappings.length : 0,
+          mappings   = [],
+          i          = 0;
 
       for (i = 0; i < len; ++i) {
-        map = this.controllerMappings[i];
-        this[map.name] = new map.controller(this);
+        map = _.clone(this.controllerMappings[i]);
+        map.instance = new map.controller(this);
+        if (map.name) {
+          this[map.name] = new map.controller(this);
+        }
+        mappings.push(map);
       }
+
+      this.controllerMappings = mappings;
+
+      return this;
     },
 
+    /**
+     * Loops through the controller mappings and sets them up with an element
+     */
     setupControllerMappings: function() {
       var map        = null,
           d          = $.when(),
@@ -101,7 +116,7 @@ define([
 
       for (i = 0; i < len; ++i) {
         map = this.controllerMappings[i];
-        controller = this[map.name];
+        controller = map.instance;
 
         controller.setup(this.$(map.selector));
         if (controller.start) {
@@ -416,11 +431,10 @@ define([
           
           if (controller.start) {
 
-            return $.when(controller.start.apply(controller, args)).done(function() {
-              controller.trigger('data:ready');
-            });
+            return controller.start.apply(controller, args);
           }
         }).then(function() {
+          controller.trigger('data:ready');
           that.trigger('start:contentController', controller);
         }).always(function() {
           that.hideLoading();
@@ -528,9 +542,9 @@ define([
 
     // parse and copy over the information from proto.controllers to proto.controllerMappings
     _.each(proto.controllers, function(Controller, map) {
-      var sections = map.split(/\s+/),
-          name     = sections[0],
-          selector = sections.slice(1).join('');
+      var sections = String(map).trim().split(/\s+/),
+          name     = sections.length > 1 ? sections[0] : null,
+          selector = name ? sections.slice(1).join('') : sections.join('');
 
       if (name && selector) {
         proto.controllerMappings.push({
