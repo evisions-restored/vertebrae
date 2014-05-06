@@ -39,15 +39,14 @@ define([
 
     initialize: function() {
       this.setUser(User.model({ email: 'vertebrae@evisions.com', name: 'Vertebrae Jones' }));
+      this.listenTo(this, 'change:controller', this.controllerDidChange);
       this._super.apply(this, arguments);
-
-      this.listenTo(this, 'change:controller', function() {
-        var controller = this.getController();
-
-        this.setActiveLinkByName(controller.name);
-      });
-
       window.App = this;
+    },
+
+    controllerDidChange: function() {
+      var controller = this.getController();
+      this.setActiveLinkByName(controller.name);
     },
 
     setActiveLinkByName: function(name) {
