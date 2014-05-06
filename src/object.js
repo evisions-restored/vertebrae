@@ -236,6 +236,33 @@ define([
     },
 
     /**
+     * Pick out properties from this object's properties
+     * 
+     * @return {Object}
+     */
+    pick: function() {
+      var args  = _.toArray(arguments),
+          obj   = {},
+          len   = 0,
+          i     = 0,
+          prop  = null,
+          props = [];
+
+      if (_.isArray(args[0])) {
+        props = args[0];
+      } else {
+        props = args;
+      }
+
+      for (i = 0, len = props.length; i < len; ++i) {
+        prop = props[i];
+        obj[prop] = this.getter(prop);
+      }
+
+      return obj;
+    },
+
+    /**
      * Call the appropriate getter for the given property
      * 
      * @param  {String} name 
@@ -304,9 +331,29 @@ define([
      */
     set: function(k, v, silent) {
       var isNamespacedKey = k.indexOf('.') > -1,
+          options         = { trigger: true, deferred: false },
           oldValue        = isNamespacedKey ? BaseObject.getPropertyByNamespace(this,k) : this[k],
-          trigger         = oldValue != v && !silent,
+          trigger         = oldValue != v && (silent == null || silent === false),
           that            = this;
+
+      if (_.isObject(silent)) {
+        _.extend(options, silent);
+      }
+
+      if (options.trigger === false) {
+        trigger = false;
+      }
+
+      if (options.deferred === true) {
+
+        options.deferred = false;
+
+        $.when(v).then(function(v) {
+          that.set(k, v, options);
+        });
+
+        return v;
+      }
 
       if (isNamespacedKey) {
         BaseObject.setPropertyByNamespace(this,k,v);

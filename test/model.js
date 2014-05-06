@@ -20,7 +20,8 @@ define([
             'prop1',
             'prop2'
           ] 
-        }, {
+        }, 
+        {
           rootURI: '/api/',
           parsers: {
             'test1': function(data) { 
@@ -32,6 +33,18 @@ define([
             'getId/:id': function(data) { 
               return 'someid'; 
             }
+          },
+
+          getResponseSuccessPayload: function(resp) {
+            return resp.data;
+          },
+
+          getResponseDefaults: function() {
+            return { valid: false };
+          },
+
+          isValidResponse: function(resp) {
+            return resp.valid;
           }
         });
       // Setup up some simple models with defined properties
@@ -214,7 +227,7 @@ define([
         },0);
       };
 
-      Model.request('/test/endpoint', params,{})
+      SimpleModel.request('/test/endpoint', params,{})
         .then(function(data) {
           assert.isObject(data);
           assert.equal(data.key2, "value2");
@@ -224,7 +237,7 @@ define([
           ajaxData = {error:'message'};
 
           // lets ttest a failure now.
-          return Model.request('/test/endpoint', params, {})
+          return SimpleModel.request('/test/endpoint', params, {})
         })
         .then(null, function(error) {
           assert.isObject(error);
@@ -395,6 +408,10 @@ define([
             parserCount++;
             return data;
           }
+        },
+
+        getResponseSuccessPayload: function(resp) {
+          return resp.data;
         }
       });
 

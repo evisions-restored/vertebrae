@@ -141,7 +141,8 @@ define([
       var called = false;
 
       var TestControllerA = TestController.extend({
-        viewIsReady: function() {
+        events: {
+          'view:ready': null
         },
         viewIsAvailable: function() {
           called = true;

@@ -22,15 +22,12 @@ define([
     start: function() {
       var that = this;
 
-      return Repo.requestAllByUser('Evisions').then(function(repos) {
-        that.setRepos(repos);
-      });
+      return this.set('repos', Repo.requestAllByUser('Evisions'), { deferred: true });
     },
 
     getTemplateProperties: function() {
-      return {
-        repos: this.getRepos()
-      };
+
+      return this.pick('repos');
     }
 
   });
