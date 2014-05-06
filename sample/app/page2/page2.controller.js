@@ -4,10 +4,10 @@ define([
 ], function(BaseController, Page2View) {
  
   var Page2Controller = BaseController.extend({
- 
-    setupView: function() {
-      this.setView(new Page2View());
-    }
+    
+    name: 'page2',
+
+    view: Page2View
 
   });
  

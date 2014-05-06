@@ -38,6 +38,10 @@ define([
      * @param  {Object} props Properties to apply to the model.
      */
     initialize: function(props) {
+      if (_.isFunction(this.defaults)) {
+        props = _.defaults(_.clone(props), this.defaults());
+      }
+
       this.applyProperties(props);
 
       return this._super();
@@ -199,9 +203,10 @@ define([
       options || (options = {});
       params || (params = {});
 
-      var d    = $.Deferred(),
-          that = this,
-          url  = this.rootURI + uri;
+      var d                = $.Deferred(),
+          that             = this,
+          responseDefaults = this.getResponseDefaults(),
+          url              = (this.rootUrl || this.rootURI) + uri;
 
       _.defaults(options, {
         data     : params,
@@ -216,17 +221,18 @@ define([
         options.processData = false;
       }
 
-      options.success = function(resp) {
+      options.success = function(resp, textStatus, xhr) {
+        if (responseDefaults) {
+          _.defaults(resp, responseDefaults);
+        }
         // If we have a NULL response,= or it is not valid then we reject.
-        if (!resp || !resp.valid) {
-          d.reject(resp || {
-            valid: false
-          });
+        if (!that.isValidResponse(resp, textStatus, xhr)) {
+          d.reject(this.getResponseFailPayload(resp || {}));
         } else {
           // If it is valid, then we just return the response.
           var modelizer = that.getParser(uri, options.type) || that.defaultHandler;
 
-          d.resolve(modelizer.call(that, resp.data || {}, params) || {}, params, resp);
+          d.resolve(modelizer.call(that, that.getResponseSuccessPayload(resp || {}), params) || {}, params, resp);
         }
       };
 
@@ -239,6 +245,22 @@ define([
       $.ajax(options);
 
       return d.promise();
+    },
+
+    isValidResponse: function(resp) {
+      return !!resp;
+    },
+
+    getResponseDefaults: function() {
+      return null;
+    },
+
+    getResponseSuccessPayload: function(resp) {
+      return resp;
+    },
+
+    getResponseFailPayload: function(resp) {
+      return resp;
     },
 
     /**
@@ -302,6 +324,13 @@ define([
                         return optional ? match : '([^\/]+)';
                       })
                       .replace(splatParam, '(.*?)');
+
+        if (_.isString(fn)) {
+          var fnName = fn;
+          fn = function() {
+            return this[fnName].apply(this, arguments);
+          };
+        }
 
         return { 
           uri       : new RegExp('^' + route + '$'),
@@ -410,12 +439,16 @@ define([
       }
 
       routes[name] = function(params, options) {
-        
-        var replacedUri = String(uri).replace(escapeRegExp, '\\$&')
-            .replace(/:\w+/g, function(match) {
+        var args = arguments;
+
+        var replacedUri = String(uri)
+            .replace(/:[\$]?\w+/g, function(match) {
               var name = match.slice(1);
 
-              if (params && params[name]) {
+              if (name[0] == '$') {
+
+                return args[name.slice(1)];
+              } else if (params && params[name]) {
 
                 return params[name];
               } else {
@@ -451,6 +484,15 @@ define([
         properties = proto.properties;
       }
       proto.properties = [].concat(serverProperties, properties);
+    }
+
+    if (_.isArray(proto.attributes)) {
+
+
+
+      if (_.isArray(this.prototype.attributes)) {
+        proto.attributes = [].concat(this.prototype.attributes, proto.attributes);
+      }
     }
 
     return BaseObject.extend.apply(this, arguments);

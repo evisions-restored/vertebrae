@@ -122,7 +122,7 @@ define([
       });
 
       controller = new TestControllerA();
-      controller.setupViewProperties(document.body);
+      controller.setup(document.body);
 
       expect(called).to.be.true;
     });
@@ -149,7 +149,7 @@ define([
       });
 
       controller = new TestControllerA();
-      controller.setupViewProperties(document.body);
+      controller.setup(document.body);
 
       expect(called).to.be.false;
 

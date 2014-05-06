@@ -1,5 +1,9 @@
-body {
+html, body {
   font: normal 12px Arial;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 h1 {
   margin: 0;
@@ -7,49 +11,73 @@ h1 {
   line-height: 50px;
   padding-left: 15px;
 }
-.main-app {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-}
-.main-app .header {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 50px;
+
+.main-app #header {
   background-color: #c7c7c7;
 }
+
+.main-app #header .likes-container {
+  cursor: pointer;
+}
+
+.main-app #header .header-center {
+  padding: 17px 5px;
+}
+
 .main-app .side-bar {
-  position: absolute;
+  position: fixed;
   top: 50px;
   left: 0;
   bottom: 0;
   width: 250px;
   background-color: #e9e9e9;
+  z-index: 100;
 }
 .main-app .side-bar a {
-  width: 100%;
   display: block;
   background-color: #ddd;
   text-decoration: none;
-  color: #000;
+  color: #666;
+  cursor: pointer;
 }
 .main-app .side-bar a:hover {
   background-color: #fff;
 }
+
+.main-app .side-bar a.active {
+  color: #;
+}
+
 .main-app .side-bar a span {
   display: inline-block;
   margin: 8px 15px;
 }
+
 .main-app #content {
-  position: absolute;
-  top: 50px;
-  left: 250px;
-  right: 0;
-  bottom: 0;
   background-color: #fff;
   padding: 15px;
+  padding-left: 265px;
+  position: relative;
+  z-index: 1;
+}
+
+
+.pull-right {
+  float: right;
+}
+
+.pull-left {
+  float: left;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.clear {
+  clear: both;
 }

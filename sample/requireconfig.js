@@ -14,6 +14,16 @@ require.config({
     handlebars: {
       exports: 'Handlebars'
     }
+  },
+
+  deps: ['jquery', 'app/app'],
+
+  callback: function($, App) {
+    $(function() {
+
+      App.launch(document.body);
+      
+    });
   }
 
 });

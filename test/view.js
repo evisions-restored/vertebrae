@@ -36,7 +36,7 @@ define([
 
       myElement = $("<div>").appendTo(document.body);
       myDelegate    = new SimpleController();
-      myDelegate.setupViewProperties(myElement);
+      myDelegate.setup(myElement);
       myView = myDelegate.getView();
 
     });

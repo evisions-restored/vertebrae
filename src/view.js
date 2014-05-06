@@ -552,6 +552,22 @@ define([
    * @return {Object}
    */
   BaseView.extend = function(proto) {
+
+    _.each(proto.events, function(name, event) {
+      if (String(name).indexOf('.') > -1) {
+        var sections = name.split('.');
+
+        proto.events[event] = function() {
+          // get the function we are trying to call
+          var fn = BaseObject.getPropertyByNamespace(this, name),
+              //get the object that the function we got is attached to
+              obj = BaseObject.getPropertyByNamespace(this, sections.slice(0, -1).join('.'));
+
+          return fn.apply(obj, arguments);
+        }
+      }
+    });
+
     if (_.isObject(proto.events) && !proto.overrideEvents) {
       if (_.isObject(this.prototype.events)) {
         proto.events = _.extend({}, this.prototype.events, proto.events);

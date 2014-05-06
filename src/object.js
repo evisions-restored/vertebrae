@@ -24,6 +24,7 @@ define([
     if (this.initialize) {
       this.initialize.apply(this, arguments);
     }
+    this.trigger('init');
   };
 
   // Creates a _super function for the parent function when calling the childFunction.

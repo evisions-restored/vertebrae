@@ -103,7 +103,7 @@ define([
         map = this.controllerMappings[i];
         controller = this.getter(map.name);
 
-        controller.setupViewProperties(this.$(map.selector));
+        controller.setup(this.$(map.selector));
         if (controller.start) {
           d = $.when(d, controller.start());
         }
@@ -287,7 +287,7 @@ define([
         el.attr('id', controller.id);
       }
 
-      controller.setupViewProperties(el);
+      controller.setup(el);
 
       return controller;
     },
@@ -403,7 +403,9 @@ define([
           
           if (controller.start) {
 
-            return controller.start.apply(controller, args);
+            return $.when(controller.start.apply(controller, args)).done(function() {
+              controller.trigger('data:ready');
+            });
           }
         }).then(function() {
           that.trigger('start:controller', controller);
@@ -427,6 +429,10 @@ define([
       };
 
       return $.proxy(fn, this);
+    },
+
+    routeDidFail: function() {
+
     },
 
     /**

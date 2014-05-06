@@ -38,6 +38,34 @@ define([
     }
   };
 
+  function setupEvents() {
+    var that = this;
+
+    if (!_.isObject(that.events)) {
+      return;
+    }
+
+    var events = _.keys(this.events),
+        event  = null,
+        fn     = null,
+        len    = events.length,
+        i      = 0;
+
+    for (i = 0; i < len; ++i) {
+      event = events[i];
+      fn = this.events[event];
+      if (fn) {
+
+        if (!this[fn]) {
+          throw new Error(fn + ' does not exist on this controller');
+        }
+
+        this.listenTo(this, event, this[fn]);
+      }
+    }
+
+  };
+
   /**
    * Base Controller Object for all Controller
    *
@@ -58,6 +86,10 @@ define([
      */
     properties: ['view'],
 
+    events: {
+      'view:ready': 'render'
+    },
+
     /**
      * Constructor
      *
@@ -71,6 +103,7 @@ define([
       this._unbind = [];
 
       setupObserves.call(this);
+      setupEvents.call(this);
 
       this.setupView();
 
@@ -78,7 +111,10 @@ define([
         throw new Error('A view was not properly assigned.');
       }
 
-      this.listenToOnce(this.getView(), 'change:available', this.viewIsAvailable);
+      this.listenToOnce(this.getView(), 'change:available', function() {
+        this.trigger('view:available');
+        this.viewIsAvailable();
+      });
     },
 
     /**
@@ -223,10 +259,14 @@ define([
      *
      * @return {Object} 
      */
-    setupViewProperties: function(el, delegate) {
+    setup: function(el, options) {
+      options = _.defaults(options || {}, { delegate: this });
+
       this.getView().setElement(el);
-      this.getView().setDelegate(delegate || this);
+      this.getView().setDelegate(options.delegate);
       this.getView().watchDelegateProperties();
+      this.getView().watchDelegateProperties();
+      this.trigger('view:ready');
       this.viewIsReady();
       
       return this;
@@ -242,6 +282,10 @@ define([
      * @override
      */
     viewIsReady: function() {
+
+    },
+
+    render: function() {
       this.getView().render();
       this.getView().setRendered();
     },
@@ -324,10 +368,12 @@ define([
    * @return {Constructor}   
    */
   BaseController.extend = function(proto) {
-    if (_.isObject(proto.observes)) {
-      if (_.isObject(this.prototype.observes)) {
-        proto.observes = _.extend({}, this.prototype.observes, proto.observes);
-      }
+    if (_.isObject(proto.observes) && _.isObject(this.prototype.observes)) {
+      proto.observes = _.extend({}, this.prototype.observes, proto.observes);
+    }
+
+    if (_.isObject(proto.events) && _.isObject(this.prototype.events)) {
+      proto.events = _.extend({}, this.prototype.events, proto.events);
     }
 
     if (_.isObject(proto.validators) && !_.isFunction(proto.validate)) {
