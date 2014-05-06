@@ -39,7 +39,7 @@ define([
 
     initialize: function() {
       this.setUser(User.model({ email: 'vertebrae@evisions.com', name: 'Vertebrae Jones' }));
-      this.listenTo(this, 'change:controller', this.controllerDidChange);
+      this.listenTo(this, 'change:contentController', this.controllerDidChange);
       this._super.apply(this, arguments);
       window.App = this;
     },

@@ -103,8 +103,8 @@ define([
 
 
       test1.then(function() {
-        expect(app.getController()).to.be.an.instanceof(TestController1);
-        expect(app.getContentElement().html()).to.equal(app.getController().name);
+        expect(app.getContentController()).to.be.an.instanceof(TestController1);
+        expect(app.getContentElement().html()).to.equal(app.getContentController().name);
         expect(app.getContentElement().hasClass('test-controller-1')).to.be.true;
         done();
       });
@@ -122,8 +122,8 @@ define([
       };
 
       test2.then(function() {
-        expect(app.getController()).to.be.an.instanceof(TestController2);
-        expect(app.getContentElement().html()).to.equal(app.getController().name);
+        expect(app.getContentController()).to.be.an.instanceof(TestController2);
+        expect(app.getContentElement().html()).to.equal(app.getContentController().name);
         expect(app.getContentElement().hasClass('test-controller-1')).to.be.false;
         expect(app.getContentElement().hasClass('test-controller-2')).to.be.true;
         window.replace = oldRequire;
@@ -138,11 +138,8 @@ define([
 
     it('proto.controllers should handle controller mapping', function() {
 
-      expect(app).to.have.property('getHeader');
-      expect(app.getHeader()).to.be.an.instanceof(HeaderController);
-
-      expect(app).to.have.property('getFooter');
-      expect(app.getFooter()).to.be.an.instanceof(FooterController);
+      expect(app.header).to.be.an.instanceof(HeaderController);
+      expect(app.footer).to.be.an.instanceof(FooterController);
 
     });
 

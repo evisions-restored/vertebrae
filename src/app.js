@@ -34,7 +34,7 @@ define([
      */
     properties: [
       'activeRoute',
-      'controller',
+      'contentController',
       'options',
       'router'
     ],
@@ -88,7 +88,7 @@ define([
 
       for (i = 0; i < len; ++i) {
         map = this.controllerMappings[i];
-        this.setter(map.name, new map.controller(this));
+        this[map.name] = new map.controller(this);
       }
     },
 
@@ -101,7 +101,7 @@ define([
 
       for (i = 0; i < len; ++i) {
         map = this.controllerMappings[i];
-        controller = this.getter(map.name);
+        controller = this[map.name];
 
         controller.setup(this.$(map.selector));
         if (controller.start) {
@@ -163,7 +163,7 @@ define([
      * @return {Boolean}
      */
     unloadController: function() {
-      var controller = this.getController();
+      var controller = this.getContentController();
 
       return controller && controller.unload();
     },
@@ -178,7 +178,7 @@ define([
      * @return {Boolean}
      */
     destroyController: function() {
-      var controller = this.getController();
+      var controller = this.getContentController();
 
       return controller && controller.destroy();
     },
@@ -332,7 +332,11 @@ define([
      * 
      * @return {Boolean}
      */
-    canLeaveCurrentController: function() {
+    canLeaveContentController: function() {
+      return true;
+    },
+
+    canLoadContentController: function(Controller) {
       return true;
     },
 
@@ -358,10 +362,10 @@ define([
             args                  = arguments,
             previousRoute         = this.getActiveRoute(),
             controllerD           = $.Deferred(),
-            previousRouteDeferred = $.when(previousRouteDeferred).then(null, function() { return $.Deferred().resolve(); });
+            previousRouteDeferred = $.when(that.currentRouteDeferred).then(null, function() { return $.Deferred().resolve(); });
 
 
-        return that.currentRouteDeferred = d = $.when(that.canLeaveCurrentController())
+        return that.currentRouteDeferred = d = $.when(that.canLeaveContentController())
         .then(function() {
           that.showLoading();
 
@@ -385,21 +389,30 @@ define([
 
           return BaseApp.RouteErrors.CANCELLED;
         }).then(function() {
+          // make sure the controller constructor is loaded
+          return controllerD;
+        }).then(function() {
+
+          if (!that.canLoadContentController(Controller)) {
+
+            return $.Deferred().reject(BaseApp.RouteErrors.DENIED);
+          }
+        }).then(function() {
           that.setActiveRoute(route);
           that.trigger('route', route);
 
           return that.hideController();
         }).then(function() {
           that.showLoading();
-
-          return $.when(that.unloadController(), controllerD);
+          return that.unloadController()
         }).then(function() {
+          
           return that.destroyController();
         }).then(function() {
           controller = that.initializeController(Controller);
 
-          that.setController(controller);
-          that.trigger('init:controller', controller);
+          that.setContentController(controller);
+          that.trigger('init:contentController', controller);
           
           if (controller.start) {
 
@@ -408,12 +421,15 @@ define([
             });
           }
         }).then(function() {
-          that.trigger('start:controller', controller);
+          that.trigger('start:contentController', controller);
         }).always(function() {
           that.hideLoading();
         }).fail(function(reason) {
+
           switch (reason) {
             case BaseApp.RouteErrors.CANCELLED:
+              return;
+            case BaseApp.RouteErrors.DENIED:
               return;
           };
 
@@ -480,7 +496,8 @@ define([
      * @type {Object}
      */
     RouteErrors: {
-      CANCELLED: 'cancelled'
+      CANCELLED: 'cancelled',
+      DENIED: 'denied'
     },
 
     /**
@@ -523,11 +540,6 @@ define([
         });
       }
 
-    });
-
-    // Create gettes and setters for the controllers by putting them in the properties array
-    _.each(proto.controllerMappings, function(item) {
-      proto.properties.push(item.name);
     });
 
     // Copy over any existing controller mappings onto the proto controllerMappings

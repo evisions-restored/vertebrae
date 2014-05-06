@@ -19,7 +19,7 @@ define([
       this.sync('likes', user);
       //listen for changes on the current controller property on the app
       // this will cause "refreshControllerPropertyOnView" to be called
-      this.sync('controller', this.getApp())
+      this.sync('controller', this.getApp());
     },
 
     // syncs the property to the dom by emitting events when this property changes

@@ -6,7 +6,7 @@ define([
 
   var ReposController = AbstractController.extend({
 
-    name: 'repos',
+    name: 'repos abc',
 
     view: ReposView,
 
@@ -20,13 +20,10 @@ define([
     },
 
     start: function() {
-      var that = this;
-
-      return this.set('repos', Repo.requestAllByUser('Evisions'), { deferred: true });
+      return this.setRepos(Repo.requestAllByUser('Evisions'));
     },
 
     getTemplateProperties: function() {
-
       return this.pick('repos');
     }
 

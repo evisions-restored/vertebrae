@@ -132,6 +132,7 @@ define([
       aObject.set('property1', 'value1', true);
       expect(aObject.property1).to.equal('value1');
 
+
       expect(listened).to.equal(false, 'Listener should not have been triggered.');
 
       // Set off listener

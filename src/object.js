@@ -84,8 +84,7 @@ define([
         (function(prop){
 
           var setter = function(value, silent) {
-               this.set(prop, value, silent);
-               return this;
+               return this.set(prop, value, silent);
               },
               getter = function() {
                 return this.get(prop);
@@ -331,28 +330,22 @@ define([
      */
     set: function(k, v, silent) {
       var isNamespacedKey = k.indexOf('.') > -1,
-          options         = { trigger: true, deferred: false },
+          trigger         = oldValue != v && silent !== true,
+          options         = { trigger: trigger, deferred: true },
           oldValue        = isNamespacedKey ? BaseObject.getPropertyByNamespace(this,k) : this[k],
-          trigger         = oldValue != v && (silent == null || silent === false),
           that            = this;
 
       if (_.isObject(silent)) {
         _.extend(options, silent);
       }
 
-      if (options.trigger === false) {
-        trigger = false;
-      }
-
       if (options.deferred === true) {
 
         options.deferred = false;
 
-        $.when(v).then(function(v) {
+        return $.when(v).then(function(v) {
           that.set(k, v, options);
         });
-
-        return v;
       }
 
       if (isNamespacedKey) {
@@ -360,7 +353,7 @@ define([
       } else {
         this[k] = v;
       }
-      if (trigger) {
+      if (options.trigger) {
         this.trigger('change:' + k, this);
         // Clear the change timeout if we are setting something else.
         clearTimeout(this._changeTimeout);
@@ -371,6 +364,8 @@ define([
           that.trigger('change');
         }, 0);
       }
+      
+      return this;
     }
 
   };

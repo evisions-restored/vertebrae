@@ -12,6 +12,8 @@ define([
 
     defaults: function() {
       return {
+        email: '',
+        name: '',
         likes: 0
       };
     },

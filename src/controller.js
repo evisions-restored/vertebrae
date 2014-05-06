@@ -265,7 +265,6 @@ define([
       this.getView().setElement(el);
       this.getView().setDelegate(options.delegate);
       this.getView().watchDelegateProperties();
-      this.getView().watchDelegateProperties();
       this.trigger('view:ready');
       this.viewIsReady();
       
