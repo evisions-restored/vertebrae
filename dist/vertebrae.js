@@ -3,7 +3,7 @@
  *
  * Released under the MIT license
  *
- * Date: 2014-05-05T23:06Z
+ * Date: 2014-05-07T16:35Z
  */
 
 (function(global, factory) {
@@ -166,6 +166,7 @@
     if (this.initialize) {
       this.initialize.apply(this, arguments);
     }
+    this.trigger('init');
   };
 
   // Creates a _super function for the parent function when calling the childFunction.
@@ -225,8 +226,7 @@
         (function(prop){
 
           var setter = function(value, silent) {
-               this.set(prop, value, silent);
-               return this;
+               return this.set(prop, value, silent);
               },
               getter = function() {
                 return this.get(prop);
@@ -377,6 +377,33 @@
     },
 
     /**
+     * Pick out properties from this object's properties
+     * 
+     * @return {Object}
+     */
+    pick: function() {
+      var args  = _.toArray(arguments),
+          obj   = {},
+          len   = 0,
+          i     = 0,
+          prop  = null,
+          props = [];
+
+      if (_.isArray(args[0])) {
+        props = args[0];
+      } else {
+        props = args;
+      }
+
+      for (i = 0, len = props.length; i < len; ++i) {
+        prop = props[i];
+        obj[prop] = this.getter(prop);
+      }
+
+      return obj;
+    },
+
+    /**
      * Call the appropriate getter for the given property
      * 
      * @param  {String} name 
@@ -445,16 +472,30 @@
      */
     set: function(k, v, silent) {
       var isNamespacedKey = k.indexOf('.') > -1,
+          trigger         = oldValue != v && silent !== true,
+          options         = { trigger: trigger, deferred: true },
           oldValue        = isNamespacedKey ? BaseObject.getPropertyByNamespace(this,k) : this[k],
-          trigger         = oldValue != v && !silent,
           that            = this;
+
+      if (_.isObject(silent)) {
+        _.extend(options, silent);
+      }
+
+      if (options.deferred === true) {
+
+        options.deferred = false;
+
+        return $.when(v).then(function(v) {
+          that.set(k, v, options);
+        });
+      }
 
       if (isNamespacedKey) {
         BaseObject.setPropertyByNamespace(this,k,v);
       } else {
         this[k] = v;
       }
-      if (trigger) {
+      if (options.trigger) {
         this.trigger('change:' + k, this);
         // Clear the change timeout if we are setting something else.
         clearTimeout(this._changeTimeout);
@@ -465,6 +506,8 @@
           that.trigger('change');
         }, 0);
       }
+      
+      return this;
     }
 
   };
@@ -674,6 +717,34 @@
     }
   };
 
+  function setupEvents() {
+    var that = this;
+
+    if (!_.isObject(that.events)) {
+      return;
+    }
+
+    var events = _.keys(this.events),
+        event  = null,
+        fn     = null,
+        len    = events.length,
+        i      = 0;
+
+    for (i = 0; i < len; ++i) {
+      event = events[i];
+      fn = this.events[event];
+      if (fn) {
+
+        if (!this[fn]) {
+          throw new Error(fn + ' does not exist on this controller');
+        }
+
+        this.listenTo(this, event, this[fn]);
+      }
+    }
+
+  };
+
   /**
    * Base Controller Object for all Controller
    *
@@ -694,6 +765,10 @@
      */
     properties: ['view'],
 
+    events: {
+      'view:ready': 'render'
+    },
+
     /**
      * Constructor
      *
@@ -707,6 +782,7 @@
       this._unbind = [];
 
       setupObserves.call(this);
+      setupEvents.call(this);
 
       this.setupView();
 
@@ -714,7 +790,10 @@
         throw new Error('A view was not properly assigned.');
       }
 
-      this.listenToOnce(this.getView(), 'change:available', this.viewIsAvailable);
+      this.listenToOnce(this.getView(), 'change:available', function() {
+        this.trigger('view:available');
+        this.viewIsAvailable();
+      });
     },
 
     /**
@@ -859,10 +938,13 @@
      *
      * @return {Object} 
      */
-    setupViewProperties: function(el, delegate) {
+    setup: function(el, options) {
+      options = _.defaults(options || {}, { delegate: this });
+
       this.getView().setElement(el);
-      this.getView().setDelegate(delegate || this);
+      this.getView().setDelegate(options.delegate);
       this.getView().watchDelegateProperties();
+      this.trigger('view:ready');
       this.viewIsReady();
       
       return this;
@@ -878,6 +960,10 @@
      * @override
      */
     viewIsReady: function() {
+
+    },
+
+    render: function() {
       this.getView().render();
       this.getView().setRendered();
     },
@@ -960,10 +1046,12 @@
    * @return {Constructor}   
    */
   BaseController.extend = function(proto) {
-    if (_.isObject(proto.observes)) {
-      if (_.isObject(this.prototype.observes)) {
-        proto.observes = _.extend({}, this.prototype.observes, proto.observes);
-      }
+    if (_.isObject(proto.observes) && _.isObject(this.prototype.observes)) {
+      proto.observes = _.extend({}, this.prototype.observes, proto.observes);
+    }
+
+    if (_.isObject(proto.events) && _.isObject(this.prototype.events)) {
+      proto.events = _.extend({}, this.prototype.events, proto.events);
     }
 
     if (_.isObject(proto.validators) && !_.isFunction(proto.validate)) {
@@ -1521,6 +1609,22 @@
    * @return {Object}
    */
   BaseView.extend = function(proto) {
+
+    _.each(proto.events, function(name, event) {
+      if (String(name).indexOf('.') > -1) {
+        var sections = name.split('.');
+
+        proto.events[event] = function() {
+          // get the function we are trying to call
+          var fn = BaseObject.getPropertyByNamespace(this, name),
+              //get the object that the function we got is attached to
+              obj = BaseObject.getPropertyByNamespace(this, sections.slice(0, -1).join('.'));
+
+          return fn.apply(obj, arguments);
+        }
+      }
+    });
+
     if (_.isObject(proto.events) && !proto.overrideEvents) {
       if (_.isObject(this.prototype.events)) {
         proto.events = _.extend({}, this.prototype.events, proto.events);
@@ -1577,6 +1681,10 @@
      * @param  {Object} props Properties to apply to the model.
      */
     initialize: function(props) {
+      if (_.isFunction(this.defaults)) {
+        props = _.defaults(_.clone(props), this.defaults());
+      }
+
       this.applyProperties(props);
 
       return this._super();
@@ -1738,9 +1846,10 @@
       options || (options = {});
       params || (params = {});
 
-      var d    = $.Deferred(),
-          that = this,
-          url  = this.rootURI + uri;
+      var d                = $.Deferred(),
+          that             = this,
+          responseDefaults = this.getResponseDefaults(),
+          url              = (this.rootUrl || this.rootURI) + uri;
 
       _.defaults(options, {
         data     : params,
@@ -1755,17 +1864,18 @@
         options.processData = false;
       }
 
-      options.success = function(resp) {
+      options.success = function(resp, textStatus, xhr) {
+        if (responseDefaults) {
+          _.defaults(resp, responseDefaults);
+        }
         // If we have a NULL response,= or it is not valid then we reject.
-        if (!resp || !resp.valid) {
-          d.reject(resp || {
-            valid: false
-          });
+        if (!that.isValidResponse(resp, textStatus, xhr)) {
+          d.reject(this.getResponseFailPayload(resp || {}));
         } else {
           // If it is valid, then we just return the response.
           var modelizer = that.getParser(uri, options.type) || that.defaultHandler;
 
-          d.resolve(modelizer.call(that, resp.data || {}, params) || {}, params, resp);
+          d.resolve(modelizer.call(that, that.getResponseSuccessPayload(resp || {}), params) || {}, params, resp);
         }
       };
 
@@ -1778,6 +1888,22 @@
       $.ajax(options);
 
       return d.promise();
+    },
+
+    isValidResponse: function(resp) {
+      return !!resp;
+    },
+
+    getResponseDefaults: function() {
+      return null;
+    },
+
+    getResponseSuccessPayload: function(resp) {
+      return resp;
+    },
+
+    getResponseFailPayload: function(resp) {
+      return resp;
     },
 
     /**
@@ -1841,6 +1967,13 @@
                         return optional ? match : '([^\/]+)';
                       })
                       .replace(splatParam, '(.*?)');
+
+        if (_.isString(fn)) {
+          var fnName = fn;
+          fn = function() {
+            return this[fnName].apply(this, arguments);
+          };
+        }
 
         return { 
           uri       : new RegExp('^' + route + '$'),
@@ -1949,12 +2082,16 @@
       }
 
       routes[name] = function(params, options) {
-        
-        var replacedUri = String(uri).replace(escapeRegExp, '\\$&')
-            .replace(/:\w+/g, function(match) {
+        var args = arguments;
+
+        var replacedUri = String(uri)
+            .replace(/:[\$]?\w+/g, function(match) {
               var name = match.slice(1);
 
-              if (params && params[name]) {
+              if (name[0] == '$') {
+
+                return args[name.slice(1)];
+              } else if (params && params[name]) {
 
                 return params[name];
               } else {
@@ -1992,6 +2129,15 @@
       proto.properties = [].concat(serverProperties, properties);
     }
 
+    if (_.isArray(proto.attributes)) {
+
+
+
+      if (_.isArray(this.prototype.attributes)) {
+        proto.attributes = [].concat(this.prototype.attributes, proto.attributes);
+      }
+    }
+
     return BaseObject.extend.apply(this, arguments);
   };
 /**
@@ -2019,7 +2165,7 @@
      */
     properties: [
       'activeRoute',
-      'controller',
+      'contentController',
       'options',
       'router'
     ],
@@ -2066,17 +2212,32 @@
       this.initializeControllerMappings();
     },
 
+    /**
+     * Loops through the controller mappings and initialize all the controller instances
+     */
     initializeControllerMappings: function() {
-      var map = null,
-          len = this.controllerMappings ? this.controllerMappings.length : 0,
-          i   = 0;
+      var map        = null,
+          len        = this.controllerMappings ? this.controllerMappings.length : 0,
+          mappings   = [],
+          i          = 0;
 
       for (i = 0; i < len; ++i) {
-        map = this.controllerMappings[i];
-        this.setter(map.name, new map.controller(this));
+        map = _.clone(this.controllerMappings[i]);
+        map.instance = new map.controller(this);
+        if (map.name) {
+          this[map.name] = new map.controller(this);
+        }
+        mappings.push(map);
       }
+
+      this.controllerMappings = mappings;
+
+      return this;
     },
 
+    /**
+     * Loops through the controller mappings and sets them up with an element
+     */
     setupControllerMappings: function() {
       var map        = null,
           d          = $.when(),
@@ -2086,9 +2247,9 @@
 
       for (i = 0; i < len; ++i) {
         map = this.controllerMappings[i];
-        controller = this.getter(map.name);
+        controller = map.instance;
 
-        controller.setupViewProperties(this.$(map.selector));
+        controller.setup(this.$(map.selector));
         if (controller.start) {
           d = $.when(d, controller.start());
         }
@@ -2148,7 +2309,7 @@
      * @return {Boolean}
      */
     unloadController: function() {
-      var controller = this.getController();
+      var controller = this.getContentController();
 
       return controller && controller.unload();
     },
@@ -2163,7 +2324,7 @@
      * @return {Boolean}
      */
     destroyController: function() {
-      var controller = this.getController();
+      var controller = this.getContentController();
 
       return controller && controller.destroy();
     },
@@ -2272,7 +2433,7 @@
         el.attr('id', controller.id);
       }
 
-      controller.setupViewProperties(el);
+      controller.setup(el);
 
       return controller;
     },
@@ -2317,7 +2478,11 @@
      * 
      * @return {Boolean}
      */
-    canLeaveCurrentController: function() {
+    canLeaveContentController: function() {
+      return true;
+    },
+
+    canLoadContentController: function(Controller) {
       return true;
     },
 
@@ -2343,10 +2508,10 @@
             args                  = arguments,
             previousRoute         = this.getActiveRoute(),
             controllerD           = $.Deferred(),
-            previousRouteDeferred = $.when(previousRouteDeferred).then(null, function() { return $.Deferred().resolve(); });
+            previousRouteDeferred = $.when(that.currentRouteDeferred).then(null, function() { return $.Deferred().resolve(); });
 
 
-        return that.currentRouteDeferred = d = $.when(that.canLeaveCurrentController())
+        return that.currentRouteDeferred = d = $.when(that.canLeaveContentController())
         .then(function() {
           that.showLoading();
 
@@ -2370,33 +2535,46 @@
 
           return BaseApp.RouteErrors.CANCELLED;
         }).then(function() {
+          // make sure the controller constructor is loaded
+          return controllerD;
+        }).then(function() {
+
+          if (!that.canLoadContentController(Controller)) {
+
+            return $.Deferred().reject(BaseApp.RouteErrors.DENIED);
+          }
+        }).then(function() {
           that.setActiveRoute(route);
           that.trigger('route', route);
 
           return that.hideController();
         }).then(function() {
           that.showLoading();
-
-          return $.when(that.unloadController(), controllerD);
+          return that.unloadController()
         }).then(function() {
+          
           return that.destroyController();
         }).then(function() {
           controller = that.initializeController(Controller);
 
-          that.setController(controller);
-          that.trigger('init:controller', controller);
+          that.setContentController(controller);
+          that.trigger('init:contentController', controller);
           
           if (controller.start) {
 
             return controller.start.apply(controller, args);
           }
         }).then(function() {
-          that.trigger('start:controller', controller);
+          controller.trigger('data:ready');
+          that.trigger('start:contentController', controller);
         }).always(function() {
           that.hideLoading();
         }).fail(function(reason) {
+
           switch (reason) {
             case BaseApp.RouteErrors.CANCELLED:
+              return;
+            case BaseApp.RouteErrors.DENIED:
               return;
           };
 
@@ -2412,6 +2590,10 @@
       };
 
       return $.proxy(fn, this);
+    },
+
+    routeDidFail: function() {
+
     },
 
     /**
@@ -2459,7 +2641,8 @@
      * @type {Object}
      */
     RouteErrors: {
-      CANCELLED: 'cancelled'
+      CANCELLED: 'cancelled',
+      DENIED: 'denied'
     },
 
     /**
@@ -2490,9 +2673,9 @@
 
     // parse and copy over the information from proto.controllers to proto.controllerMappings
     _.each(proto.controllers, function(Controller, map) {
-      var sections = map.split(/\s+/),
-          name     = sections[0],
-          selector = sections.slice(1).join('');
+      var sections = String(map).trim().split(/\s+/),
+          name     = sections.length > 1 ? sections[0] : null,
+          selector = name ? sections.slice(1).join('') : sections.join('');
 
       if (name && selector) {
         proto.controllerMappings.push({
@@ -2502,11 +2685,6 @@
         });
       }
 
-    });
-
-    // Create gettes and setters for the controllers by putting them in the properties array
-    _.each(proto.controllerMappings, function(item) {
-      proto.properties.push(item.name);
     });
 
     // Copy over any existing controller mappings onto the proto controllerMappings
