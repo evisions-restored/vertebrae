@@ -3,6 +3,9 @@
 Vertebrae is a tools expansion for Backbone.js created by the developers at [Evisions](http://www.evisions.com/). While Backbone.js is an awesome JavaScript library 
 all on its own, we had some additional functionality we need within our single page application.
 
+* 59kb, Full source, tons of comments
+* 5k, Packed and gzipped ([Source Map](https://github.com/Evisions/vertebrae/blob/master/dist/vertebrae.min.map))
+
 These toolsets can be used for large scale enterprise applications or your basic run of the mill websites. Fully minified, the library is 15kb.
 (which we are currently trying to reduce) Want to know what's included in the project? High level list of included items:
 
