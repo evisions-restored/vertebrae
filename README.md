@@ -11,7 +11,7 @@ These toolsets can be used for large scale enterprise applications or your basic
 
 * Auto generating setters/getters
 * Event listeners on properties getting set
-* Inheritance with the _.super() command
+* Inheritance with _super support
 * Object cleanup
 * View functionality (templates/observers/functions)
 * Route handling
@@ -39,6 +39,19 @@ var MyObject = Vertebrae.Object.extend({
 
 var myObject = new MyObject();
 myObject.setMyProperty('I have a setter!');
+```
+#### Deferred Properties
+
+All setters automatically support deferreds.
+
+```javascript
+var myDeferred = $.Deferred();
+
+myObject.setMyProperty(myDeferred).then(function() {
+  console.log(myObject.getMyProperty()); // -> hi!
+});
+
+myDeferred.resolve('hi!');
 ```
 
 #### Applying Properties
@@ -72,6 +85,7 @@ We all know Class inheritance can be a real pain in Javascript.  Fortunately, we
 ```javascript
 var MyBaseClass = Vertebrae.Object.extend({
   myFunction: function() { 
+
   }
 });
 
@@ -100,18 +114,56 @@ anotherObject = null;
 
 ## BaseApp
 
-BaseApp is a wrapper for your entire application. Its main functionality is to help you setup routes that will call a specific controller.
-(most like extended off of BaseController)
+BaseApp is a wrapper for your entire application. Its main functionality is to help you setup routes that will load a specific controller.
+(most likely extended off of BaseController).
+  
+Some of the features provided by BaseApp:
+
+* Dynamically loaded content area based on hash routing
+* Automatically loads and attaches static controllers
+* Supports template injecting on load
 
 ```javascript
 var MyApp = Vertebrae.App.extend({
+  
+  // load this route when the app is launched if no other route is given
+  defaultRoute: 'myRoute1',
+  
+  // tap into the app lifecycle and override/re-route event handlers
+  events: {
+    'start': 'myFunction'
+  },
+  
+  // the main content div that route changes will load controllers into
+  // if no selector is given then the app element will be used
+  content: '#content',
+  
+  // If templates have been setup (see BaseView), the given template will be injected into the app element
+  template: 'app.init',
 
-  // When navigating to #myRoute1, the myRoute1.controller.js file's initialize function will be executed.
+  // when navigating to #myRoute1, the myRoute1.controller.js file's initialize function will be executed
   routes: {
     'myRoute1' : 'app/myRoute1.controller'
+  },
+
+  controllers: {
+    // automagically initialize and setup controllers that will persist throughout the duration of your app
+    // you will be able to access the header controller instance at app.header
+    // the syntax is as follows: 'attachName selector': ControllerConstructor
+    'header #header': HeaderController
+  },
+
+  myFunction: function() {
+    // instead of the routing function being called when this app starts, I am called!
+
+    // since we modified the start event handler in the events object, we need to manually call routing here in order
+    // for hash routing to work!
+    this.routing();
   }
 
 });
+
+var app = MyApp.launch(document.body);
 ```
 
 ## BaseController
@@ -132,57 +184,91 @@ These problems are solve as such:
 
 #### Setting up the View
 
-In order to follow our convention of setting up a view, you need two functions.
-
-**setupView**: should initialize the object via this.setView()
-
-**viewIsReady**: should kick off the main logic of the controller since the view is ready
-
 ```javascript
-var MyView = new Vertebrae.View.extend({ });
+var MyView = new Vertebrae.View();
 
 var MyController = Vertebrae.Controller.extend({
-  setupView: function() {
-    this.setView(new MyView());
+  
+  events: {
+    // By default the 'view:ready' event calls render
+    // By overriding that functionality here, we can change how the controller's lifecycle behaves
+    'view:ready': 'renderMyStuff'
   },
 
-  viewIsReady: function() {
+  view: MyView,
+
+  renderMyStuff: function() {
     // I can render my view or make an API call since my view is all setup.
+    this.render();
   }
 });
 ```
 
-How is my view ready? I have not given it an Element! Well that has to be done OUTSIDE of the controller in a main/config/bootstrap
-javascript file via **setupViewProperties**.
+How is my view ready? I have not given it an Element! Well that has to be done OUTSIDE of the controller in a main/app
+javascript file via **setup**.
 
 ```javascript
-var config = {
-  main: 'main'
-};
-
 var myController = new MyController();
-myController.setupViewProperties(document.getElementById(config.main));
-// Now the view is setup and viewIsReady has been called.
+
+myController.setup(document.getElementById('my-controller'));
+// Now the view is setup and 'view:ready' event has been triggered.
 ```
 
 If a controller has a sub-controller whose view needs to be setup, then the main controller's view should handle it. But we will cover that later.
 
 #### Observers
 
-Many times we want controllers to do things when events happen. NEVER DOM events but application events/notifications. You can easly define application observers via the observes property.
+Many times we want controllers to do things when events happen. Never DOM events, but application events/notifications. You can easly define application observers via the observes property.
 
 ```javascript
-var myController = Vertebrae.Controller.extend({
+var MyController = Vertebrae.Controller.extend({
+
   observes: {
     'global-event': 'handleGlobalEvent'
   },
 
   handleGlobalEvent: function() {
-    // I am called when global-event was triggered.
+    // I am called when global-event is triggered.
   }
 });
+
 Vertebrae.Event.trigger('global-event');
 ```
+
+#### Lifecycle
+
+We have created an opininated lifecycle to how a controller's components are setup.  The tricky part is to allow you, the developer, to easily tap
+into that lifecycle, make changes, and add new lifecycle events of your own. The way we have solved this problem is with the 'events' object.  We saw
+the use of this object earlier when we changed what happend when 'view:ready' was called.  
+
+Here is a list (in order) of the controller's events:
+
+* **init** - the controller has been initialized
+* **setup** - the controller has been setup
+* **view:ready** - the controller's view is ready (has an element)
+* **data:ready** - the controller's start function, which gets data, has finished (only is triggered when a controller is loaded through BaseApp)
+* **view:available** - the view has finished rendering and is visible
+* **unload** - the controller has been unloaded (extremely useful for unbinding events)
+* **destroy** - the controller is about to be destroyed
+
+You can tap into any of these events just by putting the event name and a instance function name in the events object
+
+```javascript
+var MyController = Vertebrae.Controller.extend({
+  
+  events: {
+    'view:available': 'handler'
+  },
+
+  handler: function() {
+    // I will be called when the view is available
+  }
+
+});
+```
+
+There is only one default lifecyle handler.  When 'view:ready' is triggered, the render function is called.
+
 
 ## BaseView
 
@@ -191,40 +277,77 @@ The view is the magic piece that glues a controller to the DOM and user interact
 #### Delegate
 
 One of the core ideologies that separates BaseView from Backbone.View is the use of a delegate.  A view should not have application logic it in.
-A view's only logic should be to figure out how to render what it needs to render. The retrieval and processing of that data should be handled by the delegate.
+A view's only logic should be to figure out how to render what it needs to render. The retrieval and processing of that data should be handled by the delegate or a model.
 Typically the delegate will be a controller.
 
 ```javascript
 //Create my custom view.
 var MyView = Vertebrae.View.extend({
+  
+  events: {
+    'click .item': 'handleItemClick',
+    'click .something': 'delegate.doSomething'
+  },
+
   render: function() {
     // Views should get data from their delegate.
     var data = this.getDelegate().getViewProperties();
+  },
+
+  handleItemClick: function() {
+    // this will be called when .item is clicked
   }
+
 });
 
 // Create my custom controller that will be the delegate.
 var Delegate = Vertebrae.Controller.extend({
-  setupView: function() {
-    this.setView(new MyView());
+  
+  properties: [
+    'name'
+  ],
+
+  events: {
+    'init': 'init'
   },
+
+  init: function() {
+    this.setName('Rob');
+  },
+  
+  view: MyView,
 
   getViewProperties: function() {
     // Do application logic here.
-    return {};
+
+    // pick allows you to call the getter for properties and return them in an object
+    return this.pick('name'); // -> { name: 'Rob' }
+  },
+
+  doSomething: function() {
+    // this will be called when .something is clicked
   }
+
 });
 
 var delegate = new Delegate();
-// setupViewProperties() will automatically set the delegate.
-delegate.setupViewProperties(document.getElementById('main'));
+// setup() will automatically set the delegate.
+delegate.setup(document.getElementById('main'));
 ```
 
 #### Templates
 
-All web apps need templates of some sort. BaseView makes rendering templates extremely easy and also allows you to clearly see what templates a view is using.
+All web apps should use templates of some sort. BaseView makes rendering templates extremely easy and also allows you to clearly see what templates a view is using.
+In order to use the template system, you just need to pass your template object into Vertebrae.View.setupTemplates
 
 ```javascript
+// TemplatesObject should take the following form:
+// {
+//   my_template: function() { return '<div></div>'; }
+// }
+
+Vertebrae.View.setupTemplates(TemplatesObject);
+
 var MyView = Vertebrae.View.extend({
   templates: {
     'my_template': 'renderTemplateFragment'
@@ -240,7 +363,7 @@ var MyView = Vertebrae.View.extend({
 
 ## BaseModel
 
-The model is very similar to Backbone.Model but has a lightly different paradigm shift.  Backbone.Model assumes that every model will use a standard CRUD interface on the server.  In the applications we have created, we ran accross many situations where our API calls did not adhere to the standard CRUD interface.  To solve this problem, we made the Vertebrae Model use a declarative notation to define how you want your models to communicate with the server.
+The model is very similar to Backbone.Model but has a slightly different paradigm shift.  Backbone.Model assumes that every model will use a standard CRUD interface on the server.  In the applications we have created, we ran accross many situations where our API calls did not adhere to the standard CRUD interface.  To solve this problem, we made the Vertebrae Model use a declarative notation to define how you want your models to communicate with the server.
 
 ```javascript
 var MyModel = Vertebrae.Model.extend({
@@ -255,16 +378,16 @@ var MyModel = Vertebrae.Model.extend({
   
 },
 {
-  rootURI: '/api/resource/',
+  rootUrl: '/api/resource/',
 
   routes: {
-    'GET :id': 'requestOne', 
+    'GET :$0': 'requestOne', 
     'PUT :id': 'requestUpdate'
   }
 });
 
 // will make GET request at /api/resource/10
-MyModel.requestOne({ id : 10 }).then(function(model) {
+MyModel.requestOne(10).then(function(model) {
   
   model.setProperty('updated!!!');
   

@@ -1,7 +1,6 @@
 define([
   'underscore'
-], function(
-  _) {
+], function(_) {
   
   /**
    * @class StringUtils

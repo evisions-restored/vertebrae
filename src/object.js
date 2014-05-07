@@ -4,11 +4,13 @@
 define([
   'backbone', 
   'underscore',
-  './stringutils'
+  './stringutils',
+  './utils'
 ], function(
   Backbone, 
   _,
-  StringUtils) {
+  StringUtils,
+  Utils) {
 
   /**
    * Base Class for All Project Objects
@@ -27,36 +29,6 @@ define([
     this.trigger('init');
   };
 
-  // Creates a _super function for the parent function when calling the childFunction.
-  function createSuper(parentFunction, childFunction) {
-    return function() {
-      var oldSuper = this._super;
-      this._super = parentFunction;
-
-      var ret = childFunction.apply(this, arguments);
-      this._super = oldSuper;
-
-      return ret;
-    };
-  };
-
-  // Creates super functions by comparing parentProto to childProto.
-  function createSuperForOverriddenFunctions(parentProto, childProto) {
-    var childKeys = _.keys(childProto),
-        name      = null,
-        i         = 0;
-
-    for (i = 0; i < childKeys.length; ++i) {
-      name = childKeys[i];
-      if (_.isFunction(parentProto[name]) && parentProto[name] !== childProto[name]) {
-        if (name == 'constructor') {
-          continue;
-        }
-        childProto[name] = createSuper(parentProto[name], childProto[name]);
-      }
-    }
-  };
-
   /**
    * Create of sub-class of BaseObject
    * 
@@ -69,59 +41,17 @@ define([
    * @return {Function} The subclass constructor.
    */
   BaseObject.extend = function(proto) {
-    var newProperties = [],
-        oldProperties = [],
-        i             = 0,
-        len           = 0,
-        child         = null;
+    var child = null;
 
-    if (_.isArray(proto.properties)) {
-      newProperties = proto.properties;
 
-      len = newProperties.length;
+    Utils.mergeClassProperty(proto, this.prototype, 'properties', function(prop) {
+      Utils.createGettersAndSetters(proto, prop);
+    });
 
-      for (i = 0; i < len; i++) {
-        (function(prop){
-
-          var setter = function(value, silent) {
-               return this.set(prop, value, silent);
-              },
-              getter = function() {
-                return this.get(prop);
-              },
-              cameld = String.camelCase(prop);
-
-          if (cameld.indexOf('.') > -1) {
-            // Make the name camel cased through the namespace and remove periods.
-            cameld = String.camelCaseFromNamespace(cameld);
-          }
-
-          var setterName = 'set' + cameld,
-              getterName = 'get' + cameld;
-
-          if (_.isFunction(proto[setterName])) {
-            proto[setterName] = createSuper(setter, proto[setterName]);
-          } else {
-            proto[setterName] = setter;
-          }
-
-          if (_.isFunction(proto[getterName])) {
-            proto[getterName] = createSuper(getter, proto[getterName]);
-          } else {
-            proto[getterName] = getter;
-          }
-
-        })(newProperties[i]);
-      }
-
-      if (_.isArray(this.prototype.properties)) {
-        oldProperties = this.prototype.properties;
-      }
-      proto.properties = [].concat(newProperties, oldProperties);
-    }
-
+    // Use the extend function of Backbone.View to create a new class
     child = Backbone.View.extend.apply(this, arguments);
-    createSuperForOverriddenFunctions(this.prototype, child.prototype);
+
+    Utils.createSuperForOverriddenFunctions(this.prototype, child.prototype);
 
     return child;
   };
@@ -153,9 +83,9 @@ define([
 
       for (key in jsonObject) {
         if (key.indexOf('.') > -1) {
-          setterFn = "set" + String.camelCaseFromNamespace(key);
+          setterFn = "set" + StringUtils.camelCaseFromNamespace(key);
         } else {
-          setterFn = "set" + String.camelCase(key);
+          setterFn = "set" + StringUtils.camelCase(key);
         }
         if (_.isFunction(this[setterFn])) {
           this[setterFn](jsonObject[key]);

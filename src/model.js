@@ -296,51 +296,6 @@ define([
     },
 
     /**
-     * Parsing through the set of parsers to find the matching route.
-     *
-     * @function
-     *
-     * @static
-     * 
-     * @return {Object} Parser object with the matching route. Includes the callback function and type of parser.
-     */
-    parseParsers: function() {
-      var rootURI = this.rootURI;
-
-      return _.map(this.parsers || {}, function(fn, route) {
-        var type = null;
-
-        // See if we have any type specific items.
-        if (route[0] == '#') {
-          var lastHashIndex = route.slice(1).indexOf('#') + 1;
-
-          type = route.slice(1, lastHashIndex).toLowerCase();
-          route = route.slice(lastHashIndex + 1);
-        }
-
-        route = (route).replace(escapeRegExp, '\\$&')
-                      .replace(optionalParam, '(?:$1)?')
-                      .replace(namedParam, function(match, optional) {
-                        return optional ? match : '([^\/]+)';
-                      })
-                      .replace(splatParam, '(.*?)');
-
-        if (_.isString(fn)) {
-          var fnName = fn;
-          fn = function() {
-            return this[fnName].apply(this, arguments);
-          };
-        }
-
-        return { 
-          uri       : new RegExp('^' + route + '$'),
-          callback  : fn, 
-          type      : type 
-        };
-      });
-    },
-
-    /**
      * Taking the model request and executing it as a POST.
      *
      * @function
@@ -464,10 +419,56 @@ define([
     return routes;
   };
 
+
+  /**
+   * Parsing through the set of parsers to find the matching route.
+   *
+   * @function
+   *
+   * @static
+   * 
+   * @return {Object} Parser object with the matching route. Includes the callback function and type of parser.
+   */
+  function parseParsers(stat) {
+    var rootURI = stat.rootURI;
+
+    return _.map(stat.parsers || {}, function(fn, route) {
+      var type = null;
+
+      // See if we have any type specific items.
+      if (route[0] == '#') {
+        var lastHashIndex = route.slice(1).indexOf('#') + 1;
+
+        type = route.slice(1, lastHashIndex).toLowerCase();
+        route = route.slice(lastHashIndex + 1);
+      }
+
+      route = (route).replace(escapeRegExp, '\\$&')
+                    .replace(optionalParam, '(?:$1)?')
+                    .replace(namedParam, function(match, optional) {
+                      return optional ? match : '([^\/]+)';
+                    })
+                    .replace(splatParam, '(.*?)');
+
+      if (_.isString(fn)) {
+        var fnName = fn;
+        fn = function() {
+          return stat[fnName].apply(stat, arguments);
+        };
+      }
+
+      return { 
+        uri       : new RegExp('^' + route + '$'),
+        callback  : fn, 
+        type      : type 
+      };
+    });
+  };
+
   BaseModel.extend = function(proto, stat) {
     // See if the static properties has a parsers object.
     if (this.parsers && stat && stat.parsers) {
-      stat._parsers = this.parseParsers.call(stat).concat(this._parsers || []);
+      stat._parsers = parseParsers(stat).concat(this._parsers || []);
     }
 
     if (stat && stat.routes) {
@@ -484,15 +485,6 @@ define([
         properties = proto.properties;
       }
       proto.properties = [].concat(serverProperties, properties);
-    }
-
-    if (_.isArray(proto.attributes)) {
-
-
-
-      if (_.isArray(this.prototype.attributes)) {
-        proto.attributes = [].concat(this.prototype.attributes, proto.attributes);
-      }
     }
 
     return BaseObject.extend.apply(this, arguments);

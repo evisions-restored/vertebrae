@@ -6,13 +6,15 @@ define([
   'backbone',
   'underscore',
   './object',
-  './view'
+  './view',
+  './utils'
 ], function(
   $,
   Backbone,
   _,
   BaseObject,
-  BaseView) {
+  BaseView,
+  Utils) {
 
   /**
    * Base app object to extend an applications main file.
@@ -54,6 +56,14 @@ define([
     controllers: { },
 
     /**
+     * The event listener function mapping
+     * @type {Object}
+     */
+    events: {
+      'start': 'routing'
+    },
+
+    /**
      * The default route for your application.
      * This should be overwritten in your main app file.
      * 
@@ -72,13 +82,15 @@ define([
      * @param  {Object} options The options object we are using within our application.
      */
     initialize: function(el, options) {
-      this._super.apply(this,arguments);
+      Utils.setupInstanceEvents(this);
       
       this.$el = $(el);
       this.el = this.$el.get(0);
       this.setOptions(options || {});
 
       this.initializeControllerMappings();
+      
+      this._super.apply(this,arguments);
     },
 
     /**
@@ -94,7 +106,7 @@ define([
         map = _.clone(this.controllerMappings[i]);
         map.instance = new map.controller(this);
         if (map.name) {
-          this[map.name] = new map.controller(this);
+          this[map.name] = map.instance;
         }
         mappings.push(map);
       }
@@ -484,11 +496,15 @@ define([
       // setup the dynamic controller routes
       this.setupRoutes();
 
+      this.trigger('start');
+
+      return d;
+    },
+
+    routing: function() {
       if (!Backbone.history.start()) {
         this.navigate(this.getInitialRoute(), { trigger: true, replace: true });
       }
-
-      return d;
     },
 
     render: function() {
@@ -537,8 +553,7 @@ define([
   });
   
   BaseApp.extend = function(proto) {
-    proto.controllerMappings = _.isArray(proto.controllerMappings) ? proto.controllerMappings : [];
-    proto.properties = _.isArray(proto.properties) ? proto.properties : [];
+    var mappings = _.isArray(proto.controllerMappings) ? proto.controllerMappings : [];
 
     // parse and copy over the information from proto.controllers to proto.controllerMappings
     _.each(proto.controllers, function(Controller, map) {
@@ -547,7 +562,7 @@ define([
           selector = name ? sections.slice(1).join('') : sections.join('');
 
       if (name && selector) {
-        proto.controllerMappings.push({
+        mappings.push({
           selector   : selector,
           name       : name,
           controller : Controller
@@ -556,10 +571,13 @@ define([
 
     });
 
+    proto.controllerMappings = mappings;
+
+    // copy/merge the events object
+    Utils.mergeClassProperty(proto, this.prototype, 'events');
+
     // Copy over any existing controller mappings onto the proto controllerMappings
-    if (_.isArray(this.prototype.controllerMappings)) {
-      proto.controllerMappings = [].concat(this.prototype.controllerMappings, proto.controllerMappings);
-    }
+    Utils.mergeClassProperty(proto, this.prototype, 'controllerMappings');
 
     return BaseObject.extend.apply(this, arguments);
   };

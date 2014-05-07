@@ -6,65 +6,15 @@ define([
   'underscore',
   './object',
   './event',
-  './stringutils'
+  './stringutils',
+  './utils'
 ], function(
   $, 
   _, 
   BaseObject, 
   BaseEvent, 
-  StringUtils) {
-
-  function setupObserves() {
-    var inst = this;
-    
-    if (!_.isObject(inst.observes)) { 
-      return; 
-    }
-
-    var observes  = inst.observes,
-        events    = _.keys(observes),
-        event     = null,
-        i         = 0,
-        fnName    = null;
-
-    for (i = 0; i < events.length; ++i) {
-      event = events[i];
-      fnName = observes[event];
-      if (!_.isFunction(inst[fnName])) {
-        throw new Error(fnName + ' does not exist for the global event ' + event);
-      }
-
-      this.once('unload', BaseEvent.observe(event, _.bind(inst[fnName], this)).remove);
-    }
-  };
-
-  function setupEvents() {
-    var that = this;
-
-    if (!_.isObject(that.events)) {
-      return;
-    }
-
-    var events = _.keys(this.events),
-        event  = null,
-        fn     = null,
-        len    = events.length,
-        i      = 0;
-
-    for (i = 0; i < len; ++i) {
-      event = events[i];
-      fn = this.events[event];
-      if (fn) {
-
-        if (!this[fn]) {
-          throw new Error(fn + ' does not exist on this controller');
-        }
-
-        this.listenTo(this, event, this[fn]);
-      }
-    }
-
-  };
+  StringUtils,
+  Utils) {
 
   /**
    * Base Controller Object for all Controller
@@ -102,8 +52,8 @@ define([
     initialize: function(options) {
       this._unbind = [];
 
-      setupObserves.call(this);
-      setupEvents.call(this);
+      Utils.setupInstanceObserves(this);
+      Utils.setupInstanceEvents(this);
 
       this.setupView();
 
@@ -261,10 +211,10 @@ define([
      */
     setup: function(el, options) {
       options = _.defaults(options || {}, { delegate: this });
-
       this.getView().setElement(el);
       this.getView().setDelegate(options.delegate);
       this.getView().watchDelegateProperties();
+      this.trigger('setup');
       this.trigger('view:ready');
       this.viewIsReady();
       
@@ -311,7 +261,6 @@ define([
      */
     unload: function(cb) {
       if (this._unloaded !== true) {
-        this.trigger('unload');
 
         var unbind = this._unbind || [],
             fn     = null;
@@ -321,6 +270,7 @@ define([
         }
 
         this._unloaded = true;
+        this.trigger('unload');
         this.getView().unload(cb);
       }
     },
@@ -367,13 +317,9 @@ define([
    * @return {Constructor}   
    */
   BaseController.extend = function(proto) {
-    if (_.isObject(proto.observes) && _.isObject(this.prototype.observes)) {
-      proto.observes = _.extend({}, this.prototype.observes, proto.observes);
-    }
 
-    if (_.isObject(proto.events) && _.isObject(this.prototype.events)) {
-      proto.events = _.extend({}, this.prototype.events, proto.events);
-    }
+    Utils.mergeClassProperty(proto, this.prototype, 'observes');
+    Utils.mergeClassProperty(proto, this.prototype, 'events');
 
     if (_.isObject(proto.validators) && !_.isFunction(proto.validate)) {
       proto.validate = function(filters, view) {

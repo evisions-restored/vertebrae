@@ -14,7 +14,6 @@ define([
 
     render: function() {
       var data = this.getDelegate().getTemplateProperties();
-
       this.$el.html(data.name);
     }
 
