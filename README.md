@@ -405,6 +405,14 @@ var MyModel = Vertebrae.Model.extend({
     // it through the model function to return a new instance
     // of MyModel
     'GET :$0': 'model'
+  },
+
+  requestCustomMade: function() {
+    // there are 4 built-in static request methods on every model:
+    // Vertebrae.Model.get, Vertebrae.Model.post, Vertebrae.Model.put, Vertebrae.Model.del
+
+    // will request GET /api/resource/my/custom/api
+    return this.get('my/custom/api');
   }
 });
 

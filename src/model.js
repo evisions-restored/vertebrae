@@ -413,7 +413,7 @@ define([
         // requestDeleteDocument -> DEL document/:id
         _.each(crud, function(m) {
           var newRoute = m + ' ' + uri;
-          
+
           switch (m) {
             case 'GET':
               newRoute += '/:$0';
@@ -431,25 +431,31 @@ define([
       }
 
       routes[name] = function(params, options) {
-        var args = arguments;
+        var args = arguments,
+            data = _.clone(params);
 
         var replacedUri = String(uri)
             .replace(/:[\$]?\w+/g, function(match) {
-              var name = match.slice(1);
+              var name  = match.slice(1),
+                  value = null;
 
               if (name[0] == '$') {
+                name = name.slice(1);
+                value = args[name];
+                
+                return value;
+              } else if (data && data[name]) {
+                value = data[name]; 
+                delete data[name];
 
-                return args[name.slice(1)];
-              } else if (params && params[name]) {
-
-                return params[name];
+                return value;
               } else {
 
                 throw new Error('The route ' + route + ' must include ' + name + ' in your params');
               }
             });
 
-        return this[method](replacedUri, params, options);
+        return this[method](replacedUri, data, options);
       };
     };
 

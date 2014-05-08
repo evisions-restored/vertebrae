@@ -388,6 +388,9 @@ define([
         } else if (opts.type == 'POST') {
           expect(opts.url).to.equal('/api/test/10');
           opts.success({ valid: true, data: { id: 10 } });
+        } else if (opts.type == 'PUT') {
+          expect(opts.url).to.equal('/api/resource/10');
+          opts.success({ data: { updated: true } })
         }
       };
 
@@ -396,9 +399,10 @@ define([
       },
       {
         routes: {
-          'GET api/test/api': 'requestTestMethod',
+          'GET api/test/api'     : 'requestTestMethod',
           // keep extra space to test parsing
-          'POST    api/test/:id': 'requestUpdate'
+          'POST    api/test/:id' : 'requestPost',
+          'CRUD api/resource'    : 'resource'
         },
 
         parsers: {
@@ -417,13 +421,25 @@ define([
         }
       });
 
+      expect(NewModel).itself.to.respondTo('requestTestMethod');
+      expect(NewModel).itself.to.respondTo('requestPost');
+      expect(NewModel).itself.to.respondTo('requestOneResource');
+      expect(NewModel).itself.to.respondTo('requestCreateResource');
+      expect(NewModel).itself.to.respondTo('requestUpdateResource');
+      expect(NewModel).itself.to.respondTo('requestDeleteResource');
+
       NewModel.requestTestMethod().then(function() {
 
-        return NewModel.requestUpdate({ id: 10 });
+        return NewModel.requestPost({ id: 10 });
       }).then(function(data) {
 
         expect(data.id).to.equal(10);
         expect(parserCount).to.equal(2);
+
+        return NewModel.requestUpdateResource({ id: 10 });
+      }).then(function(data) {
+
+        expect(data.updated).to.be.true;
 
         $.ajax = originalAjax;
 
