@@ -433,7 +433,10 @@ define([
     var rootURI = stat.rootURI;
 
     return _.map(stat.parsers || {}, function(fn, route) {
-      var type = null;
+      var sections  = route.split(/\s+/),
+          hasMethod = sections.length > 1,
+          type      = hasMethod ? String(sections[0]).trim().toLowerCase() : null,
+          route     = hasMethod ? sections.slice(1).join('') : sections.join('');
 
       // See if we have any type specific items.
       if (route[0] == '#') {
@@ -453,7 +456,7 @@ define([
       if (_.isString(fn)) {
         var fnName = fn;
         fn = function() {
-          return stat[fnName].apply(stat, arguments);
+          return this[fnName].apply(this, arguments);
         };
       }
 

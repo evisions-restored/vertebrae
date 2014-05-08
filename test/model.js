@@ -27,7 +27,7 @@ define([
             'test1': function(data) { 
               return 'test1';
             },
-            '#PUT#puttest': function(data) { 
+            'PUT puttest': function(data) { 
               return 'puttest'; 
             },
             'getId/:id': function(data) { 
@@ -271,12 +271,14 @@ define([
     it('static.parseParsers', function() {
       var NewModel = SimpleModel.extend({}, {
         parsers: {
-          'additionalParser': function() { return 'brandnew'; }
+          'additionalParser': function() { return 'brandnew'; },
+          'stringParser': 'model'
         }
       });
 
-      assert.lengthOf(NewModel._parsers, 4);
+      assert.lengthOf(NewModel._parsers, 5);
       assert.equal(NewModel._parsers[0].callback(), 'brandnew');
+      assert.instanceOf(NewModel._parsers[1].callback.call(NewModel, { hello: 'world' }), NewModel);
     });
 
     it('static.post', function() {
