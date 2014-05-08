@@ -244,7 +244,7 @@ define([
         d.reject(err);
       };
 
-      $.ajax(options);
+      Backbone.ajax(options);
 
       return d.promise();
     },
