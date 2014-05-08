@@ -3,7 +3,7 @@
  *
  * Released under the MIT license
  *
- * Date: 2014-05-08T21:03Z
+ * Date: 2014-05-08T21:05Z
  */
 
 (function(global, factory) {
@@ -1907,7 +1907,7 @@
         d.reject(err);
       };
 
-      $.ajax(options);
+      Backbone.ajax(options);
 
       return d.promise();
     },
