@@ -398,12 +398,20 @@ var MyModel = Vertebrae.Model.extend({
   routes: {
     'GET :$0': 'requestOne', 
     'PUT :id': 'requestUpdate'
+  },
+
+  parsers: {
+    // when we get data from the server we want to pass
+    // it through the model function to return a new instance
+    // of MyModel
+    'GET :$0': 'model'
   }
 });
 
 // will make GET request at /api/resource/10
 MyModel.requestOne(10).then(function(model) {
-  
+  // model will be an instance of MyModel
+  // since we parsed it through the model function
   model.setProperty('updated!!!');
   
   // will make PUT request at /api/resource/10

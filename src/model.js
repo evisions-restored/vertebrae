@@ -4,11 +4,13 @@
 define([
   'jquery',
   'underscore',
-  './object'
+  './object',
+  './stringutils'
 ], function(
     $, 
     _, 
-    BaseObject) {
+    BaseObject,
+    StringUtils) {
 
   var optionalParam = /\((.*?)\)/g,
       namedParam    = /(\(\?)?:\w+/g,
@@ -381,16 +383,51 @@ define([
   });
 
   function createModelRequestMethods(map) {
-    var routes = {};
+    var routes       = {},
+        createMethod = null,
+        crud         = ['POST', 'GET', 'PUT', 'DEL'],
+        crudMethods  = null;
 
-    _.each(map, function(name, route) {
-      var sections     = route.split(/\s+/),
+    crudMethods  = {
+      POST : 'requestCreate',
+      GET  : 'requestOne',
+      PUT  : 'requestUpdate',
+      DEL  : 'requestDelete'
+    };
+
+    createMethod = function(name, route) {
+      var sections     = String(route).trim().split(/\s+/),
           method       = String(sections[0]).trim().toLowerCase(),
           uri          = sections.slice(1).join('');
 
 
       if (method == 'delete') {
         method = 'del';
+      } else if (method == 'crud') {
+        // if the crud method is given then we want to auto-generate the default crud interface
+        // name = 'document', route = 'CRUD document'
+        // generated functions:
+        // requestCreateDocument -> POST document
+        // requestOneDocument -> GET document/:$0
+        // requestUpdateDocument -> PUT document/:id
+        // requestDeleteDocument -> DEL document/:id
+        _.each(crud, function(m) {
+          var newRoute = m + ' ' + uri;
+          
+          switch (m) {
+            case 'GET':
+              newRoute += '/:$0';
+              break;
+            case 'PUT':
+            case 'DEL':
+              newRoute += '/:id';
+              break;
+          };
+
+          createMethod(crudMethods[m] + StringUtils.camelCase(name), newRoute);
+        });
+        // we don't actually want to create a method for CRUD so return
+        return;
       }
 
       routes[name] = function(params, options) {
@@ -414,7 +451,9 @@ define([
 
         return this[method](replacedUri, params, options);
       };
-    });
+    };
+
+    _.each(map, createMethod);
 
     return routes;
   };
