@@ -138,16 +138,19 @@ var MyApp = Vertebrae.App.extend({
   // if no selector is given then the app element will be used
   content: '#content',
   
-  // If templates have been setup (see BaseView), the given template will be injected into the app element
+  // If templates have been setup (see BaseView), the given template 
+  // will be injected into the app element
   template: 'app.init',
 
-  // when navigating to #myRoute1, the myRoute1.controller.js file's initialize function will be executed
+  // when navigating to #myRoute1, the myRoute1.controller.js 
+  // file's initialize function will be executed
   routes: {
     'myRoute1' : 'app/myRoute1.controller'
   },
 
   controllers: {
-    // automagically initialize and setup controllers that will persist throughout the duration of your app
+    // automagically initialize and setup controllers that will persist 
+    // throughout the duration of your app
     // you will be able to access the header controller instance at app.header
     // the syntax is as follows: 'attachName selector': ControllerConstructor
     'header #header': HeaderController
@@ -156,7 +159,8 @@ var MyApp = Vertebrae.App.extend({
   myFunction: function() {
     // instead of the routing function being called when this app starts, I am called!
 
-    // since we modified the start event handler in the events object, we need to manually call routing here in order
+    // since we modified the start event handler in the events object, 
+    // we need to manually call routing here in order
     // for hash routing to work!
     this.routing();
   }
@@ -191,7 +195,8 @@ var MyController = Vertebrae.Controller.extend({
   
   events: {
     // By default the 'view:ready' event calls render
-    // By overriding that functionality here, we can change how the controller's lifecycle behaves
+    // By overriding that functionality here, we can change how
+    // the controller's lifecycle behaves
     'view:ready': 'renderMyStuff'
   },
 
