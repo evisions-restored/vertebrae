@@ -1,9 +1,9 @@
 define([
-  'vertebrae/controller',
+  'vertebrae',
   './page2.view'
-], function(BaseController, Page2View) {
+], function(Vertebrae, Page2View) {
  
-  var Page2Controller = BaseController.extend({
+  var Page2Controller = Vertebrae.Controller.extend({
     
     name: 'page2',
 

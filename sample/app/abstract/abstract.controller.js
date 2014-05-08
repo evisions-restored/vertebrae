@@ -1,8 +1,8 @@
 define([
-  'vertebrae/controller' 
-], function(BaseController) {
+  'vertebrae' 
+], function(Vertebrae) {
 
-  var AbstractController = BaseController.extend({
+  var AbstractController = Vertebrae.Controller.extend({
 
     properties: [
       'app'

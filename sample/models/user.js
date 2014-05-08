@@ -1,8 +1,8 @@
 define([
-  'vertebrae/model' 
-], function(BaseModel) {
+  'vertebrae' 
+], function(Vertebrae) {
 
-  var User = BaseModel.extend({
+  var User = Vertebrae.Model.extend({
 
     properties: [
       'email',

@@ -7,7 +7,7 @@ require.config({
     jquery     : '../libs/jquery/dist/jquery',
     underscore : '../libs/underscore/underscore',
     handlebars : '../libs/handlebars/handlebars.runtime',
-    vertebrae  : '../src'
+    vertebrae  : '../dist/vertebrae'
   },
 
   shim: {

@@ -1,8 +1,8 @@
 define([
-  'vertebrae/view' 
-], function(BaseView) {
+  'vertebrae' 
+], function(Vertebrae) {
 
-  var HeaderView = BaseView.extend({
+  var HeaderView = Vertebrae.View.extend({
 
     templates: {
       header: 'renderContent'

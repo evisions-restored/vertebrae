@@ -1,8 +1,8 @@
 define([
-  'vertebrae/model' 
-], function(BaseModel) {
+  'vertebrae' 
+], function(Vertebrae) {
 
-  var Repos = BaseModel.extend({
+  var Repos = Vertebrae.Model.extend({
 
   }, 
   {

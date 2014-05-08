@@ -1,21 +1,20 @@
 define([
-  'vertebrae/app',
-  'vertebrae/view',
+  'vertebrae',
   'models/user',
   './header/header.controller',
   './repos/repos.controller',
   'handlebars',
   'underscore',
   './templates'
-], function(BaseApp, BaseView, User, HeaderController, ReposController, Handlebars, _, HandlebarTemplates) {
+], function(Vertebrae, User, HeaderController, ReposController, Handlebars, _, HandlebarTemplates) {
   
-  BaseView.setupTemplates(HandlebarTemplates);
+  Vertebrae.View.setupTemplates(HandlebarTemplates);
 
   _.each(HandlebarTemplates, function(fn, name) {
     Handlebars.registerPartial(name, fn);
   });
 
-  var SampleApp = BaseApp.extend({
+  var SampleApp = Vertebrae.App.extend({
 
     properties: [
       'user'
