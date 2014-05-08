@@ -269,7 +269,8 @@ define([
         _.extend(options, silent);
       }
 
-      if (options.deferred === true) {
+      // if deferred is true and we have a deferred object then defer the setting of this value
+      if (options.deferred === true && v && _.isFunction(v.promise)) {
 
         options.deferred = false;
 

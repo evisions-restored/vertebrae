@@ -1,7 +1,11 @@
 define([
-        'vertebrae/object'
+  'vertebrae/object',
+  'underscore',
+  'jquery'
 ], function(
-        BaseObject) {
+        BaseObject,
+        _,
+        $) {
 
   describe('BaseObject', function() {
 
@@ -122,9 +126,10 @@ define([
     }); 
 
     it('prototype.set', function() {
-      var aObject  = new myClass(),
-          bObject  = new myClass(),
-          listened = false;
+      var aObject    = new myClass(),
+          bObject    = new myClass(),
+          myDeferred = $.Deferred(),
+          listened   = false;
 
       bObject.listenTo(aObject, 'change:property1', function() { listened = true; });
 
@@ -140,6 +145,66 @@ define([
       expect(aObject.property1).to.equal('value2');
 
       expect(listened).to.be.true;
+
+      listened = false;
+
+      // listen to deferredProperty changes
+      aObject.listenTo(aObject, 'change:deferredProperty', function() { listened = true; });
+      // set the deferredProperty with a deferred object
+      aObject.set('deferredProperty', myDeferred);
+
+      expect(listened).to.be.false;
+
+      // resolve the deferred
+      myDeferred.resolve('deferredValue');
+
+      expect(listened).to.be.true;
+      expect(aObject.get('deferredProperty')).to.equal('deferredValue');
+
+      listened = false;
+
+      myDeferred = $.Deferred();
+
+      aObject.set('deferredProperty', myDeferred, { deferred: false });
+
+      expect(listened).to.be.true;
+      expect(aObject.get('deferredProperty')).to.equal(myDeferred);
+
+    });
+
+    it('prototype.pick', function() {
+
+      var MyClass = BaseObject.extend({
+
+        properties: [
+          'first',
+          'last'
+        ]
+
+      });
+
+      var myObject = new MyClass();
+      
+      myObject.applyProperties({
+        first: 'first',
+        last: 'last'
+      })
+
+      var data = myObject.pick('first');
+
+      expect(_.size(data)).to.equal(1);
+      expect(data.first).to.equal('first');
+
+      data = myObject.pick('last', 'first');
+
+      expect(_.size(data)).to.equal(2);
+
+      expect(data.last).to.equal('last');
+
+      data = myObject.pick(['first', 'last']);
+
+      expect(_.size(data)).to.equal(2);
+
     });
 
     it('static.setPropertyByNamespace', function() {

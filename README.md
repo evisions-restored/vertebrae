@@ -60,11 +60,21 @@ If you have an Object of key/value pairs that you want to apply to an object, yo
 
 ```javascript
 var properties = {
-  myProperty: 'I need to be set.'
+  myProperty: 'value'
 };
 
 // This will automatically call the myProperty setter. (this.setMyProperty())
 myObject.applyProperties(properties);
+```
+
+#### Picking Properties
+
+Sometimes you want to grab certain properties and pass them as an isolated object to something else.
+
+```javascript
+var data = myObject.pick('myProperty');
+
+console.log(data); // -> { myProperty: 'value' }
 ```
 
 #### Events
@@ -242,7 +252,7 @@ Vertebrae.Event.trigger('global-event');
 
 #### Lifecycle
 
-We have created an opininated lifecycle to how a controller's components are setup.  The tricky part is to allow you, the developer, to easily tap
+We have created an opininated lifecycle on how a controller's components are setup.  The tricky part is to allow you, the developer, to easily tap
 into that lifecycle, make changes, and add new lifecycle events of your own. The way we have solved this problem is with the 'events' object.  We saw
 the use of this object earlier when we changed what happend when 'view:ready' was called.  
 

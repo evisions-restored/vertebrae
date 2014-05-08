@@ -1,11 +1,13 @@
 define([
         'vertebrae/controller', 
         'vertebrae/event', 
-        'vertebrae/view'
+        'vertebrae/view',
+        'underscore'
 ], function(
         Controller, 
         Event, 
-        View) {
+        View,
+        _) {
 
   describe('BaseController', function() {
 
@@ -142,9 +144,11 @@ define([
 
       var TestControllerA = TestController.extend({
         events: {
-          'view:ready': null
+          'view:ready': null,
+          'view:available': 'myViewIsAvailable'
         },
-        viewIsAvailable: function() {
+
+        myViewIsAvailable: function() {
           called = true;
         }
       });
