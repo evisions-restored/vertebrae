@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.0.1
+ * Vertebrae JavaScript Library v0.1.0
  *
  * Released under the MIT license
  *
- * Date: 2014-05-07T16:35Z
+ * Date: 2014-05-08T21:03Z
  */
 
 (function(global, factory) {
@@ -152,6 +152,255 @@
  */
 
 
+  var event = _.extend({}, Backbone.Events);
+
+  var BaseEvent = {
+    /**
+     * Bind all the function on an object to the obj itself.
+     * This will cause all functions to ALWAYS have the correct 'this'.
+     *
+     * @function
+     *
+     * @param  {Object} obj 
+     * 
+     * @return {Object}     
+     */
+    bindAll: function(obj) {
+      var i     = 0,
+          keys  = [],
+          fn    = null,
+          k;
+
+      for(k in obj) { 
+        keys.push(k); 
+      }
+      if (!obj || !obj.constructor) { 
+        return obj; 
+      }
+      
+      for (i = 0; i < keys.length; ++i) {
+        fn = obj[keys[i]];
+        if (_.isFunction(fn) && keys[i] !== 'constructor' && _.contains(obj.constructor.prototype, fn)) {
+          obj[keys[i]] = _.bind(fn, obj);
+        }
+      }
+      
+      return obj;
+    },
+    
+    /**
+     * Fire an event. This relates to the observe helper function.
+     *
+     * @function
+     *
+     * @param  {String} event The name of the event that you want to fire.
+     * @param  {Object} data 	The date you want to pass into the function listening to the passed event.
+     *
+     * @return {Object}
+     */
+    fire: function() {
+      event.trigger.apply(event, arguments);
+
+      return BaseEvent;
+    },
+
+    /**
+     * Trigger an event. This will basically call the fire function.
+     *
+     * @function
+     * 
+     * @return {Object}
+     */
+    trigger: function() {
+      return BaseEvent.fire.apply(BaseEvent, arguments);
+    },
+
+    /**
+     * Set an event observer. Relates to the fire function. 
+     *
+     * @function
+     *
+     * @param  {String} 	event 		The name of the event that you want to observe.
+     * @param  {Function} callback 	The function you want to call if the observed event is fired.
+     *
+     * @return {Object}
+     */
+    observe: function(name, callback) {
+      event.on.apply(event, arguments);
+
+      return {
+        remove: function() {
+          event.off(name, callback);
+        }
+      };
+    },
+
+    /**
+     * Observing events for a particular element.
+     *
+     * @function
+     * 
+     * @return {Object}
+     */
+    on: function() {
+      return BaseEvent.observe.apply(BaseEvent, arguments);
+    }
+
+  };
+
+
+  var Utils = {
+
+    // Creates a _super function for the parent function when calling the childFunction.
+    createSuper: function(parentFunction, childFunction) {
+      return function() {
+        var oldSuper = this._super;
+        this._super = parentFunction;
+
+        var ret = childFunction.apply(this, arguments);
+        this._super = oldSuper;
+
+        return ret;
+      };
+    },
+
+    // Creates super functions by comparing parentProto to childProto.
+    createSuperForOverriddenFunctions: function(parentProto, childProto) {
+      var childKeys = _.keys(childProto),
+          name      = null,
+          i         = 0;
+
+      for (i = 0; i < childKeys.length; ++i) {
+        name = childKeys[i];
+        if (_.isFunction(parentProto[name]) && parentProto[name] !== childProto[name]) {
+          if (name == 'constructor') {
+            continue;
+          }
+          childProto[name] = Utils.createSuper(parentProto[name], childProto[name]);
+        }
+      }
+    },
+
+    // creates getters and setters on the given object with the given property
+    createGettersAndSetters: function(proto, prop) {
+
+      var setter = function(value, silent) {
+           return this.set(prop, value, silent);
+          },
+          getter = function() {
+            return this.get(prop);
+          },
+          cameld = StringUtils.camelCase(prop);
+
+      if (cameld.indexOf('.') > -1) {
+        // Make the name camel cased through the namespace and remove periods.
+        cameld = StringUtils.camelCaseFromNamespace(cameld);
+      }
+
+      var setterName = 'set' + cameld,
+          getterName = 'get' + cameld;
+
+      if (_.isFunction(proto[setterName])) {
+        proto[setterName] = Utils.createSuper(setter, proto[setterName]);
+      } else {
+        proto[setterName] = setter;
+      }
+
+      if (_.isFunction(proto[getterName])) {
+        proto[getterName] = Utils.createSuper(getter, proto[getterName]);
+      } else {
+        proto[getterName] = getter;
+      }
+
+    },
+
+    mergeClassProperty: function(newProto, oldProto, prop, fn) {
+      var merged = null;
+
+      if (_.isFunction(fn)) {
+        _.each(newProto[prop], fn);
+      }
+
+      if (_.isArray(newProto[prop])) {
+        merged = [];
+
+        if (_.isArray(oldProto[prop])) {
+          merged = merged.concat(oldProto[prop], newProto[prop]);
+        } else {
+          merged = merged.concat(newProto[prop]);
+        }
+
+      } else if (_.isObject(newProto[prop])) {
+        merged = {};
+
+        if (_.isObject(oldProto[prop])) {
+          _.extend(merged, oldProto[prop], newProto[prop]);
+        } else {
+          _.extend(merged, newProto[prop]);
+        }
+
+      }
+
+      if (merged) {
+        newProto[prop] = merged;
+      }
+
+      return newProto;
+    },
+
+    setupInstanceEvents: function(inst) {
+      if (!_.isObject(inst.events)) {
+        return;
+      }
+
+      var events = _.keys(inst.events),
+          event  = null,
+          fn     = null,
+          len    = events.length,
+          i      = 0;
+
+      for (i = 0; i < len; ++i) {
+        event = events[i];
+        fn = inst.events[event];
+        if (fn) {
+
+          if (!inst[fn]) {
+            throw new Error(fn + ' does not exist on this controller');
+          }
+
+          inst.listenTo(inst, event, inst[fn]);
+        }
+      }
+    },
+
+    setupInstanceObserves: function(inst) {
+      if (!_.isObject(inst.observes)) { 
+        return; 
+      }
+
+      var observes  = inst.observes,
+          events    = _.keys(observes),
+          event     = null,
+          i         = 0,
+          fnName    = null;
+
+      for (i = 0; i < events.length; ++i) {
+        event = events[i];
+        fnName = observes[event];
+        if (!_.isFunction(inst[fnName])) {
+          throw new Error(fnName + ' does not exist for the global event ' + event);
+        }
+
+        inst.once('unload', BaseEvent.observe(event, _.bind(inst[fnName], inst)).remove);
+      }
+    }
+
+  };
+/**
+ * @namespace Vertebrae
+ */
+
+
   /**
    * Base Class for All Project Objects
    *
@@ -169,36 +418,6 @@
     this.trigger('init');
   };
 
-  // Creates a _super function for the parent function when calling the childFunction.
-  function createSuper(parentFunction, childFunction) {
-    return function() {
-      var oldSuper = this._super;
-      this._super = parentFunction;
-
-      var ret = childFunction.apply(this, arguments);
-      this._super = oldSuper;
-
-      return ret;
-    };
-  };
-
-  // Creates super functions by comparing parentProto to childProto.
-  function createSuperForOverriddenFunctions(parentProto, childProto) {
-    var childKeys = _.keys(childProto),
-        name      = null,
-        i         = 0;
-
-    for (i = 0; i < childKeys.length; ++i) {
-      name = childKeys[i];
-      if (_.isFunction(parentProto[name]) && parentProto[name] !== childProto[name]) {
-        if (name == 'constructor') {
-          continue;
-        }
-        childProto[name] = createSuper(parentProto[name], childProto[name]);
-      }
-    }
-  };
-
   /**
    * Create of sub-class of BaseObject
    * 
@@ -211,59 +430,17 @@
    * @return {Function} The subclass constructor.
    */
   BaseObject.extend = function(proto) {
-    var newProperties = [],
-        oldProperties = [],
-        i             = 0,
-        len           = 0,
-        child         = null;
+    var child = null;
 
-    if (_.isArray(proto.properties)) {
-      newProperties = proto.properties;
 
-      len = newProperties.length;
+    Utils.mergeClassProperty(proto, this.prototype, 'properties', function(prop) {
+      Utils.createGettersAndSetters(proto, prop);
+    });
 
-      for (i = 0; i < len; i++) {
-        (function(prop){
-
-          var setter = function(value, silent) {
-               return this.set(prop, value, silent);
-              },
-              getter = function() {
-                return this.get(prop);
-              },
-              cameld = String.camelCase(prop);
-
-          if (cameld.indexOf('.') > -1) {
-            // Make the name camel cased through the namespace and remove periods.
-            cameld = String.camelCaseFromNamespace(cameld);
-          }
-
-          var setterName = 'set' + cameld,
-              getterName = 'get' + cameld;
-
-          if (_.isFunction(proto[setterName])) {
-            proto[setterName] = createSuper(setter, proto[setterName]);
-          } else {
-            proto[setterName] = setter;
-          }
-
-          if (_.isFunction(proto[getterName])) {
-            proto[getterName] = createSuper(getter, proto[getterName]);
-          } else {
-            proto[getterName] = getter;
-          }
-
-        })(newProperties[i]);
-      }
-
-      if (_.isArray(this.prototype.properties)) {
-        oldProperties = this.prototype.properties;
-      }
-      proto.properties = [].concat(newProperties, oldProperties);
-    }
-
+    // Use the extend function of Backbone.View to create a new class
     child = Backbone.View.extend.apply(this, arguments);
-    createSuperForOverriddenFunctions(this.prototype, child.prototype);
+
+    Utils.createSuperForOverriddenFunctions(this.prototype, child.prototype);
 
     return child;
   };
@@ -295,9 +472,9 @@
 
       for (key in jsonObject) {
         if (key.indexOf('.') > -1) {
-          setterFn = "set" + String.camelCaseFromNamespace(key);
+          setterFn = "set" + StringUtils.camelCaseFromNamespace(key);
         } else {
-          setterFn = "set" + String.camelCase(key);
+          setterFn = "set" + StringUtils.camelCase(key);
         }
         if (_.isFunction(this[setterFn])) {
           this[setterFn](jsonObject[key]);
@@ -481,7 +658,8 @@
         _.extend(options, silent);
       }
 
-      if (options.deferred === true) {
+      // if deferred is true and we have a deferred object then defer the setting of this value
+      if (options.deferred === true && v && _.isFunction(v.promise)) {
 
         options.deferred = false;
 
@@ -593,158 +771,6 @@
  */
 
 
-  var event = _.extend({}, Backbone.Events);
-
-  var BaseEvent = {
-    /**
-     * Bind all the function on an object to the obj itself.
-     * This will cause all functions to ALWAYS have the correct 'this'.
-     *
-     * @function
-     *
-     * @param  {Object} obj 
-     * 
-     * @return {Object}     
-     */
-    bindAll: function(obj) {
-      var i     = 0,
-          keys  = [],
-          fn    = null,
-          k;
-
-      for(k in obj) { 
-        keys.push(k); 
-      }
-      if (!obj || !obj.constructor) { 
-        return obj; 
-      }
-      
-      for (i = 0; i < keys.length; ++i) {
-        fn = obj[keys[i]];
-        if (_.isFunction(fn) && keys[i] !== 'constructor' && _.contains(obj.constructor.prototype, fn)) {
-          obj[keys[i]] = _.bind(fn, obj);
-        }
-      }
-      
-      return obj;
-    },
-    
-    /**
-     * Fire an event. This relates to the observe helper function.
-     *
-     * @function
-     *
-     * @param  {String} event The name of the event that you want to fire.
-     * @param  {Object} data 	The date you want to pass into the function listening to the passed event.
-     *
-     * @return {Object}
-     */
-    fire: function() {
-      event.trigger.apply(event, arguments);
-
-      return BaseEvent;
-    },
-
-    /**
-     * Trigger an event. This will basically call the fire function.
-     *
-     * @function
-     * 
-     * @return {Object}
-     */
-    trigger: function() {
-      return BaseEvent.fire.apply(BaseEvent, arguments);
-    },
-
-    /**
-     * Set an event observer. Relates to the fire function. 
-     *
-     * @function
-     *
-     * @param  {String} 	event 		The name of the event that you want to observe.
-     * @param  {Function} callback 	The function you want to call if the observed event is fired.
-     *
-     * @return {Object}
-     */
-    observe: function(name, callback) {
-      event.on.apply(event, arguments);
-
-      return {
-        remove: function() {
-          event.off(name, callback);
-        }
-      };
-    },
-
-    /**
-     * Observing events for a particular element.
-     *
-     * @function
-     * 
-     * @return {Object}
-     */
-    on: function() {
-      return BaseEvent.observe.apply(BaseEvent, arguments);
-    }
-
-  };
-/**
- * @namespace Vertebrae
- */
-
-
-  function setupObserves() {
-    var inst = this;
-    
-    if (!_.isObject(inst.observes)) { 
-      return; 
-    }
-
-    var observes  = inst.observes,
-        events    = _.keys(observes),
-        event     = null,
-        i         = 0,
-        fnName    = null;
-
-    for (i = 0; i < events.length; ++i) {
-      event = events[i];
-      fnName = observes[event];
-      if (!_.isFunction(inst[fnName])) {
-        throw new Error(fnName + ' does not exist for the global event ' + event);
-      }
-
-      this.once('unload', BaseEvent.observe(event, _.bind(inst[fnName], this)).remove);
-    }
-  };
-
-  function setupEvents() {
-    var that = this;
-
-    if (!_.isObject(that.events)) {
-      return;
-    }
-
-    var events = _.keys(this.events),
-        event  = null,
-        fn     = null,
-        len    = events.length,
-        i      = 0;
-
-    for (i = 0; i < len; ++i) {
-      event = events[i];
-      fn = this.events[event];
-      if (fn) {
-
-        if (!this[fn]) {
-          throw new Error(fn + ' does not exist on this controller');
-        }
-
-        this.listenTo(this, event, this[fn]);
-      }
-    }
-
-  };
-
   /**
    * Base Controller Object for all Controller
    *
@@ -781,8 +807,8 @@
     initialize: function(options) {
       this._unbind = [];
 
-      setupObserves.call(this);
-      setupEvents.call(this);
+      Utils.setupInstanceObserves(this);
+      Utils.setupInstanceEvents(this);
 
       this.setupView();
 
@@ -940,10 +966,10 @@
      */
     setup: function(el, options) {
       options = _.defaults(options || {}, { delegate: this });
-
       this.getView().setElement(el);
       this.getView().setDelegate(options.delegate);
       this.getView().watchDelegateProperties();
+      this.trigger('setup');
       this.trigger('view:ready');
       this.viewIsReady();
       
@@ -990,7 +1016,6 @@
      */
     unload: function(cb) {
       if (this._unloaded !== true) {
-        this.trigger('unload');
 
         var unbind = this._unbind || [],
             fn     = null;
@@ -1000,6 +1025,7 @@
         }
 
         this._unloaded = true;
+        this.trigger('unload');
         this.getView().unload(cb);
       }
     },
@@ -1046,13 +1072,9 @@
    * @return {Constructor}   
    */
   BaseController.extend = function(proto) {
-    if (_.isObject(proto.observes) && _.isObject(this.prototype.observes)) {
-      proto.observes = _.extend({}, this.prototype.observes, proto.observes);
-    }
 
-    if (_.isObject(proto.events) && _.isObject(this.prototype.events)) {
-      proto.events = _.extend({}, this.prototype.events, proto.events);
-    }
+    Utils.mergeClassProperty(proto, this.prototype, 'observes');
+    Utils.mergeClassProperty(proto, this.prototype, 'events');
 
     if (_.isObject(proto.validators) && !_.isFunction(proto.validate)) {
       proto.validate = function(filters, view) {
@@ -1939,51 +1961,6 @@
     },
 
     /**
-     * Parsing through the set of parsers to find the matching route.
-     *
-     * @function
-     *
-     * @static
-     * 
-     * @return {Object} Parser object with the matching route. Includes the callback function and type of parser.
-     */
-    parseParsers: function() {
-      var rootURI = this.rootURI;
-
-      return _.map(this.parsers || {}, function(fn, route) {
-        var type = null;
-
-        // See if we have any type specific items.
-        if (route[0] == '#') {
-          var lastHashIndex = route.slice(1).indexOf('#') + 1;
-
-          type = route.slice(1, lastHashIndex).toLowerCase();
-          route = route.slice(lastHashIndex + 1);
-        }
-
-        route = (route).replace(escapeRegExp, '\\$&')
-                      .replace(optionalParam, '(?:$1)?')
-                      .replace(namedParam, function(match, optional) {
-                        return optional ? match : '([^\/]+)';
-                      })
-                      .replace(splatParam, '(.*?)');
-
-        if (_.isString(fn)) {
-          var fnName = fn;
-          fn = function() {
-            return this[fnName].apply(this, arguments);
-          };
-        }
-
-        return { 
-          uri       : new RegExp('^' + route + '$'),
-          callback  : fn, 
-          type      : type 
-        };
-      });
-    },
-
-    /**
      * Taking the model request and executing it as a POST.
      *
      * @function
@@ -2069,48 +2046,140 @@
   });
 
   function createModelRequestMethods(map) {
-    var routes = {};
+    var routes       = {},
+        createMethod = null,
+        crud         = ['POST', 'GET', 'PUT', 'DEL'],
+        crudMethods  = null;
 
-    _.each(map, function(name, route) {
-      var sections     = route.split(/\s+/),
+    crudMethods  = {
+      POST : 'requestCreate',
+      GET  : 'requestOne',
+      PUT  : 'requestUpdate',
+      DEL  : 'requestDelete'
+    };
+
+    createMethod = function(name, route) {
+      var sections     = String(route).trim().split(/\s+/),
           method       = String(sections[0]).trim().toLowerCase(),
           uri          = sections.slice(1).join('');
 
 
       if (method == 'delete') {
         method = 'del';
+      } else if (method == 'crud') {
+        // if the crud method is given then we want to auto-generate the default crud interface
+        // name = 'document', route = 'CRUD document'
+        // generated functions:
+        // requestCreateDocument -> POST document
+        // requestOneDocument -> GET document/:$0
+        // requestUpdateDocument -> PUT document/:id
+        // requestDeleteDocument -> DEL document/:id
+        _.each(crud, function(m) {
+          var newRoute = m + ' ' + uri;
+
+          switch (m) {
+            case 'GET':
+              newRoute += '/:$0';
+              break;
+            case 'PUT':
+            case 'DEL':
+              newRoute += '/:id';
+              break;
+          };
+
+          createMethod(crudMethods[m] + StringUtils.camelCase(name), newRoute);
+        });
+        // we don't actually want to create a method for CRUD so return
+        return;
       }
 
       routes[name] = function(params, options) {
-        var args = arguments;
+        var args = arguments,
+            data = _.clone(params);
 
         var replacedUri = String(uri)
             .replace(/:[\$]?\w+/g, function(match) {
-              var name = match.slice(1);
+              var name  = match.slice(1),
+                  value = null;
 
               if (name[0] == '$') {
+                name = name.slice(1);
+                value = args[name];
+                
+                return value;
+              } else if (data && data[name]) {
+                value = data[name]; 
+                delete data[name];
 
-                return args[name.slice(1)];
-              } else if (params && params[name]) {
-
-                return params[name];
+                return value;
               } else {
 
                 throw new Error('The route ' + route + ' must include ' + name + ' in your params');
               }
             });
 
-        return this[method](replacedUri, params, options);
+        return this[method](replacedUri, data, options);
       };
-    });
+    };
+
+    _.each(map, createMethod);
 
     return routes;
+  };
+
+
+  /**
+   * Parsing through the set of parsers to find the matching route.
+   *
+   * @function
+   *
+   * @static
+   * 
+   * @return {Object} Parser object with the matching route. Includes the callback function and type of parser.
+   */
+  function parseParsers(stat) {
+    var rootURI = stat.rootURI;
+
+    return _.map(stat.parsers || {}, function(fn, route) {
+      var sections  = route.split(/\s+/),
+          hasMethod = sections.length > 1,
+          type      = hasMethod ? String(sections[0]).trim().toLowerCase() : null,
+          route     = hasMethod ? sections.slice(1).join('') : sections.join('');
+
+      // See if we have any type specific items.
+      if (route[0] == '#') {
+        var lastHashIndex = route.slice(1).indexOf('#') + 1;
+
+        type = route.slice(1, lastHashIndex).toLowerCase();
+        route = route.slice(lastHashIndex + 1);
+      }
+
+      route = (route).replace(escapeRegExp, '\\$&')
+                    .replace(optionalParam, '(?:$1)?')
+                    .replace(namedParam, function(match, optional) {
+                      return optional ? match : '([^\/]+)';
+                    })
+                    .replace(splatParam, '(.*?)');
+
+      if (_.isString(fn)) {
+        var fnName = fn;
+        fn = function() {
+          return this[fnName].apply(this, arguments);
+        };
+      }
+
+      return { 
+        uri       : new RegExp('^' + route + '$'),
+        callback  : fn, 
+        type      : type 
+      };
+    });
   };
 
   BaseModel.extend = function(proto, stat) {
     // See if the static properties has a parsers object.
     if (this.parsers && stat && stat.parsers) {
-      stat._parsers = this.parseParsers.call(stat).concat(this._parsers || []);
+      stat._parsers = parseParsers(stat).concat(this._parsers || []);
     }
 
     if (stat && stat.routes) {
@@ -2127,15 +2196,6 @@
         properties = proto.properties;
       }
       proto.properties = [].concat(serverProperties, properties);
-    }
-
-    if (_.isArray(proto.attributes)) {
-
-
-
-      if (_.isArray(this.prototype.attributes)) {
-        proto.attributes = [].concat(this.prototype.attributes, proto.attributes);
-      }
     }
 
     return BaseObject.extend.apply(this, arguments);
@@ -2185,6 +2245,14 @@
     controllers: { },
 
     /**
+     * The event listener function mapping
+     * @type {Object}
+     */
+    events: {
+      'start': 'routing'
+    },
+
+    /**
      * The default route for your application.
      * This should be overwritten in your main app file.
      * 
@@ -2203,13 +2271,15 @@
      * @param  {Object} options The options object we are using within our application.
      */
     initialize: function(el, options) {
-      this._super.apply(this,arguments);
+      Utils.setupInstanceEvents(this);
       
       this.$el = $(el);
       this.el = this.$el.get(0);
       this.setOptions(options || {});
 
       this.initializeControllerMappings();
+      
+      this._super.apply(this,arguments);
     },
 
     /**
@@ -2225,7 +2295,7 @@
         map = _.clone(this.controllerMappings[i]);
         map.instance = new map.controller(this);
         if (map.name) {
-          this[map.name] = new map.controller(this);
+          this[map.name] = map.instance;
         }
         mappings.push(map);
       }
@@ -2615,11 +2685,15 @@
       // setup the dynamic controller routes
       this.setupRoutes();
 
+      this.trigger('start');
+
+      return d;
+    },
+
+    routing: function() {
       if (!Backbone.history.start()) {
         this.navigate(this.getInitialRoute(), { trigger: true, replace: true });
       }
-
-      return d;
     },
 
     render: function() {
@@ -2668,8 +2742,7 @@
   });
   
   BaseApp.extend = function(proto) {
-    proto.controllerMappings = _.isArray(proto.controllerMappings) ? proto.controllerMappings : [];
-    proto.properties = _.isArray(proto.properties) ? proto.properties : [];
+    var mappings = _.isArray(proto.controllerMappings) ? proto.controllerMappings : [];
 
     // parse and copy over the information from proto.controllers to proto.controllerMappings
     _.each(proto.controllers, function(Controller, map) {
@@ -2678,7 +2751,7 @@
           selector = name ? sections.slice(1).join('') : sections.join('');
 
       if (name && selector) {
-        proto.controllerMappings.push({
+        mappings.push({
           selector   : selector,
           name       : name,
           controller : Controller
@@ -2687,10 +2760,13 @@
 
     });
 
+    proto.controllerMappings = mappings;
+
+    // copy/merge the events object
+    Utils.mergeClassProperty(proto, this.prototype, 'events');
+
     // Copy over any existing controller mappings onto the proto controllerMappings
-    if (_.isArray(this.prototype.controllerMappings)) {
-      proto.controllerMappings = [].concat(this.prototype.controllerMappings, proto.controllerMappings);
-    }
+    Utils.mergeClassProperty(proto, this.prototype, 'controllerMappings');
 
     return BaseObject.extend.apply(this, arguments);
   };
