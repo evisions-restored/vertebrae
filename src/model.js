@@ -431,8 +431,10 @@ define([
       }
 
       routes[name] = function(params, options) {
-        var args = arguments,
-            data = _.clone(params);
+        var args    = arguments,
+            counter = 0,
+            options = null,
+            data    = _.clone(params);
 
         var replacedUri = String(uri)
             .replace(/:[\$]?\w+/g, function(match) {
@@ -440,8 +442,8 @@ define([
                   value = null;
 
               if (name[0] == '$') {
-                name = name.slice(1);
-                value = args[name];
+                // if we have the $ then we use args for the data
+                value = args[counter++];
                 
                 return value;
               } else if (data && data[name]) {
@@ -454,6 +456,9 @@ define([
                 throw new Error('The route ' + route + ' must include ' + name + ' in your params');
               }
             });
+
+        data    = _.clone(args[counter++]) || {};
+        options = _.clone(args[counter]) || {};
 
         return this[method](replacedUri, data, options);
       };
