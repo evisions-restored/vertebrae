@@ -1,5 +1,5 @@
 /*!
- * Vertebrae JavaScript Library v0.1.1
+ * Vertebrae JavaScript Library v0.1.2
  *
  * Released under the MIT license
  *
