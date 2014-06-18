@@ -7,14 +7,16 @@ define([
   './object',
   './event',
   './stringutils',
-  './utils'
+  './utils',
+  './validator'
 ], function(
   $, 
   _, 
   BaseObject, 
   BaseEvent, 
   StringUtils,
-  Utils) {
+  Utils,
+  Validator) {
 
   /**
    * Base Controller Object for all Controller
@@ -37,7 +39,8 @@ define([
     properties: ['view'],
 
     events: {
-      'view:ready': 'render'
+      'view:ready': 'render',
+      'view:available': null
     },
 
     /**

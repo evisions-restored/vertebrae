@@ -1,5 +1,5 @@
 define([
-        'vertebrae/stringutils'
+  'vertebrae/stringutils'
 ], function(
         StringUtils) {
   

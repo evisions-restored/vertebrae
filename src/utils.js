@@ -148,6 +148,10 @@ define([
 
         inst.once('unload', BaseEvent.observe(event, _.bind(inst[fnName], inst)).remove);
       }
+    },
+
+    makeFunction: function(cb) {
+      return _.isFunction(cb) ? cb : function() {};
     }
 
   };

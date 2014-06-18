@@ -4,14 +4,16 @@ define([
   './view',
   './model',
   './event',
-  './app'
+  './app',
+  './validator'
 ], function(
   BaseObject, 
   BaseController, 
   BaseView, 
   BaseModel, 
   BaseEvent,
-  BaseApp) {
+  BaseApp,
+  Validator) {
 
   var Vertebrae = {
     Object     : BaseObject,
@@ -19,7 +21,8 @@ define([
     Controller : BaseController,
     View       : BaseView,
     Model      : BaseModel,
-    Event      : BaseEvent
+    Event      : BaseEvent,
+    Validator  : Validator
   };
 
   return Vertebrae;
