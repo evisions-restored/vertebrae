@@ -1,6 +1,6 @@
 {
   "name": "vertebrae",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Bringing object oriented design to the browser.",
   "main": "index.js",
   "directories": {
@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test": "karma start",
-    "install": "bower install"
+    "install": "bower install",
+    "release": "grunt release"
   },
   "repository": {
     "type": "git",

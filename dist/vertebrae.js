@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.0
+ * Vertebrae JavaScript Library v0.1.1
  *
  * Released under the MIT license
  *
- * Date: 2014-06-18T18:47Z
+ * Date: 2014-06-18T19:00Z
  */
 
 (function(global, factory) {

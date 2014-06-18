@@ -18,7 +18,7 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON("package.json"),
-    
+
     karma: {
       options: {
         browsers: browsers || ['PhantomJS'],
@@ -31,6 +31,22 @@ module.exports = function(grunt) {
       auto: {
         autoWatch: true,
         singleRun: false
+      }
+    },
+
+    bump: {
+      options: {
+        files: ['package.json', 'bower.json'],
+        updateConfigs: ['pkg'],
+        commit: true,
+        commitMessage: 'Release v%VERSION%',
+        commitFiles: ['-a'],
+        createTag: true,
+        tagName: 'v%VERSION%',
+        tagMessage: 'Version %VERSION',
+        push: true,
+        pushTo: 'upstream',
+        gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d'
       }
     },
 
@@ -95,6 +111,7 @@ module.exports = function(grunt) {
   });
 
   require('load-grunt-tasks')(grunt);
+  grunt.loadNpmTasks('grunt-bump');
 
   // grunt.loadNpmTasks('grunt-karma');
   grunt.loadTasks('tasks');
@@ -107,4 +124,6 @@ module.exports = function(grunt) {
   grunt.registerTask('sample', ['handlebars','connect:sample_server']);
 
   grunt.registerTask('dist', ['build:*:*', 'uglify']);
+
+  grunt.registerTask('release', ['dist', 'test', 'bump']);
 };
