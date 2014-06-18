@@ -3,7 +3,7 @@
  *
  * Released under the MIT license
  *
- * Date: 2014-06-18T19:18Z
+ * Date: 2014-06-18T19:19Z
  */
 
 (function(global, factory) {
