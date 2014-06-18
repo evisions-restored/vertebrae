@@ -75,72 +75,90 @@ define([
      * @instance
      * 
      * @param  {String} property The property we want to look at.
-     * @param  {Object} obj      The object whose properties we want to sync with.
-     * @param  {Object} trigger  
+     * @param  {Object} options  The object whose properties we want to sync with. 
      * 
      * @return {Object}          
      */
-    sync: function(property, obj, trigger) {
-      var fnController    = property + 'DidChange',
+    sync: function(property, options) {
+      var fnController    = null,
           that            = this,
-          view            = this.getView(),
+          view            = null,
           hasListened     = false,
           camelProperty   = StringUtils.camelCase(property),
+          previousValue   = void(0),
           getter          = null,
           updateOnAvaible = null,
           updateView      = null,
-          getterFn        = 'get' + camelProperty,
-          originalObj     = obj,
-          fnView          = 'refresh' + camelProperty + 'PropertyOnView';
+          getterFn        = null,
+          obj             = null,
+          fnView          = null;
 
-      // For the object we want to look at it can either be a passed in model OR just "this".
-      obj = _.isObject(obj)? obj: this;
+      options = _.defaults(options || {}, {
+        trigger       : false,
+        accessor      : 'get' + camelProperty,
+        target        : this,
+        targetHandler : property + 'DidChange',
+        viewHandler   : 'refresh' + camelProperty + 'PropertyOnView',
+        view          : this.getView()
+      });
 
-      // Gets the value for the property on the object we are watching.
+      view         = options.view;
+      getterFn     = options.accessor;
+      fnController = options.targetHandler;
+      fnView       = options.viewHandler;
+      obj          = options.target;
+
+      // Gets the value for the property on the object we are watching
       getter = function() {
         if (obj[getterFn]) {
+
           return obj[getterFn]();
         } else {
+
           return obj.get(property);
         }
       };
 
-      // Update the view but only when the avaiable property has changed.
-      updateOnAvaible = function() {
+      // Update the view but only when the avaiable property has changed
+      updateOnAvaible = function(prev) {
         if (hasListened) {
+
           return;
         }
-
         hasListened = true;
         that.listenToOnce(view, 'change:available', function() {
+          
           hasListened = false;
-          updateView();
+
+          updateView(prev);
         });
       };
 
-      // Update the view but only if it is available else queue to update when avaiable changes.
-      updateView = function() {
+      // Update the view but only if it is available else queue to update when avaiable changes
+      updateView = function(prev) {
         if (that[fnView]) {
           if (view.getAvailable()) {
-            that[fnView](getter());
+            that[fnView](getter(), prev);
           } else {
-            updateOnAvaible();
+            updateOnAvaible(prev);
           }
         }
       };
 
-      // Listen to changes on the given object for the given property.
+      // listen to changes on the given object for the given property
       this.listenTo(obj, 'change:' + property, function() {
+        var currentValue = getter();
         if (this[fnController]) {
-          this[fnController](getter());
+          this[fnController](currentValue, previousValue);
         }
-
-        updateView();
+        previousValue = currentValue;
+        updateView(previousValue);
       });
 
-      // We want to immediately update the view to get it in sync with the state of the property we are watching.
+      // We want to immediately update the view to get it in sync with the state of the property we are watching
       updateView();
-      if (originalObj === true || trigger === true) {
+
+      if (options.trigger === true) {
         this.trigger('change:' + property);
       }
 
