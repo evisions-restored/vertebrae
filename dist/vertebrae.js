@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.5
+ * Vertebrae JavaScript Library v0.1.6
  *
  * Released under the MIT license
  *
- * Date: 2014-06-19T22:16Z
+ * Date: 2014-06-19T22:27Z
  */
 
 (function(global, factory) {
@@ -2204,11 +2204,11 @@
 
       options.success = function(resp, textStatus, xhr) {
         if (responseDefaults) {
-          _.defaults(resp || {}, responseDefaults);
+          resp = _.defaults(resp || {}, responseDefaults);
         }
         // If we have a NULL response,= or it is not valid then we reject.
         if (!that.isValidResponse(resp, textStatus, xhr)) {
-          d.reject(this.getResponseFailPayload(resp || {}));
+          d.reject(that.getResponseFailPayload(resp || {}));
         } else {
           // If it is valid, then we just return the response.
           var modelizer = that.getParser(uri, options.type) || that.defaultHandler;

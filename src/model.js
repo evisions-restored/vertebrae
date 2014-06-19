@@ -225,11 +225,11 @@ define([
 
       options.success = function(resp, textStatus, xhr) {
         if (responseDefaults) {
-          _.defaults(resp || {}, responseDefaults);
+          resp = _.defaults(resp || {}, responseDefaults);
         }
         // If we have a NULL response,= or it is not valid then we reject.
         if (!that.isValidResponse(resp, textStatus, xhr)) {
-          d.reject(this.getResponseFailPayload(resp || {}));
+          d.reject(that.getResponseFailPayload(resp || {}));
         } else {
           // If it is valid, then we just return the response.
           var modelizer = that.getParser(uri, options.type) || that.defaultHandler;
