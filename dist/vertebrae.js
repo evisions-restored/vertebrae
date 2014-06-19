@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.4
+ * Vertebrae JavaScript Library v0.1.5
  *
  * Released under the MIT license
  *
- * Date: 2014-06-19T16:53Z
+ * Date: 2014-06-19T22:16Z
  */
 
 (function(global, factory) {
@@ -470,9 +470,13 @@
      * 
      * @param  {Object} properties
      */
-    applyProperties: function(jsonObject) {
-      var key,
-          setterFn;
+    applyProperties: function(jsonObject, options) {
+      var key      = null,
+          setterFn = null;
+
+      options = _.defaults(options || {}, {
+        replaceFunctions: false
+      });
 
       for (key in jsonObject) {
         if (key.indexOf('.') > -1) {
@@ -483,7 +487,10 @@
         if (_.isFunction(this[setterFn])) {
           this[setterFn](jsonObject[key]);
         } else {
-          this[key] = jsonObject[key];
+          // don't override instance functions unless we REALLY want to....
+          if (!_.isFunction(this[key]) || options.replaceFunctions) {
+            this[key] = jsonObject[key];
+          }
         }
       }
 
@@ -582,6 +589,10 @@
       }
 
       return obj;
+    },
+
+    hasGetter: function(name) {
+
     },
 
     /**
@@ -2193,7 +2204,7 @@
 
       options.success = function(resp, textStatus, xhr) {
         if (responseDefaults) {
-          _.defaults(resp, responseDefaults);
+          _.defaults(resp || {}, responseDefaults);
         }
         // If we have a NULL response,= or it is not valid then we reject.
         if (!that.isValidResponse(resp, textStatus, xhr)) {
@@ -3089,6 +3100,8 @@
     View       : BaseView,
     Model      : BaseModel,
     Event      : BaseEvent,
+    String     : StringUtils,
+    Utils      : Utils,
     Validator  : Validator
   };
 

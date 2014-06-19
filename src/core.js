@@ -5,7 +5,9 @@ define([
   './model',
   './event',
   './app',
-  './validator'
+  './validator',
+  './stringutils',
+  './utils'
 ], function(
   BaseObject, 
   BaseController, 
@@ -13,7 +15,9 @@ define([
   BaseModel, 
   BaseEvent,
   BaseApp,
-  Validator) {
+  Validator,
+  StringUtils,
+  Utils) {
 
   var Vertebrae = {
     Object     : BaseObject,
@@ -22,6 +26,8 @@ define([
     View       : BaseView,
     Model      : BaseModel,
     Event      : BaseEvent,
+    String     : StringUtils,
+    Utils      : Utils,
     Validator  : Validator
   };
 

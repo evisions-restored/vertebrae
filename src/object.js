@@ -77,9 +77,13 @@ define([
      * 
      * @param  {Object} properties
      */
-    applyProperties: function(jsonObject) {
-      var key,
-          setterFn;
+    applyProperties: function(jsonObject, options) {
+      var key      = null,
+          setterFn = null;
+
+      options = _.defaults(options || {}, {
+        replaceFunctions: false
+      });
 
       for (key in jsonObject) {
         if (key.indexOf('.') > -1) {
@@ -90,7 +94,10 @@ define([
         if (_.isFunction(this[setterFn])) {
           this[setterFn](jsonObject[key]);
         } else {
-          this[key] = jsonObject[key];
+          // don't override instance functions unless we REALLY want to....
+          if (!_.isFunction(this[key]) || options.replaceFunctions) {
+            this[key] = jsonObject[key];
+          }
         }
       }
 
@@ -189,6 +196,10 @@ define([
       }
 
       return obj;
+    },
+
+    hasGetter: function(name) {
+
     },
 
     /**

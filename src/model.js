@@ -225,7 +225,7 @@ define([
 
       options.success = function(resp, textStatus, xhr) {
         if (responseDefaults) {
-          _.defaults(resp, responseDefaults);
+          _.defaults(resp || {}, responseDefaults);
         }
         // If we have a NULL response,= or it is not valid then we reject.
         if (!that.isValidResponse(resp, textStatus, xhr)) {
