@@ -541,6 +541,19 @@ define([
     return '';
   };
 
+  /**
+   * Check to see if a certain template exists;
+   * @param  {String}  name 
+   * @return {Boolean}      
+   */
+  BaseView.hasTemplate = function(name) {
+    if (templates[name]) {
+      return true;
+    }
+    return false;
+  };
+
+  BaseView.templateExists = BaseView.hasTemplate;
 
   /**
    * Extending the view object by mapping handlebar functions to instance functions that are usable inside the view.

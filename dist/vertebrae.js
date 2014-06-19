@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.3
+ * Vertebrae JavaScript Library v0.1.4
  *
  * Released under the MIT license
  *
- * Date: 2014-06-18T23:14Z
+ * Date: 2014-06-19T16:53Z
  */
 
 (function(global, factory) {
@@ -1912,6 +1912,19 @@
     return '';
   };
 
+  /**
+   * Check to see if a certain template exists;
+   * @param  {String}  name 
+   * @return {Boolean}      
+   */
+  BaseView.hasTemplate = function(name) {
+    if (templates[name]) {
+      return true;
+    }
+    return false;
+  };
+
+  BaseView.templateExists = BaseView.hasTemplate;
 
   /**
    * Extending the view object by mapping handlebar functions to instance functions that are usable inside the view.
