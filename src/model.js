@@ -205,8 +205,7 @@ define([
       options || (options = {});
       params || (params = {});
 
-      var d                = $.Deferred(),
-          that             = this,
+      var that             = this,
           responseDefaults = this.getResponseDefaults(),
           url              = (this.rootUrl || this.rootURI) + uri;
 
@@ -223,30 +222,43 @@ define([
         options.processData = false;
       }
 
-      options.success = function(resp, textStatus, xhr) {
+      return this.ajax(options).then(function(resp, textStatus, xhr) {
         if (responseDefaults) {
           resp = _.defaults(resp || {}, responseDefaults);
         }
         // If we have a NULL response,= or it is not valid then we reject.
         if (!that.isValidResponse(resp, textStatus, xhr)) {
-          d.reject(that.getResponseFailPayload(resp || {}));
+          return that.reject(that.getResponseFailPayload(resp || {}));
         } else {
           // If it is valid, then we just return the response.
           var modelizer = that.getParser(uri, options.type) || that.defaultHandler;
-
-          d.resolve(modelizer.call(that, that.getResponseSuccessPayload(resp || {}), params) || {}, params, resp);
+          return that.resolve(modelizer.call(that, that.getResponseSuccessPayload(resp || {}), params) || {}, params, resp)
         }
-      };
-
-      options.error = function(err) {
+      }, 
+      function(err) {
         err.url = url;
         err.methodType = options.type;
-        d.reject(err);
-      };
+        return err;
+      });
+    },
+
+    ajax: function(options) {
+      var d = $.Deferred();
+
+      options.success = d.resolve;
+      options.error   = d.reject;
 
       Backbone.ajax(options);
 
       return d.promise();
+    },
+
+    reject: function(resp) {
+      return $.Deferred.reject(resp);
+    },
+
+    resolve: function(data, params, resp) {
+      return $.Deferred().resolve(data, params, resp);
     },
 
     isValidResponse: function(resp) {
