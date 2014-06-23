@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.7
+ * Vertebrae JavaScript Library v0.1.8
  *
  * Released under the MIT license
  *
- * Date: 2014-06-20T18:44Z
+ * Date: 2014-06-23T22:36Z
  */
 
 (function(global, factory) {
@@ -26,7 +26,7 @@
   }
 
 // Pass this if window is not defined yet
-}(typeof window !== "undefined" ? window : this, function(window, noGlobal) {
+}(typeof window !== "undefined" ? window : this, function(win, noGlobal) {
 
 
   
@@ -3118,23 +3118,23 @@
   };
 
 
-  var _Vertebrae  = window.Vertebrae,
-      _V          = window.V;
+  var _Vertebrae  = win.Vertebrae,
+      _V          = win.V;
 
   Vertebrae.noConflict = function(deep) {
-    if (window.V === Vertebrae) {
-      window.V = _V;
+    if (win.V === Vertebrae) {
+      win.V = _V;
     }
 
-    if (deep && window.Vertebrae === Vertebrae) {
-      window.Vertebrae = _Vertebrae;
+    if (deep && win.Vertebrae === Vertebrae) {
+      win.Vertebrae = _Vertebrae;
     }
 
     return Vertebrae;
   };
 
   if (typeof noGlobal === 'undefined') {
-    window.Vertebrae = window.V = Vertebrae;
+    win.Vertebrae = win.V = Vertebrae;
   }
   
 
