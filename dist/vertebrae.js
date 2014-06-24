@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.8
+ * Vertebrae JavaScript Library v0.1.9
  *
  * Released under the MIT license
  *
- * Date: 2014-06-23T22:36Z
+ * Date: 2014-06-24T18:08Z
  */
 
 (function(global, factory) {
@@ -2368,7 +2368,7 @@
      * @return {String}     Built string for the API request.
      */
     generateLink: function(uri) {
-      return window.location.origin + this.rootURI + uri;
+      return window.location.protocol + '//' + window.location.host + this.rootURI + uri;
     }
 
   });

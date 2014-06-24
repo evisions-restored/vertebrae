@@ -389,7 +389,7 @@ define([
      * @return {String}     Built string for the API request.
      */
     generateLink: function(uri) {
-      return window.location.origin + this.rootURI + uri;
+      return window.location.protocol + '//' + window.location.host + this.rootURI + uri;
     }
 
   });
