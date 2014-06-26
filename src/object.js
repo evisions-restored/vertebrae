@@ -280,16 +280,6 @@ define([
         _.extend(options, silent);
       }
 
-      // if deferred is true and we have a deferred object then defer the setting of this value
-      if (options.deferred === true && v && _.isFunction(v.promise)) {
-
-        options.deferred = false;
-
-        return $.when(v).then(function(v) {
-          that.set(k, v, options);
-        });
-      }
-
       if (isNamespacedKey) {
         BaseObject.setPropertyByNamespace(this,k,v);
       } else {

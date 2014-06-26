@@ -309,19 +309,6 @@ define([
      */
     validate: function() {
       return true;
-    },
-
-    /**
-     * Creating a proxy for the jQuery when function and apply the passed arguments.
-     *
-     * @function
-     *
-     * @instance
-     * 
-     * @return {Object}
-     */
-    when: function() {
-      return $.when.apply($, arguments);
     }
 
   });

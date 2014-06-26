@@ -67,19 +67,6 @@ define([
     },
 
     /**
-     * Extending the base jQuery 'when' functionality.
-     *
-     * @function
-     *
-     * @instance
-     * 
-     * @return {Object} Returning the jQuery 'when' with applied arguments.
-     */
-    when: function() {
-      return $.when.apply($, arguments);
-    },
-
-    /**
      * Converting server propeties to an object that can be converted to JSON.
      *
      * @function
@@ -234,11 +221,6 @@ define([
           var modelizer = that.getParser(uri, options.type) || that.defaultHandler;
           return that.resolve(modelizer.call(that, that.getResponseSuccessPayload(resp || {}), params) || {}, params, resp)
         }
-      }, 
-      function(err) {
-        err.url = url;
-        err.methodType = options.type;
-        return err;
       });
     },
 
