@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.9
+ * Vertebrae JavaScript Library v0.1.10
  *
  * Released under the MIT license
  *
- * Date: 2014-06-24T18:08Z
+ * Date: 2014-06-26T18:09Z
  */
 
 (function(global, factory) {
@@ -673,16 +673,6 @@
         _.extend(options, silent);
       }
 
-      // if deferred is true and we have a deferred object then defer the setting of this value
-      if (options.deferred === true && v && _.isFunction(v.promise)) {
-
-        options.deferred = false;
-
-        return $.when(v).then(function(v) {
-          that.set(k, v, options);
-        });
-      }
-
       if (isNamespacedKey) {
         BaseObject.setPropertyByNamespace(this,k,v);
       } else {
@@ -1346,19 +1336,6 @@
      */
     validate: function() {
       return true;
-    },
-
-    /**
-     * Creating a proxy for the jQuery when function and apply the passed arguments.
-     *
-     * @function
-     *
-     * @instance
-     * 
-     * @return {Object}
-     */
-    when: function() {
-      return $.when.apply($, arguments);
     }
 
   });
@@ -2046,19 +2023,6 @@
     },
 
     /**
-     * Extending the base jQuery 'when' functionality.
-     *
-     * @function
-     *
-     * @instance
-     * 
-     * @return {Object} Returning the jQuery 'when' with applied arguments.
-     */
-    when: function() {
-      return $.when.apply($, arguments);
-    },
-
-    /**
      * Converting server propeties to an object that can be converted to JSON.
      *
      * @function
@@ -2213,11 +2177,6 @@
           var modelizer = that.getParser(uri, options.type) || that.defaultHandler;
           return that.resolve(modelizer.call(that, that.getResponseSuccessPayload(resp || {}), params) || {}, params, resp)
         }
-      }, 
-      function(err) {
-        err.url = url;
-        err.methodType = options.type;
-        return err;
       });
     },
 

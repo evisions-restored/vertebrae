@@ -88,39 +88,6 @@ define([
       assert.equal(instA.prop2, 'd', 'Property was set when it shouldn\'t have been');
     });
 
-    it('prototype.when', function(done) {
-      // I need to call this 4 times to be done
-      var doneCount = _.after(4, done);
-
-      instA = new SimpleModel();
-
-      var suc = instA.when($.Deferred().resolve('cat1'));
-      var rej = instA.when($.Deferred().reject('cat2'));
-
-      assert.ok(suc, "When didn't return a deferred object.");
-      assert.ok(rej, "When didn't return a deferred object.");
-
-      suc
-        .done(function(a) {
-          assert.equal(a, 'cat1');
-          doneCount();
-        })
-        .then(function(a) {
-          assert.equal(a, 'cat1');
-          doneCount();
-        });
-
-      rej
-        .fail(function(a) {
-          assert.equal(a, 'cat2');
-          doneCount();
-        })
-        .then(null,function(a) {
-          assert.equal(a, 'cat2');
-          doneCount();
-        })
-    });
-
     it('prototype.toJSON', function() {
       // Setup initial instance with no server properties
       instA.serverProperties = [];
