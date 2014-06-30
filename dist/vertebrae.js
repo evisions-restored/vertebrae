@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.10
+ * Vertebrae JavaScript Library v0.1.11
  *
  * Released under the MIT license
  *
- * Date: 2014-06-26T18:09Z
+ * Date: 2014-06-30T23:50Z
  */
 
 (function(global, factory) {
@@ -516,7 +516,7 @@
 
         for (i = 0; i < this.properties.length; i++) {
           prop = this.properties[i];
-          this.set(prop, null, true);
+          this.set(prop, null, { silent: true });
         }
       }
     },
@@ -662,23 +662,28 @@
      * @param  {Any} value The value you want to store.
      * @param  {Boolean} silent If true the change event will not fire.
      */
-    set: function(k, v, silent) {
+    set: function(k, v, options) {
       var isNamespacedKey = k.indexOf('.') > -1,
-          trigger         = oldValue != v && silent !== true,
-          options         = { trigger: trigger, deferred: true },
           oldValue        = isNamespacedKey ? BaseObject.getPropertyByNamespace(this,k) : this[k],
+          trigger         = false,
           that            = this;
 
-      if (_.isObject(silent)) {
-        _.extend(options, silent);
-      }
+      options = options || {};
+
+      _.defaults(options, {
+        trigger: oldValue != v,
+        silent: false
+      });
+
+      trigger = options.trigger && !options.silent;
 
       if (isNamespacedKey) {
         BaseObject.setPropertyByNamespace(this,k,v);
       } else {
         this[k] = v;
       }
-      if (options.trigger) {
+
+      if (trigger) {
         this.trigger('change:' + k, this);
         // Clear the change timeout if we are setting something else.
         clearTimeout(this._changeTimeout);

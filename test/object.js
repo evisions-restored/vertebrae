@@ -135,7 +135,7 @@ define([
     //   bObject.listenTo(aObject, 'change:property1', function() { listened = true; });
 
     //   // Do not set off the listener
-    //   aObject.set('property1', 'value1', true);
+    //   aObject.set('property1', 'value1', { silent: true });
     //   expect(aObject.property1).to.equal('value1');
 
 

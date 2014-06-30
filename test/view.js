@@ -122,23 +122,23 @@ define([
       assert.isTrue(myView.isAvailable());
 
       // Should be unavailable
-      myView.set('hidden', true, true);
-      myView.set('rendered', false, true);
+      myView.set('hidden', true, { silent: true });
+      myView.set('rendered', false, { silent: true });
       assert.isFalse(myView.isAvailable());
 
       // Should be unavailable
-      myView.set('hidden', false, true);
-      myView.set('rendered', false, true);
+      myView.set('hidden', false, { silent: true });
+      myView.set('rendered', false, { silent: true });
       assert.isFalse(myView.isAvailable());
 
       // Should be unavailable
-      myView.set('hidden', true, true);
-      myView.set('rendered', true, true);
+      myView.set('hidden', true, { silent: true });
+      myView.set('rendered', true, { silent: true });
       assert.isFalse(myView.isAvailable());
 
       // Should be the only case where it is available
-      myView.set('hidden', false, true);
-      myView.set('rendered', true, true);
+      myView.set('hidden', false, { silent: true });
+      myView.set('rendered', true, { silent: true });
       assert.isTrue(myView.isAvailable());
     });
 
@@ -164,7 +164,7 @@ define([
 
       assert.equal(counter, 2, 'available event should have fired twice from this.')
 
-      myView.setAvailable(false,true);//should not listeners
+      myView.setAvailable(false, { silent: true });//should not listeners
       assert.equal(counter, 2, 'available event should not fire when noTrigger is true')
     });
 
@@ -198,7 +198,7 @@ define([
       assert.equal(counter,1 , 'hidden should have triggered events, but didnt')
       assert.isTrue(myView.hidden);
 
-      myView.setHidden(false,true);
+      myView.setHidden(false, { silent: true });
       assert.equal(counter, 1, 'hidden should not have triggered events, but did')
     });
 
