@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.11
+ * Vertebrae JavaScript Library v0.1.12
  *
  * Released under the MIT license
  *
- * Date: 2014-06-30T23:50Z
+ * Date: 2014-07-11T21:53Z
  */
 
 (function(global, factory) {
@@ -2350,10 +2350,21 @@
       DEL  : 'requestDelete'
     };
 
-    createMethod = function(name, route) {
+    createMethod = function(options, route) {
       var sections     = String(route).trim().split(/\s+/),
           method       = String(sections[0]).trim().toLowerCase(),
+          fn           = null,
           uri          = sections.slice(1).join('');
+
+
+      if (_.isString(options)) {
+        fn = options;
+        options = null;
+      } else if (_.isObject(options)) {
+        fn = options.fn;
+      } else  {
+        throw new Error('The value of the model route mapping must be a string or an object.');
+      }
 
 
       if (method == 'delete') {
@@ -2379,16 +2390,15 @@
               break;
           };
 
-          createMethod(crudMethods[m] + StringUtils.camelCase(name), newRoute);
+          createMethod(crudMethods[m] + StringUtils.camelCase(fn), newRoute);
         });
         // we don't actually want to create a method for CRUD so return
         return;
       }
 
-      routes[name] = function(params, options) {
+      routes[fn] = function(params, opts) {
         var args    = arguments,
             counter = 0,
-            options = null,
             data    = _.clone(params);
 
         var replacedUri = String(uri)
@@ -2413,9 +2423,13 @@
             });
 
         data    = _.clone(args[counter++]) || {};
-        options = _.clone(args[counter]) || {};
+        opts = _.clone(args[counter]) || {};
 
-        return this[method](replacedUri, data, options);
+        if (options) {
+          _.defaults(opts, options);
+        }
+
+        return this[method](replacedUri, data, opts);
       };
     };
 
