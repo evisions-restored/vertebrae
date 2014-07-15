@@ -163,7 +163,7 @@ define([
       // listen to changes on the given object for the given property
       this.listenTo(obj, 'change:' + property, function() {
         var currentValue = getter();
-        if (filterFn()) {
+        if (filterFn.call(this, property)) {
           if (this[fnController]) {
             this[fnController](currentValue, previousValue);
           }
@@ -173,7 +173,7 @@ define([
       });
 
       // We want to immediately update the view to get it in sync with the state of the property we are watching
-      if (options.triggerView === true && filterFn()) {
+      if (options.triggerView === true && filterFn.call(this, property)) {
         updateView();
       }
 

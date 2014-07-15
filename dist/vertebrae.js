@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.13
+ * Vertebrae JavaScript Library v0.1.14
  *
  * Released under the MIT license
  *
- * Date: 2014-07-15T16:54Z
+ * Date: 2014-07-15T16:58Z
  */
 
 (function(global, factory) {
@@ -1195,7 +1195,7 @@
       // listen to changes on the given object for the given property
       this.listenTo(obj, 'change:' + property, function() {
         var currentValue = getter();
-        if (filterFn()) {
+        if (filterFn.call(this, property)) {
           if (this[fnController]) {
             this[fnController](currentValue, previousValue);
           }
@@ -1205,7 +1205,7 @@
       });
 
       // We want to immediately update the view to get it in sync with the state of the property we are watching
-      if (options.triggerView === true && filterFn()) {
+      if (options.triggerView === true && filterFn.call(this, property)) {
         updateView();
       }
 

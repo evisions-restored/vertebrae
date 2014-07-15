@@ -1,6 +1,6 @@
 {
   "name": "vertebrae",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "Bringing object oriented design to the browser.",
   "main": "index.js",
   "directories": {
