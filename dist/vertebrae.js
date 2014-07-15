@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.12
+ * Vertebrae JavaScript Library v0.1.13
  *
  * Released under the MIT license
  *
- * Date: 2014-07-11T21:53Z
+ * Date: 2014-07-15T16:54Z
  */
 
 (function(global, factory) {
@@ -1126,14 +1126,18 @@
           updateView      = null,
           getterFn        = null,
           obj             = null,
-          fnView          = null;
+          fnView          = null,
+          filterFn        = function() { return true; };
 
       options = _.defaults(options || {}, {
         trigger       : false,
+        triggerView   : true,
         accessor      : 'get' + camelProperty,
         target        : this,
         targetHandler : property + 'DidChange',
         viewHandler   : 'refresh' + camelProperty + 'PropertyOnView',
+        // you can specific a filter to determine if you should trigger events or not
+        filter        : null,
         view          : this.getView()
       });
 
@@ -1142,6 +1146,14 @@
       fnController = options.targetHandler;
       fnView       = options.viewHandler;
       obj          = options.target;
+
+      if (options.filter) {
+        if (_.isString(options.filter) && _.isFunction(this[options.filter])) {
+          filterFn = this[options.filter];
+        } else if (_.isFunction(options.filter)) {
+          filterFn = options.filter;
+        }
+      }
 
       // Gets the value for the property on the object we are watching
       getter = function() {
@@ -1183,15 +1195,19 @@
       // listen to changes on the given object for the given property
       this.listenTo(obj, 'change:' + property, function() {
         var currentValue = getter();
-        if (this[fnController]) {
-          this[fnController](currentValue, previousValue);
+        if (filterFn()) {
+          if (this[fnController]) {
+            this[fnController](currentValue, previousValue);
+          }
+          previousValue = currentValue;
+          updateView(previousValue);
         }
-        previousValue = currentValue;
-        updateView(previousValue);
       });
 
       // We want to immediately update the view to get it in sync with the state of the property we are watching
-      updateView();
+      if (options.triggerView === true && filterFn()) {
+        updateView();
+      }
 
       if (options.trigger === true) {
         this.trigger('change:' + property);
