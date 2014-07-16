@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.14
+ * Vertebrae JavaScript Library v0.1.16
  *
  * Released under the MIT license
  *
- * Date: 2014-07-15T16:58Z
+ * Date: 2014-07-16T22:25Z
  */
 
 (function(global, factory) {
@@ -912,7 +912,6 @@
    */
   Validator.validators.email = function(message) {
     return function(value, field) {
-      debugger;
       var regex = /[a-z0-9!#$%&\'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&\'*+\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:[A-Z]{2}|com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|museum|edu)\b/i;
 
       if (!value) {
