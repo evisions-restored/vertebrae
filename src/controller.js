@@ -184,6 +184,34 @@ define([
       return this;
     },
 
+    bind: function(eventName, fn, options) {
+      options = _.defaults(options || {}, {
+        filter: function() {}
+      });
+
+      if (options.filter) {
+        if (_.isString(options.filter)) {
+          options.filter = this[options.filter];
+        } else if (!_.isFunction(options.filter)) {
+          options.filter = function(){};
+        }
+      }
+
+      this.listenTo(this, eventName, function() {
+        if (options.filter.call(this, eventName)) {
+          fn.apply(this, arguments);
+        }
+      });
+      return this;
+    },
+
+    isViewAvailable: function() {
+      if (this.getView()) {
+        return this.getView().isAvailable();
+      }
+      return false;
+    },
+
     /**
      * Destroying the controller and the view of the controller.
      *

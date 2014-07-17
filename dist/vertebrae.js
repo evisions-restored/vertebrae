@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.16
+ * Vertebrae JavaScript Library v0.1.17
  *
  * Released under the MIT license
  *
- * Date: 2014-07-16T22:25Z
+ * Date: 2014-07-17T15:23Z
  */
 
 (function(global, factory) {
@@ -1213,6 +1213,34 @@
       }
 
       return this;
+    },
+
+    bind: function(eventName, fn, options) {
+      options = _.defaults(options || {}, {
+        filter: function() {}
+      });
+
+      if (options.filter) {
+        if (_.isString(options.filter)) {
+          options.filter = this[options.filter];
+        } else if (!_.isFunction(options.filter)) {
+          options.filter = function(){};
+        }
+      }
+
+      this.listenTo(this, eventName, function() {
+        if (options.filter.call(this, eventName)) {
+          fn.apply(this, arguments);
+        }
+      });
+      return this;
+    },
+
+    isViewAvailable: function() {
+      if (this.getView()) {
+        return this.getView().isAvailable();
+      }
+      return false;
     },
 
     /**
