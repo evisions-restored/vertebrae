@@ -28,7 +28,7 @@ define([
       for (i = 0; i < childKeys.length; ++i) {
         name = childKeys[i];
         if (_.isFunction(parentProto[name]) && parentProto[name] !== childProto[name]) {
-          if (name == 'constructor') {
+          if (name == 'constructor' || name == 'view') {
             continue;
           }
           childProto[name] = Utils.createSuper(parentProto[name], childProto[name]);

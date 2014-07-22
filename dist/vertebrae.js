@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.17
+ * Vertebrae JavaScript Library v0.1.18
  *
  * Released under the MIT license
  *
- * Date: 2014-07-17T15:23Z
+ * Date: 2014-07-22T17:58Z
  */
 
 (function(global, factory) {
@@ -273,7 +273,7 @@
       for (i = 0; i < childKeys.length; ++i) {
         name = childKeys[i];
         if (_.isFunction(parentProto[name]) && parentProto[name] !== childProto[name]) {
-          if (name == 'constructor') {
+          if (name == 'constructor' || name == 'view') {
             continue;
           }
           childProto[name] = Utils.createSuper(parentProto[name], childProto[name]);
