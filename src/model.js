@@ -436,9 +436,10 @@ define([
       }
 
       routes[fn] = function(params, opts) {
-        var args    = arguments,
-            counter = 0,
-            data    = _.clone(params);
+        var args     = arguments,
+            counter  = 0,
+            toDelete = [],
+            data     = _.clone(params);
 
         var replacedUri = String(uri)
             .replace(/:[\$]?\w+/g, function(match) {
@@ -452,8 +453,7 @@ define([
                 return value;
               } else if (data && data[name]) {
                 value = data[name]; 
-                delete data[name];
-
+                toDelete.push(name);
                 return value;
               } else {
 
@@ -463,6 +463,10 @@ define([
 
         data    = _.clone(args[counter++]) || {};
         opts = _.clone(args[counter]) || {};
+
+        _.each(toDelete, function(prop) {
+          delete data[prop];
+        });
 
         if (options) {
           _.defaults(opts, options);

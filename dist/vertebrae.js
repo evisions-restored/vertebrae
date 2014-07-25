@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.18
+ * Vertebrae JavaScript Library v0.1.19
  *
  * Released under the MIT license
  *
- * Date: 2014-07-22T17:58Z
+ * Date: 2014-07-25T19:31Z
  */
 
 (function(global, factory) {
@@ -2440,9 +2440,10 @@
       }
 
       routes[fn] = function(params, opts) {
-        var args    = arguments,
-            counter = 0,
-            data    = _.clone(params);
+        var args     = arguments,
+            counter  = 0,
+            toDelete = [],
+            data     = _.clone(params);
 
         var replacedUri = String(uri)
             .replace(/:[\$]?\w+/g, function(match) {
@@ -2456,8 +2457,7 @@
                 return value;
               } else if (data && data[name]) {
                 value = data[name]; 
-                delete data[name];
-
+                toDelete.push(name);
                 return value;
               } else {
 
@@ -2467,6 +2467,10 @@
 
         data    = _.clone(args[counter++]) || {};
         opts = _.clone(args[counter]) || {};
+
+        _.each(toDelete, function(prop) {
+          delete data[prop];
+        });
 
         if (options) {
           _.defaults(opts, options);
