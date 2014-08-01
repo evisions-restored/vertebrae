@@ -11,6 +11,7 @@ define([
   BaseEvent) {
 
   var templates = {};
+  var templateNamespaces = {};
 
   /**
    * Helper class for the project views.
@@ -319,7 +320,7 @@ define([
       var frag  = $(document.createDocumentFragment()),
           div   = document.createElement('div');
           
-      frag.append(this.constructor.template(template, datum));
+      frag.append(this.constructor.template(template, datum, {}, this.templateNamespace));
       
       if (attach) {
         this.constructor.datum(frag.children().get(0), datum);
@@ -359,7 +360,7 @@ define([
 
         context.odd = !context.even;
 
-        fragItem = $(this.constructor.template(template, data[i], { data: context }));
+        fragItem = $(this.constructor.template(template, data[i], { data: context }, this.templateNamespace));
         
         if (attach) {
           this.constructor.datum(fragItem.get(0), data[i]);
@@ -515,9 +516,13 @@ define([
    *
    * @param  {Object} newTemplates 
    */
-  BaseView.setupTemplates = function(newTemplates) {
+  BaseView.setupTemplates = function(newTemplates, namespace) {
     if (_.isObject(newTemplates)) {
-      templates = newTemplates;
+      if (_.isString(namespace)) {
+        templateNamespaces[namespace] = newTemplates;
+      } else {
+        templates = newTemplates;
+      }
     }
   };
 
@@ -531,8 +536,14 @@ define([
    * 
    * @return {String}       The processed string data returned from Handlebars.
    */
-  BaseView.template = function(name, data, options) {
-    var template = templates[name];
+  BaseView.template = function(name, data, options, namespace) {
+    var template = null;
+
+    if (namespace) {
+      template = (templateNamespaces[namespace] || {})[name];
+    } else {
+      template = templates[name];
+    }
 
     if (template) {
       return template(data || {}, options);
