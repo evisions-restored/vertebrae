@@ -505,7 +505,10 @@ define([
     return el.__data__;
   };
 
-  BaseView.getTemplates = function() {
+  BaseView.getTemplates = function(namespace) {
+    if (namespace) {
+      return templateNamespaces[namespace] || {};
+    }
     return templates || {};
   };
 
@@ -557,7 +560,13 @@ define([
    * @param  {String}  name 
    * @return {Boolean}      
    */
-  BaseView.hasTemplate = function(name) {
+  BaseView.hasTemplate = function(name, namespace) {
+    if (namespace) {
+      if (templateNamespaces[namespace] && templateNamespaces[namespace][name]) {
+        return true;
+      }
+      return false;
+    }
     if (templates[name]) {
       return true;
     }
