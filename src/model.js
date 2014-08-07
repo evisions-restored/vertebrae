@@ -209,19 +209,27 @@ define([
         options.processData = false;
       }
 
-      return this.ajax(options).then(function(resp, textStatus, xhr) {
-        if (responseDefaults) {
-          resp = _.defaults(resp || {}, responseDefaults);
-        }
-        // If we have a NULL response,= or it is not valid then we reject.
-        if (!that.isValidResponse(resp, textStatus, xhr)) {
-          return that.reject(that.getResponseFailPayload(resp || {}));
-        } else {
-          // If it is valid, then we just return the response.
+      return this.ajax(options)
+        .then(function() {
+          return that.processResponse.apply(that, arguments);
+        })
+        .then(function(payload) {
           var modelizer = that.getParser(uri, options.type) || that.defaultHandler;
-          return that.resolve(modelizer.call(that, that.getResponseSuccessPayload(resp || {}), params) || {}, params, resp)
-        }
-      });
+          return that.resolve(modelizer.call(that, payload, params) || {}, params);
+        });
+    },
+
+    processResponse: function(resp, textStatus, xhr) {
+      if (this.getResponseDefaults()) {
+        resp = _.defaults(resp || {}, this.getResponseDefaults());
+      }
+        // If we have a NULL response,= or it is not valid then we reject.
+      if (!this.isValidResponse(resp || {}, textStatus, xhr)) {
+        return this.reject(this.getResponseFailPayload(resp || {}));
+      } else {
+        // If it is valid, then we just return the response.
+        return this.getResponseSuccessPayload(resp || {});
+      }
     },
 
     ajax: function(options) {
