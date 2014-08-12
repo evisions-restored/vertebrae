@@ -2,13 +2,20 @@ define([
   'vertebrae/app',
   'vertebrae/controller',
   'vertebrae/view',
-  'jquery'
-], function(BaseApp, BaseController, BaseView, $) {
+  'jquery',
+  'bluebird'
+], function(
+  BaseApp,
+  BaseController,
+  BaseView,
+  $,
+  Promise
+) {
 
-  var TestApp, TestView, TestController1, TestController2, HeaderController, FooterController, test1, test2, app, div;
+  var TestApp, TestView, TestController1, TestController2, HeaderController, FooterController, test1, test2, app, div, resolve1, resolve2;
 
-  test1 = $.Deferred();
-  test2 = $.Deferred();
+  test1 = new Promise(function() { resolve1 = arguments[0]; });
+  test2 = new Promise(function() { resolve2 = arguments[0]; });
 
   TestView = BaseView.extend({
 
@@ -27,7 +34,7 @@ define([
     view: TestView,
 
     start: function() {
-      test1.resolve();
+      resolve1();
     },
 
     getTemplateProperties: function() {
@@ -41,7 +48,7 @@ define([
     name: 'test controller 2',
 
     start: function() {
-      test2.resolve();
+      resolve2();
     }
 
   });
@@ -100,13 +107,13 @@ define([
 
     it('proto.routes should handle constructors', function(done) {
 
-
-      test1.then(function() {
-        expect(app.getContentController()).to.be.an.instanceof(TestController1);
-        expect(app.getContentElement().html()).to.equal(app.getContentController().name);
-        expect(app.getContentElement().hasClass('test-controller-1')).to.be.true;
-        done();
-      });
+      test1
+          .then(function() {
+            expect(app.getContentController()).to.be.an.instanceof(TestController1);
+            expect(app.getContentElement().html()).to.equal(app.getContentController().name);
+            expect(app.getContentElement().hasClass('test-controller-1')).to.be.true;
+          })
+          .nodeify(done);
 
       app.navigate('test/constructor', { trigger: true });
     });
@@ -120,15 +127,16 @@ define([
         fn(TestController2);
       };
 
-      test2.then(function() {
-        expect(app.getContentController()).to.be.an.instanceof(TestController2);
-        expect(app.getContentElement().html()).to.equal(app.getContentController().name);
-        expect(app.getContentElement().hasClass('test-controller-1')).to.be.false;
-        expect(app.getContentElement().hasClass('test-controller-2')).to.be.true;
-        window.replace = oldRequire;
-        app.navigate('', { trigger: true });
-        done();
-      });
+      test2
+        .then(function() {
+          expect(app.getContentController()).to.be.an.instanceof(TestController2);
+          expect(app.getContentElement().html()).to.equal(app.getContentController().name);
+          expect(app.getContentElement().hasClass('test-controller-1')).to.be.false;
+          expect(app.getContentElement().hasClass('test-controller-2')).to.be.true;
+          window.replace = oldRequire;
+          app.navigate('', { trigger: true });
+        })
+        .nodeify(done)
 
       app.navigate('test/amd', { trigger: true });
 

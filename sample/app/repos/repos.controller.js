@@ -20,7 +20,7 @@ define([
     },
 
     start: function() {
-      return this.setRepos(Repo.requestAllByUser('Evisions'));
+      return this.setRepos(Repo.requestAllByUser('Evisions'), { promise: true });
     },
 
     getTemplateProperties: function() {

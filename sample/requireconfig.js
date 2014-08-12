@@ -7,6 +7,7 @@ require.config({
     jquery     : '../libs/jquery/dist/jquery',
     underscore : '../libs/underscore/underscore',
     handlebars : '../libs/handlebars/handlebars.runtime',
+    bluebird   : '../libs/bluebird/js/browser/bluebird',
     vertebrae  : '../dist/vertebrae'
   },
 

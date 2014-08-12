@@ -21,6 +21,7 @@ require.config({
     underscore : './libs/underscore/underscore',
     chai       : './libs/chai/chai',
     handlebars : './libs/handlebars/handlebars',
+    bluebird   : './libs/bluebird/js/browser/bluebird',
     vertebrae  : './src'
   },
 
@@ -30,9 +31,10 @@ require.config({
     }
   },
 
-  deps: ['chai', 'vertebrae/view', 'jquery'].concat(tests),
+  deps: ['chai', 'vertebrae/view', 'bluebird', 'jquery'].concat(tests),
 
-  callback: function(chai, BaseView) {
+  callback: function(chai, BaseView, Promise) {
+    window.Promise = Promise;
     assert  = chai.assert;
     expect  = chai.expect;
     should  = chai.should();

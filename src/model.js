@@ -4,11 +4,13 @@
 define([
   'jquery',
   'underscore',
+  'bluebird',
   './object',
   './stringutils'
 ], function(
     $, 
     _, 
+    Promise,
     BaseObject,
     StringUtils) {
 
@@ -186,7 +188,7 @@ define([
      * @param  {Object} params  The data to send.
      * @param  {Object} options Options to go with the request.
      *
-     * @return {Deferred}
+     * @return {Promise}
      */
     request: function(uri, params, options) {
       options || (options = {});
@@ -215,7 +217,7 @@ define([
         })
         .then(function(payload) {
           var modelizer = that.getParser(uri, options.type) || that.defaultHandler;
-          return that.resolve(modelizer.call(that, payload, params) || {}, params);
+          return that.resolve(modelizer.call(that, payload, params) || {});
         });
     },
 
@@ -233,22 +235,15 @@ define([
     },
 
     ajax: function(options) {
-      var d = $.Deferred();
-
-      options.success = d.resolve;
-      options.error   = d.reject;
-
-      Backbone.ajax(options);
-
-      return d.promise();
+      return Promise.resolve(Backbone.ajax(options));
     },
 
     reject: function(resp) {
-      return $.Deferred.reject(resp);
+      return Promise.reject(resp);
     },
 
-    resolve: function(data, params, resp) {
-      return $.Deferred().resolve(data, params, resp);
+    resolve: function(data) {
+      return Promise.resolve(data);
     },
 
     isValidResponse: function(resp) {

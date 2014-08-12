@@ -6,7 +6,15 @@ define([
   'handlebars',
   'underscore',
   './templates'
-], function(Vertebrae, User, HeaderController, ReposController, Handlebars, _, HandlebarTemplates) {
+], function(
+  Vertebrae,
+  User,
+  HeaderController,
+  ReposController,
+  Handlebars,
+  _,
+  HandlebarTemplates
+) {
   
   Vertebrae.View.setupTemplates(HandlebarTemplates);
 

@@ -5,6 +5,7 @@ define([
   'jquery',
   'backbone',
   'underscore',
+  'bluebird',
   './object',
   './view',
   './utils'
@@ -12,6 +13,7 @@ define([
   $,
   Backbone,
   _,
+  Promise,
   BaseObject,
   BaseView,
   Utils) {
@@ -35,7 +37,7 @@ define([
      * @type {Array}
      */
     properties: [
-      'activeRoute',
+      'currentRoute',
       'contentController',
       'options',
       'router'
@@ -90,6 +92,9 @@ define([
 
       this.initializeControllerMappings();
       
+      if (_.isFunction(this.handleAppErrors)) {
+        Promise.onPossiblyUnhandledRejection(_.bind(this.handleAppErrors, this));
+      }
       this._super.apply(this,arguments);
     },
 
@@ -121,7 +126,7 @@ define([
      */
     setupControllerMappings: function() {
       var map        = null,
-          d          = $.when(),
+          promise    = Promise.resolve(),
           controller = null,
           len        = this.controllerMappings ? this.controllerMappings.length : 0,
           i          = 0;
@@ -132,11 +137,11 @@ define([
 
         controller.setup(this.$(map.selector));
         if (controller.start) {
-          d = $.when(d, controller.start());
+          promise = Promise.join(promise, controller.start());
         }
       }
 
-      return d;
+      return promise;
     },
 
     /**
@@ -181,21 +186,6 @@ define([
     hideController: function() { },
 
     /**
-     * Unload the current content controller.
-     *
-     * @function
-     *
-     * @instance
-     * 
-     * @return {Boolean}
-     */
-    unloadController: function() {
-      var controller = this.getContentController();
-
-      return controller && controller.unload();
-    },
-
-    /**
      * Destroy the current content controller.
      * 
      * @function
@@ -204,7 +194,7 @@ define([
      * 
      * @return {Boolean}
      */
-    destroyController: function() {
+    destroyContentController: function() {
       var controller = this.getContentController();
 
       return controller && controller.destroy();
@@ -220,16 +210,6 @@ define([
      * @instance
      */
     showLoading: function() { },
-
-    /**
-     * Hide the loading message.
-     * This should be overwritten in your main app file.
-     *
-     * @function
-     *
-     * @instance
-     */
-    hideLoading: function() { },
 
     /**
      * Getting the element the main app controller is attached to.
@@ -296,7 +276,7 @@ define([
      * 
      * @return {Object}
      */
-    initializeController: function(Controller) {
+    initializeContentController: function(Controller) {
       var controller      = new Controller(),
           name            = controller.name || controller.contentName,
           el              = this.getContentElement(),
@@ -314,40 +294,13 @@ define([
         el.attr('id', controller.id);
       }
 
+      this.setContentController(controller);
+
       controller.setup(el);
 
       return controller;
     },
 
-    /**
-     * Setting up the app routes.
-     * These are defined in the routes property.
-     *
-     * @function
-     *
-     * @instance
-     * 
-     * @return {Object}
-     */
-    setupRoutes: function() {
-      var routes = {},
-          route  = null,
-          router = null;
-
-      if (!this.routes) { 
-        return this; 
-      }
-
-      for (route in this.routes) {
-        routes[route] = this.generateRouteHandler(route, this.routes[route]);
-      }
-
-      router = new Backbone.Router({ routes: routes });
-
-      this.setRouter(router);
-
-      return this;
-    },
 
     /**
      * Can the user leave the current controller?
@@ -367,110 +320,129 @@ define([
       return true;
     },
 
+    canSetupController: function(Controller) {
+      return true;
+    },
+
+    clearCurrentRoute: function() {
+      this.setCurrentRoute(null);
+    },
+
     /**
-     * Generating the route handler for each of the defined routes.
-     *
-     * @function
-     *
-     * @instance
-     * 
-     * @param  {String}         route      
-     * @param  {String|Object}  Controller
-     * 
-     * @return {Object}
+     * This function initializes route based off the 'routes' object that is stored on the
+     * app controller.  The routes are loaded with support for layers, so the javascript that is
+     * needed to display the content for a specific route will only be loaded when that route is
+     * requested (build only)
      */
-    generateRouteHandler: function(route, Controller) {
-      var fn   = null,
-          that = this;
+    setupRoutes: function() {
+      var routes = {};
 
-      fn = function() {
-        var controller            = null,
-            d                     = null,
-            args                  = arguments,
-            previousRoute         = this.getActiveRoute(),
-            controllerD           = $.Deferred(),
-            previousRouteDeferred = $.when(that.currentRouteDeferred).then(null, function() { return $.Deferred().resolve(); });
+      // Figure out the mapping from routes to controllers
+      _.each(this.routes, function(controllerPath, route) {
+        // Set a route on the routes object to be passed into Backbone.Router
+        routes[route] = function() {
+          var controller            = null,
+              // if there are route params, they will be stored in arguments
+              routeArgs             = arguments,
+              previousRoute         = this.getCurrentRoute() || this.defaultRoute,
+              previousRouteDeferred = this.currentRouteDeferred,
+              layerDeferred         = Promise.defer(),
+              hideLoading           = function() {},
+              controllerConstructor = null;
+          
+          return this.currentRouteDeferred = Promise
+            .resolve(this.canLeaveContentController())
+            .bind(this)
+            .then(function() {
+              //Yes, we can leave the page
+              this.routeDidChange(this.getHash());
+              // Show content loading!!
+              hideLoading = this.showLoading();
 
+              if (_.isString(controllerPath)) {
+                require([this.getControllerPath(controllerPath)], function(ctor) {
+                  controllerConstructor = ctor;
+                  layerDeferred.resolve();
+                });
+              } else {
+                controllerConstructor = controllerPath
+                layerDeferred.resolve();
+              }
 
-        return that.currentRouteDeferred = d = $.when(that.canLeaveContentController())
-        .then(function() {
-          that.showLoading();
+            })
+            .then(this.slideOutContentController)
+            .caught(BaseApp.Errors.NavigationCancelled, function(err) {
+              //No, dont leave the page, stay on the current one.
+              this.navigate(previousRoute);
+              throw err;
+            })
+            .tap(function() { 
+              // if the previous route has failed then we just want know when but do not
+              // affect this chain at all
+              return new Promise(function(resolve) {
+                Promise.resolve(previousRouteDeferred).lastly(resolve);
+              });
+            })
+            .then(function() {
 
-          // If the Controller is a string then it is a path to load the controller.
-          if (_.isString(Controller)) {
-            require([that.getControllerPath(Controller)], function(ctor) {
-              Controller = ctor;
-              controllerD.resolve();
+              return layerDeferred.promise;
+            })
+            .then(function() {
+
+              // If unload returned a deferred then we need to wait for this to finish
+              return this.destroyContentController();
+            })
+            .then(function() {
+
+              if (!this.canSetupController(controllerConstructor)) {
+                throw new BaseApp.Errors.CannotRoute();
+              }
+
+              controller = this.initializeContentController(controllerConstructor);
+              this.trigger('content-controller-init', controller);
+              return _.isFunction(controller.start) && controller.start.apply(controller, routeArgs);
+            })
+            .then(function() {
+              if (controller.hasSetter('started')) {
+                controller.setStarted(true);
+              } else {
+                controller.set('started', true);
+              }
+              controller.trigger('data:ready');
+              this.trigger('start:contentController', controller);
+              this.getContentElement().addClass('in');
+            })
+            .lastly(function() {
+              _.isFunction(hideLoading) && hideLoading();
+            })
+            .caught(function(error) {
+              if (!(error instanceof BaseApp.Errors.NavigationCancelled)) {
+                var handled = this.routeDidFail(this.getHash(), routeArgs);
+
+                this.clearCurrentRoute();
+
+                if (handled !== true) {
+                  this.navigate(previousRoute, { trigger: true });
+                }
+
+                throw error;
+              }
             });
-          } else {
-            controllerD.resolve();
-          }
 
-          return previousRouteDeferred;
-        }, 
-        function() {
-          // If the failed route is the same as the previous route then we have an inifite fail loop.
-          if (route != previousRoute) {
-            that.navigate(previousRoute);
-          }
 
-          return BaseApp.RouteErrors.CANCELLED;
-        }).then(function() {
-          // make sure the controller constructor is loaded
-          return controllerD;
-        }).then(function() {
+        };
 
-          if (!that.canLoadContentController(Controller)) {
+        routes[route] = _.bind(routes[route], this);
 
-            return $.Deferred().reject(BaseApp.RouteErrors.DENIED);
-          }
-        }).then(function() {
-          that.setActiveRoute(route);
-          that.trigger('route', route);
+      }, this);
 
-          return that.hideController();
-        }).then(function() {
-          that.showLoading();
-          return that.unloadController()
-        }).then(function() {
-          
-          return that.destroyController();
-        }).then(function() {
-          controller = that.initializeController(Controller);
+      this.setRouter(new Backbone.Router({ routes: routes }));
 
-          that.setContentController(controller);
-          that.trigger('init:contentController', controller);
-          
-          if (controller.start) {
-
-            return controller.start.apply(controller, args);
-          }
-        }).then(function() {
-          controller.trigger('data:ready');
-          that.trigger('start:contentController', controller);
-        }).always(function() {
-          that.hideLoading();
-        }).fail(function(reason) {
-
-          switch (reason) {
-            case BaseApp.RouteErrors.CANCELLED:
-              return;
-            case BaseApp.RouteErrors.DENIED:
-              return;
-          };
-
-          var handled = that.routeDidFail(that.getHash(), args);
-
-          that.setActiveRoute(null);
-
-          if (handled !== true) {
-            that.navigate(previousRoute || that.defaultRoute, { trigger: true });
-          }
-        });
-
-      };
-
-      return $.proxy(fn, this);
+      return this;
+    },
+    
+    routeDidChange: function(route) {
+      this.setCurrentRoute(route);
     },
 
     routeDidFail: function() {
@@ -491,17 +463,16 @@ define([
       this.render();
 
       // setup the controller mappings
-      var d = this.setupControllerMappings();
-
-      // setup the dynamic controller routes
-      this.setupRoutes();
+      var promise = this.setupControllerMappings();
 
       this.trigger('start');
 
-      return d;
+      return promise;
     },
 
     routing: function() {
+      // setup the dynamic controller routes
+      this.setupRoutes();
       if (!Backbone.history.start()) {
         this.navigate(this.getInitialRoute(), { trigger: true, replace: true });
       }
@@ -515,7 +486,10 @@ define([
       }
 
       return this;
-    }
+    },
+
+    // handleAppErrors: function(reason, promise) {
+    // }
 
   },
   {
@@ -525,9 +499,9 @@ define([
      * 
      * @type {Object}
      */
-    RouteErrors: {
-      CANCELLED: 'cancelled',
-      DENIED: 'denied'
+    Errors: {
+      NavigationCancelled: Backbone.View.extend.call(Error, {  }),
+      CannotRoute: Backbone.View.extend.call(Error, {  })
     },
 
     /**

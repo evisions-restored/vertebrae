@@ -1,9 +1,12 @@
 define([
   'underscore',
-  'vertebrae/model'
+  'vertebrae/model',
+  'bluebird'
 ], function(
-        _,
-        Model) {
+  _,
+  Model,
+  Promise
+) {
 
   // Define some variables that are typically reused in each test
   var SimpleModel,
@@ -179,19 +182,14 @@ define([
 
       // Setup ajax to respond as a success
       $.ajax = function(opts) {
-        setTimeout(function() {
-          if (ajaxValid) {
-            opts.success({
-              valid: ajaxValid,
-              data: ajaxData
-            })
-          } else {
-            opts.error({
-              valid: ajaxValid,
-              data: ajaxData
-            })  
-          }
-        },0);
+        return Promise
+            .delay(1)
+            .then(function() {
+              return {
+                valid: ajaxValid,
+                data: ajaxData
+              };
+            });
       };
 
       SimpleModel.request('/test/endpoint', params,{})
@@ -351,13 +349,14 @@ define([
         if (opts.type == 'GET') {
 
           expect(opts.url).to.equal('/api/test/api');
-          opts.success({ valid: true });
+          return Promise.resolve({ valid: true })
+          // opts.success({ valid: true });
         } else if (opts.type == 'POST') {
           expect(opts.url).to.equal('/api/test/10');
-          opts.success({ valid: true, data: { id: 10 } });
+          return Promise.resolve({ valid: true, data: { id: 10 } });
         } else if (opts.type == 'PUT') {
           expect(opts.url).to.equal('/api/resource/10');
-          opts.success({ data: { updated: true } })
+          return Promise.resolve({ data: { updated: true } })
         }
       };
 

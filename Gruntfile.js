@@ -53,7 +53,7 @@ module.exports = function(grunt) {
     build: {
       all: {
         dest: 'dist/vertebrae.js',
-        ignore: ['jquery', 'underscore', 'backbone']
+        ignore: ['jquery', 'underscore', 'backbone', 'bluebird']
       }
     },
 

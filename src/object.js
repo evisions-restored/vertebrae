@@ -4,11 +4,13 @@
 define([
   'backbone', 
   'underscore',
+  'bluebird',
   './stringutils',
   './utils'
 ], function(
   Backbone, 
   _,
+  Promise,
   StringUtils,
   Utils) {
 
@@ -199,7 +201,11 @@ define([
     },
 
     hasGetter: function(name) {
+      return _.isFunction(this['get' + StringUtils.camelCase(name)]);
+    },
 
+    hasSetter: function(name) {
+      return _.isFunction(this['set' + StringUtils.camelCase(name)]);
     },
 
     /**
@@ -279,10 +285,20 @@ define([
 
       _.defaults(options, {
         trigger: oldValue != v,
+        promise: false,
         silent: false
       });
 
       trigger = options.trigger && !options.silent;
+
+      if (options.promise === true && (v instanceof Promise)) {
+        return Promise
+            .resolve(v)
+            .bind(this)
+            .tap(function(resolvedValue) {
+              this.set(k, resolvedValue, options);
+            });
+      }
 
       if (isNamespacedKey) {
         BaseObject.setPropertyByNamespace(this,k,v);

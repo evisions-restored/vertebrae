@@ -82,31 +82,52 @@ define([
      * 
      * @return {Object}          
      */
-    sync: function(property, options) {
-      var fnController    = null,
-          that            = this,
-          view            = null,
-          hasListened     = false,
-          camelProperty   = StringUtils.camelCase(property),
-          previousValue   = void(0),
-          getter          = null,
-          updateOnAvaible = null,
-          updateView      = null,
-          getterFn        = null,
-          obj             = null,
-          fnView          = null,
-          filterFn        = function() { return true; };
+    sync: function(property, options, fn, context) {
+      var sections           = String(property).split('.'),
+          objPath           = sections.slice(0, -1).join('.'),
+          propertyName      = sections.slice(-1).join(''),
+          fnController      = null,
+          that              = this,
+          view              = null,
+          hasListened       = false,
+          camelProperty     = StringUtils.camelCaseFromNamespace(property),
+          camelPropertyName = StringUtils.camelCase(propertyName),
+          previousValue     = void(0),
+          getter            = null,
+          updateOnAvaible   = null,
+          updateView        = null,
+          getterFn          = null,
+          obj               = this,
+          fnView            = null,
+          filterFn          = function() { return true; };
+
+      if (objPath) {
+        obj = BaseObject.getPropertyByNamespace(this, objPath);
+      }
+
+      // when we go into this mode then it is just a callback when things change
+      if (_.isFunction(options)) {
+        context = fn;
+        fn = options;
+        options = {
+          trigger: true,
+          targetHandler: null,
+          viewHandler: null
+        };
+      }
 
       options = _.defaults(options || {}, {
         trigger       : false,
         triggerView   : true,
-        accessor      : 'get' + camelProperty,
-        target        : this,
-        targetHandler : property + 'DidChange',
+        accessor      : 'get' + camelPropertyName,
+        target        : obj,
+        targetHandler : propertyName + 'DidChange',
         viewHandler   : 'refresh' + camelProperty + 'PropertyOnView',
         // you can specific a filter to determine if you should trigger events or not
         filter        : null,
-        view          : this.getView()
+        view          : this.getView(),
+        fn            : fn,
+        context       : context
       });
 
       view         = options.view;
@@ -130,7 +151,7 @@ define([
           return obj[getterFn]();
         } else {
 
-          return obj.get(property);
+          return obj.get(propertyName);
         }
       };
 
@@ -161,11 +182,14 @@ define([
       };
 
       // listen to changes on the given object for the given property
-      this.listenTo(obj, 'change:' + property, function() {
+      this.listenTo(obj, 'change:' + propertyName, function() {
         var currentValue = getter();
         if (filterFn.call(this, property)) {
           if (this[fnController]) {
             this[fnController](currentValue, previousValue);
+          }
+          if (_.isFunction(options.fn)) {
+            options.fn.call(options.context || this, currentValue, previousValue);
           }
           previousValue = currentValue;
           updateView(previousValue);
@@ -177,8 +201,8 @@ define([
         updateView();
       }
 
-      if (options.trigger === true) {
-        this.trigger('change:' + property);
+      if (options.trigger === true && obj.trigger) {
+        obj.trigger('change:' + propertyName);
       }
 
       return this;
