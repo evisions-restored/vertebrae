@@ -302,6 +302,7 @@ define([
     render: function() {
       this.getView().render();
       this.getView().setRendered();
+      this.trigger('view:render');
     },
 
     /**
