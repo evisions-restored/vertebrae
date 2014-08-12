@@ -279,16 +279,20 @@ define([
      */
     initializeContentController: function(Controller) {
       var controller      = new Controller(this),
-          name            = controller.name || controller.contentName,
           el              = this.getContentElement(),
           originalClasses = this._originalClasses || (this._originalClasses = (el.attr('class') || ' '));
 
       el.empty().removeClass().addClass(originalClasses);
 
       // Adding a class to the container element based on the controller name.
-      if (_.isString(name)) {
-        name = name.replace(/[\s_]+/g, '-');
-        el.addClass(name);
+      if (_.isString(controller.name)) {
+        el.addClass(controller.name.replace(/[\s_]+/g, '-'));
+      }
+      if (_.isString(controller.contentName)) {
+        el.addClass(controller.contentName)
+      }
+      if (_.isString(controller.className)) {
+        el.addClass(controller.className);
       }
       // Adding an ID attribute to the container elements based on the controller ID.
       if (_.isString(controller.id)) {
