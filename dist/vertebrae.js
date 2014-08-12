@@ -3,7 +3,7 @@
  *
  * Released under the MIT license
  *
- * Date: 2014-08-12T21:07Z
+ * Date: 2014-08-12T21:14Z
  */
 
 (function(global, factory) {
@@ -1150,6 +1150,17 @@
 
       if (objPath) {
         obj = BaseObject.getPropertyByNamespace(this, objPath);
+      }
+
+      // when we go into this mode then it is just a callback when things change
+      if (_.isFunction(options)) {
+        context = fn;
+        fn = options;
+        options = {
+          trigger: true,
+          targetHandler: null,
+          viewHandler: null
+        };
       }
 
       options = _.defaults(options || {}, {
