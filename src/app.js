@@ -85,7 +85,8 @@ define([
      */
     initialize: function(el, options) {
       Utils.setupInstanceEvents(this);
-      
+      Utils.setupInstanceObserves(this);
+
       this.$el = $(el);
       this.el = this.$el.get(0);
       this.setOptions(options || {});
@@ -316,10 +317,6 @@ define([
       return true;
     },
 
-    canLoadContentController: function(Controller) {
-      return true;
-    },
-
     canSetupController: function(Controller) {
       return true;
     },
@@ -470,11 +467,11 @@ define([
       return promise;
     },
 
-    routing: function() {
+    routing: function(hash) {
       // setup the dynamic controller routes
       this.setupRoutes();
       if (!Backbone.history.start()) {
-        this.navigate(this.getInitialRoute(), { trigger: true, replace: true });
+        this.navigate(hash || this.getInitialRoute(), { trigger: true, replace: true });
       }
     },
 
@@ -522,6 +519,10 @@ define([
       inst.start();
 
       return inst;
+    },
+
+    start: function(el, options) {
+      return this.launch.apply(this, arguments);
     }
 
   });
@@ -549,6 +550,8 @@ define([
 
     // copy/merge the events object
     Utils.mergeClassProperty(proto, this.prototype, 'events');
+    Utils.mergeClassProperty(proto, this.prototype, 'observes');
+    Utils.mergeClassProperty(proto, this.prototype, 'routes');
 
     // Copy over any existing controller mappings onto the proto controllerMappings
     Utils.mergeClassProperty(proto, this.prototype, 'controllerMappings');
