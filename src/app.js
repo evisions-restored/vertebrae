@@ -277,7 +277,7 @@ define([
      * @return {Object}
      */
     initializeContentController: function(Controller) {
-      var controller      = new Controller(),
+      var controller      = new Controller(this),
           name            = controller.name || controller.contentName,
           el              = this.getContentElement(),
           originalClasses = this._originalClasses || (this._originalClasses = (el.attr('class') || ' '));
