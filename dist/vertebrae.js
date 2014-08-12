@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.24
+ * Vertebrae JavaScript Library v0.1.25
  *
  * Released under the MIT license
  *
- * Date: 2014-08-12T21:14Z
+ * Date: 2014-08-12T21:26Z
  */
 
 (function(global, factory) {
@@ -2884,7 +2884,7 @@
      * @return {Object}
      */
     initializeContentController: function(Controller) {
-      var controller      = new Controller(),
+      var controller      = new Controller(this),
           name            = controller.name || controller.contentName,
           el              = this.getContentElement(),
           originalClasses = this._originalClasses || (this._originalClasses = (el.attr('class') || ' '));
