@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.25
+ * Vertebrae JavaScript Library v0.1.26
  *
  * Released under the MIT license
  *
- * Date: 2014-08-12T21:26Z
+ * Date: 2014-08-12T23:34Z
  */
 
 (function(global, factory) {
@@ -2692,7 +2692,8 @@
      */
     initialize: function(el, options) {
       Utils.setupInstanceEvents(this);
-      
+      Utils.setupInstanceObserves(this);
+
       this.$el = $(el);
       this.el = this.$el.get(0);
       this.setOptions(options || {});
@@ -2923,10 +2924,6 @@
       return true;
     },
 
-    canLoadContentController: function(Controller) {
-      return true;
-    },
-
     canSetupController: function(Controller) {
       return true;
     },
@@ -3077,11 +3074,11 @@
       return promise;
     },
 
-    routing: function() {
+    routing: function(hash) {
       // setup the dynamic controller routes
       this.setupRoutes();
       if (!Backbone.history.start()) {
-        this.navigate(this.getInitialRoute(), { trigger: true, replace: true });
+        this.navigate(hash || this.getInitialRoute(), { trigger: true, replace: true });
       }
     },
 
@@ -3129,6 +3126,10 @@
       inst.start();
 
       return inst;
+    },
+
+    start: function(el, options) {
+      return this.launch.apply(this, arguments);
     }
 
   });
@@ -3156,6 +3157,8 @@
 
     // copy/merge the events object
     Utils.mergeClassProperty(proto, this.prototype, 'events');
+    Utils.mergeClassProperty(proto, this.prototype, 'observes');
+    Utils.mergeClassProperty(proto, this.prototype, 'routes');
 
     // Copy over any existing controller mappings onto the proto controllerMappings
     Utils.mergeClassProperty(proto, this.prototype, 'controllerMappings');
