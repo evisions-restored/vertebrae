@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.27
+ * Vertebrae JavaScript Library v0.1.28
  *
  * Released under the MIT license
  *
- * Date: 2014-08-12T23:57Z
+ * Date: 2014-08-13T00:22Z
  */
 
 (function(global, factory) {
@@ -399,6 +399,43 @@
 
     makeFunction: function(cb) {
       return _.isFunction(cb) ? cb : function() {};
+    },
+
+    createError: function(name, defaultMessage, InheritClass) {
+      function SubError(message) {
+        if (!(this instanceof SubError)) { return new SubError(message); }
+        if (InheritClass) {
+          InheritClass.apply(this, arguments);
+        }
+        this.message = typeof message === "string" ? message : defaultMessage;
+        this.name = name;
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, this.constructor);
+        } 
+      }
+
+      Utils.inherit(SubError, InheritClass || Error);
+      return SubError
+    },
+
+    inherit: function(child, parent) {
+      var __hasProp = {}.hasOwnProperty;
+
+      for (var key in parent) {
+        if (__hasProp.call(parent, key)) {
+          child[key] = parent[key];
+        }
+      }
+
+      function ctor() {
+        this.constructor = child;
+      }
+
+      ctor.prototype = parent.prototype;
+      child.prototype = new ctor();
+      child.__super__ = parent.prototype;
+
+      return child;
     }
 
   };
@@ -3108,8 +3145,8 @@
      * @type {Object}
      */
     Errors: {
-      NavigationCancelled: Backbone.View.extend.call(Error, {  }),
-      CannotRoute: Backbone.View.extend.call(Error, {  })
+      NavigationCancelled: Utils.createError('NavigationCancelled'),
+      CannotRoute: Utils.createError('CannotRoute')
     },
 
     /**
