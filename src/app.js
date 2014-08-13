@@ -501,8 +501,8 @@ define([
      * @type {Object}
      */
     Errors: {
-      NavigationCancelled: Backbone.View.extend.call(Error, {  }),
-      CannotRoute: Backbone.View.extend.call(Error, {  })
+      NavigationCancelled: Utils.createError('NavigationCancelled'),
+      CannotRoute: Utils.createError('CannotRoute')
     },
 
     /**
