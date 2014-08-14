@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.28
+ * Vertebrae JavaScript Library v0.1.29
  *
  * Released under the MIT license
  *
- * Date: 2014-08-13T00:22Z
+ * Date: 2014-08-14T00:33Z
  */
 
 (function(global, factory) {
@@ -1275,8 +1275,8 @@
           if (_.isFunction(options.fn)) {
             options.fn.call(options.context || this, currentValue, previousValue);
           }
-          previousValue = currentValue;
           updateView(previousValue);
+          previousValue = currentValue;
         }
       });
 
