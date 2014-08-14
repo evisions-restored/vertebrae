@@ -191,8 +191,8 @@ define([
           if (_.isFunction(options.fn)) {
             options.fn.call(options.context || this, currentValue, previousValue);
           }
-          previousValue = currentValue;
           updateView(previousValue);
+          previousValue = currentValue;
         }
       });
 
