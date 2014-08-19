@@ -87,6 +87,10 @@ define([
         replaceFunctions: false
       });
 
+      if (jsonObject instanceof BaseObject) {
+        jsonObject = jsonObject.getProperties();
+      }
+
       for (key in jsonObject) {
         if (key.indexOf('.') > -1) {
           setterFn = "set" + StringUtils.camelCaseFromNamespace(key);

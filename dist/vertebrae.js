@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.29
+ * Vertebrae JavaScript Library v0.1.30
  *
  * Released under the MIT license
  *
- * Date: 2014-08-14T00:33Z
+ * Date: 2014-08-19T21:05Z
  */
 
 (function(global, factory) {
@@ -516,6 +516,10 @@
       options = _.defaults(options || {}, {
         replaceFunctions: false
       });
+
+      if (jsonObject instanceof BaseObject) {
+        jsonObject = jsonObject.getProperties();
+      }
 
       for (key in jsonObject) {
         if (key.indexOf('.') > -1) {
