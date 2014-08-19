@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.30
+ * Vertebrae JavaScript Library v0.1.31
  *
  * Released under the MIT license
  *
- * Date: 2014-08-19T21:05Z
+ * Date: 2014-08-19T22:37Z
  */
 
 (function(global, factory) {
@@ -1292,6 +1292,8 @@
       if (options.trigger === true && obj.trigger) {
         obj.trigger('change:' + propertyName);
       }
+
+      previousValue = getter();
 
       return this;
     },
