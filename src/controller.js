@@ -205,6 +205,8 @@ define([
         obj.trigger('change:' + propertyName);
       }
 
+      previousValue = getter();
+
       return this;
     },
 
