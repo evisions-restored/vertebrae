@@ -28,7 +28,8 @@ define([
     Event      : BaseEvent,
     String     : StringUtils,
     Utils      : Utils,
-    Validator  : Validator
+    Validator  : Validator,
+    version    : '@VERSION'
   };
 
   return Vertebrae;
