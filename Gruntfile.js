@@ -125,5 +125,5 @@ module.exports = function(grunt) {
 
   grunt.registerTask('dist', ['build:*:*', 'uglify']);
 
-  grunt.registerTask('release', ['dist', 'test', 'bump']);
+  grunt.registerTask('release', ['test', 'bump-only', 'dist', 'bump-commit']);
 };
