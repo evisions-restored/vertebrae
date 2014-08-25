@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.34
+ * Vertebrae JavaScript Library v0.1.35
  *
  * Released under the MIT license
  *
- * Date: 2014-08-20T00:12Z
+ * Date: 2014-08-25T19:02Z
  */
 
 (function(global, factory) {
@@ -3070,10 +3070,15 @@
               if (!(error instanceof BaseApp.Errors.NavigationCancelled)) {
                 var handled = this.routeDidFail(this.getHash(), routeArgs);
 
-                this.clearCurrentRoute();
+                // Don't navigate back to the default route, if it fails
+                if (this.getCurrentRoute() == this.defaultRoute) {
+                  this.clearCurrentRoute();
+                } else {
+                  this.clearCurrentRoute();
 
-                if (handled !== true) {
-                  this.navigate(previousRoute, { trigger: true });
+                  if (handled !== true) {
+                    this.navigate(previousRoute, { trigger: true });
+                  }
                 }
 
                 throw error;
@@ -3224,7 +3229,7 @@
     String     : StringUtils,
     Utils      : Utils,
     Validator  : Validator,
-    version    : '0.1.34'
+    version    : '0.1.35'
   };
 
 
