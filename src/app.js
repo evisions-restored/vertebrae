@@ -420,10 +420,15 @@ define([
               if (!(error instanceof BaseApp.Errors.NavigationCancelled)) {
                 var handled = this.routeDidFail(this.getHash(), routeArgs);
 
-                this.clearCurrentRoute();
+                // Don't navigate back to the default route, if it fails
+                if (this.getCurrentRoute() == this.defaultRoute) {
+                  this.clearCurrentRoute();
+                } else {
+                  this.clearCurrentRoute();
 
-                if (handled !== true) {
-                  this.navigate(previousRoute, { trigger: true });
+                  if (handled !== true) {
+                    this.navigate(previousRoute, { trigger: true });
+                  }
                 }
 
                 throw error;
