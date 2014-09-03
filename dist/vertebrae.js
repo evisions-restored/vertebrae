@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.36
+ * Vertebrae JavaScript Library v0.1.37
  *
  * Released under the MIT license
  *
- * Date: 2014-09-03T14:58Z
+ * Date: 2014-09-03T14:59Z
  */
 
 (function(global, factory) {
@@ -3234,7 +3234,7 @@
     String     : StringUtils,
     Utils      : Utils,
     Validator  : Validator,
-    version    : '0.1.36'
+    version    : '0.1.37'
   };
 
 
