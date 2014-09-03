@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.34
+ * Vertebrae JavaScript Library v0.1.35
  *
  * Released under the MIT license
  *
- * Date: 2014-08-20T00:12Z
+ * Date: 2014-09-03T14:57Z
  */
 
 (function(global, factory) {
@@ -713,6 +713,7 @@
       var isNamespacedKey = k.indexOf('.') > -1,
           oldValue        = isNamespacedKey ? BaseObject.getPropertyByNamespace(this,k) : this[k],
           trigger         = false,
+          promise         = null,
           that            = this;
 
       options = options || {};
@@ -726,10 +727,14 @@
       trigger = options.trigger && !options.silent;
 
       if (options.promise === true && (v instanceof Promise)) {
-        return Promise
+        // we don't want to trigger for the promise
+        trigger = false;
+
+        promise = Promise
             .resolve(v)
             .bind(this)
             .tap(function(resolvedValue) {
+              // as soon as we get the real value then set it
               this.set(k, resolvedValue, options);
             });
       }
@@ -751,8 +756,8 @@
           that.trigger('change');
         }, 0);
       }
-      
-      return this;
+      // return either the promise or this
+      return promise || this;
     }
 
   };
@@ -3224,7 +3229,7 @@
     String     : StringUtils,
     Utils      : Utils,
     Validator  : Validator,
-    version    : '0.1.34'
+    version    : '0.1.35'
   };
 
 

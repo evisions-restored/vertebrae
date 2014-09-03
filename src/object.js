@@ -283,6 +283,7 @@ define([
       var isNamespacedKey = k.indexOf('.') > -1,
           oldValue        = isNamespacedKey ? BaseObject.getPropertyByNamespace(this,k) : this[k],
           trigger         = false,
+          promise         = null,
           that            = this;
 
       options = options || {};
@@ -296,10 +297,14 @@ define([
       trigger = options.trigger && !options.silent;
 
       if (options.promise === true && (v instanceof Promise)) {
-        return Promise
+        // we don't want to trigger for the promise
+        trigger = false;
+
+        promise = Promise
             .resolve(v)
             .bind(this)
             .tap(function(resolvedValue) {
+              // as soon as we get the real value then set it
               this.set(k, resolvedValue, options);
             });
       }
@@ -321,8 +326,8 @@ define([
           that.trigger('change');
         }, 0);
       }
-      
-      return this;
+      // return either the promise or this
+      return promise || this;
     }
 
   };
