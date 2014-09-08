@@ -326,8 +326,9 @@ define([
     },
 
     render: function() {
-      this.getView().render();
-      this.getView().setRendered();
+      var view = this.getView();
+      view.render.apply(view, arguments);
+      view.setRendered();
       this.trigger('view:render');
     },
 
