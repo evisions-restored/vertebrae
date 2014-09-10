@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.38
+ * Vertebrae JavaScript Library v0.1.39
  *
  * Released under the MIT license
  *
- * Date: 2014-09-08T18:51Z
+ * Date: 2014-09-10T21:00Z
  */
 
 (function(global, factory) {
@@ -548,6 +548,7 @@
      * @instance
      */
     destroy: function() {
+      this.trigger('destroy');
       this.destroyed = true;
       // clear all events
       this.stopListening();
@@ -746,14 +747,14 @@
       }
 
       if (trigger) {
-        this.trigger('change:' + k, this);
+        this.trigger('change:' + k, this, v, oldValue);
         // Clear the change timeout if we are setting something else.
         clearTimeout(this._changeTimeout);
 
         // There may be multiple changes in a single event loop.
         // Defer the change trigger so that all changes are pushed as one.
         this._changeTimeout = setTimeout(function() {
-          that.trigger('change');
+          that.trigger('change', this, k, v, oldValue);
         }, 0);
       }
       // return either the promise or this
@@ -1342,8 +1343,6 @@
       if (this._unloaded !== true) {
         this.unload();
       }
-
-      this.trigger('destroy');
       this.destroyView();
       this._super.apply(this, arguments);
     },
@@ -3235,7 +3234,7 @@
     String     : StringUtils,
     Utils      : Utils,
     Validator  : Validator,
-    version    : '0.1.38'
+    version    : '0.1.39'
   };
 
 
