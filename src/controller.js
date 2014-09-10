@@ -249,8 +249,6 @@ define([
       if (this._unloaded !== true) {
         this.unload();
       }
-
-      this.trigger('destroy');
       this.destroyView();
       this._super.apply(this, arguments);
     },

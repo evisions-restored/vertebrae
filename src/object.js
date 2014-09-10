@@ -118,6 +118,7 @@ define([
      * @instance
      */
     destroy: function() {
+      this.trigger('destroy');
       this.destroyed = true;
       // clear all events
       this.stopListening();
@@ -316,14 +317,14 @@ define([
       }
 
       if (trigger) {
-        this.trigger('change:' + k, this);
+        this.trigger('change:' + k, this, v, oldValue);
         // Clear the change timeout if we are setting something else.
         clearTimeout(this._changeTimeout);
 
         // There may be multiple changes in a single event loop.
         // Defer the change trigger so that all changes are pushed as one.
         this._changeTimeout = setTimeout(function() {
-          that.trigger('change');
+          that.trigger('change', this, k, v, oldValue);
         }, 0);
       }
       // return either the promise or this
