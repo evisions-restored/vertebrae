@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.39
+ * Vertebrae JavaScript Library v0.1.40
  *
  * Released under the MIT license
  *
- * Date: 2014-09-10T21:00Z
+ * Date: 2015-01-13T23:54Z
  */
 
 (function(global, factory) {
@@ -1550,17 +1550,17 @@
      */
     initialize: function() {
       // Binding the view object(this) to the functions defined inside the view.
-      // This is getting after the prototype functionality.
-      BaseEvent.bindAll(this);
 
       // Creating a temporary variable to hold the original initialization function.
       var oldInit = this.initialize;
 
       // Temporarily setting the initialize function to null.
-      this.initialize = null;
+      this.initialize = function() {};
 
       // Calling the constructor of the BaseObject to handle proper inheritence.
       BaseObject.call(this);
+      Backbone.View.call(this);
+      Backbone.View.prototype.initialize.apply(this, arguments);
 
       // Setting the object's initialize function back to the original initialize function.
       this.initialize = oldInit;
@@ -1629,29 +1629,6 @@
       } else {
         this.setAvailable(false);
       }
-    },
-
-    /**
-     * Setting a deferred for when the view is available.
-     *
-     * @function
-     *
-     * @instance
-     * 
-     * @return {Deferred}
-     */
-    whenAvailable: function() {
-      var d = $.Deferred();
-
-      if (this.getAvailable()) {
-        d.resolve(this);
-      } else {
-        this.listenToOnce(this, 'change:available', function() {
-          d.resolve(this);
-        });
-      }
-
-      return d.promise();
     },
 
     /**
@@ -3234,7 +3211,7 @@
     String     : StringUtils,
     Utils      : Utils,
     Validator  : Validator,
-    version    : '0.1.39'
+    version    : '0.1.40'
   };
 
 

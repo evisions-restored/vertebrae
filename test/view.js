@@ -91,32 +91,6 @@ define([
       assert.isTrue(myView.isAvailable(), 'Rendered is back to true, so it should be available.');
     });
 
-    it('prototype.whenAvailable', function() {
-      // should be available immedietly
-      var flag = false;
-      myView.whenAvailable()
-        .done(function() {
-          flag = true;
-        });
-
-      assert.isTrue(flag, 'whenAvailable should immedietly resolve');
-
-      // Should make it unavailable
-      myView.setHidden(true);
-      assert.isFalse(myView.isAvailable());
-      flag = false;
-
-      myView.whenAvailable()
-        .done(function() {
-          flag = true;
-        });
-      assert.isFalse(flag, 'Flag should not have been set yet since the view isnt available');
-
-      // should make it available again
-      myView.setHidden(false);
-
-      assert.isTrue(flag, 'available should have updated, resolving the deferred and setting the flag to true, but didnt');
-    });
 
     it('prototype.isAvailable', function() {
       assert.isTrue(myView.isAvailable());

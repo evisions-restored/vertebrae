@@ -59,7 +59,7 @@ define([
       var oldInit = this.initialize;
 
       // Temporarily setting the initialize function to null.
-      this.initialize = null;
+      this.initialize = function() {};
 
       // Calling the constructor of the BaseObject to handle proper inheritence.
       BaseObject.call(this);
