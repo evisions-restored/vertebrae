@@ -1,9 +1,9 @@
 /*!
- * Vertebrae JavaScript Library v0.1.41
+ * Vertebrae JavaScript Library v0.1.42
  *
  * Released under the MIT license
  *
- * Date: 2015-01-27T17:09Z
+ * Date: 2015-01-27T17:18Z
  */
 
 (function(global, factory) {
@@ -2792,6 +2792,17 @@
      * @return {String}
      */
     navigate: function(url, options) {
+      options = _.extend({}, options);
+
+      // if no trigger then we need to add to history
+      if (!options.trigger) {
+        var controller = this.getContentController();
+        this.history.push({
+          name: controller.name,
+          route: url
+        });
+      }
+      
       this.getRouter().navigate.apply(this, arguments);
 
       return url;
@@ -3239,7 +3250,7 @@
     String     : StringUtils,
     Utils      : Utils,
     Validator  : Validator,
-    version    : '0.1.41'
+    version    : '0.1.42'
   };
 
 
