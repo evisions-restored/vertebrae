@@ -160,15 +160,20 @@ define([
      * @return {String}
      */
     navigate: function(url, options) {
+      var controller = this.getContentController();
+
       options = _.extend({}, options);
 
       // if no trigger then we need to add to history
       if (!options.trigger) {
-        var controller = this.getContentController();
-        this.history.push({
-          name: controller.name,
-          route: url
-        });
+        if (options.replace && _.last(this.history)) {
+          _.last(this.history).route = url;
+        } else {
+          this.history.push({
+            name: controller.name,
+            route: url
+          });
+        }
       }
       
       this.getRouter().navigate.apply(this, arguments);
