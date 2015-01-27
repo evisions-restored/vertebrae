@@ -91,6 +91,8 @@ define([
       this.el = this.$el.get(0);
       this.setOptions(options || {});
 
+      this.history = [];
+
       this.initializeControllerMappings();
       
       if (_.isFunction(this.handleAppErrors)) {
@@ -161,6 +163,26 @@ define([
       this.getRouter().navigate.apply(this, arguments);
 
       return url;
+    },
+
+    navigateBack: function(options) {
+      // get the current page out of the queue
+      this.history.pop();
+
+      // grab the last page
+      var page = this.history.pop();
+
+      if (page) {
+        this.getRouter().navigate(page.route, _.extend({ trigger: true }, options));
+
+        return page.route;
+      }
+
+      return null;
+    },
+
+    lastPage: function() {
+      return _.clone(this.history[this.history.length-2]);
     },
 
     /**
@@ -400,7 +422,13 @@ define([
               }
 
               controller = this.initializeContentController(controllerConstructor);
-              this.trigger('content-controller-init', controller);
+              this.trigger('init:content-controller', controller);
+
+              this.history.push({
+                route: this.getHash(),
+                name: controller.name
+              });
+
               return _.isFunction(controller.start) && controller.start.apply(controller, routeArgs);
             })
             .then(function() {
@@ -410,7 +438,7 @@ define([
                 controller.set('started', true);
               }
               controller.trigger('data:ready');
-              this.trigger('start:contentController', controller);
+              this.trigger('start:content-controller', controller);
               this.getContentElement().addClass('in');
             })
             .lastly(function() {

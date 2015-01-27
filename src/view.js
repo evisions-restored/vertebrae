@@ -363,7 +363,7 @@ define([
      */
     setDelegate: function(delegate) {
       this.delegate = delegate;
-      
+      this.trigger('change:delegate', delegate);
       return this;
     },
 
